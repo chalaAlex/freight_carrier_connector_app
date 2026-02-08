@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:clean_architecture/cofig/size_manager.dart';
+import '../../domain/entities/truck.dart';
+import 'truck_image_section.dart';
+import 'truck_info_section.dart';
+
+/// A card widget that displays comprehensive truck information.
+///
+/// Combines [TruckImageSection] and [TruckInfoSection] to show a complete
+/// truck listing with image, availability badge, details, and action buttons.
+/// Provides tap feedback through InkWell.
+class TruckCard extends StatelessWidget {
+  final Truck truck;
+  final VoidCallback? onTap;
+
+  const TruckCard({
+    super.key,
+    required this.truck,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: SizeManager.cardElevation,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SizeManager.cardRadius),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(SizeManager.cardRadius),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TruckImageSection(
+              imageUrl: truck.imageUrl,
+              isAvailable: truck.isAvailable,
+            ),
+            TruckInfoSection(
+              truck: truck,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

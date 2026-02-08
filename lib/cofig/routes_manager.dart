@@ -1,5 +1,6 @@
 import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
 import 'package:clean_architecture/feature/freight/presentation/freight_home_page.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/co_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/fo_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/login_screen.dart';
@@ -12,6 +13,7 @@ class Routes {
   static const String loginScreenRoute = "/login";
   static const String foHomePageRoute = "/foHomePage";
   static const String coHomePageRoute = "/coHomePage";
+  static const String truckListingRoute = "/truckListing";
 }
 
 class RouteGenerator {
@@ -38,6 +40,11 @@ class RouteGenerator {
       case Routes.coHomePageRoute:
         return MaterialPageRoute(
           builder: (_) => const CarrierHomePage(),
+        );
+
+      case Routes.truckListingRoute:
+        return MaterialPageRoute(
+          builder: (_) => const TruckListingScreen(),
         );
 
       default:

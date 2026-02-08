@@ -6,6 +6,7 @@ import 'package:clean_architecture/core/theme/theme_cubit.dart';
 import 'package:clean_architecture/core/theme/theme_state.dart';
 import 'package:clean_architecture/core/di.dart';
 import 'package:clean_architecture/feature/common/role_selection.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => sl<SignUpBloc>()),
         BlocProvider(create: (_) => sl<LoginBloc>()),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
+        BlocProvider(create: (_) => sl<TruckBloc>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

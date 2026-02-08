@@ -18,4 +18,14 @@ class SizeManager {
 
   // Icon / Checkbox
   static const double checkboxSize = 24.0;
+
+  // Truck Listing Screen
+  static const double cardElevation = 2.0;
+  static const double cardRadius = 12.0;
+  static const double imageHeight = 180.0;
+  static const double badgePadding = 8.0;
+  static const double badgeRadius = 16.0;
+  static const double iconSize = 20.0;
+  static const double buttonHeight = 40.0;
+  static const double paginationLoaderHeight = 60.0;
 }
