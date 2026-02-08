@@ -1,0 +1,27 @@
+import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
+import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+part 'api_client.g.dart';
+
+@RestApi()
+abstract class ApiClient {
+  factory ApiClient(Dio dio, {String baseUrl}) = _ApiClient;
+
+  @POST("/users/signup")
+  Future<SignUpModel> signUp(
+    @Field("firstName") String firstName,
+    @Field("lastName") String lastName,
+    @Field("email") String email,
+    @Field("phone") String phone,
+    @Field("password") String password,
+    @Field("passwordConfirm") String passwordConfirm,
+    @Field("role") String role,
+  );
+
+  @POST("/users/login")
+  Future<LoginBaseResponse> login(
+    @Field("email") String email,
+    @Field("password") String password,
+  );
+}
