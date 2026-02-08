@@ -1,14 +1,13 @@
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
+import 'package:clean_architecture/feature/common/carrier_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/common/password_text_field.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/input_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/routes_manager.dart';
-import 'package:clean_architecture/feature/freight/presentation/freight_home_page.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_event.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_state.dart';
@@ -240,7 +239,7 @@ class _FoSignupScreenState extends State<FoSignupScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const FreightHomePage(),
+                          builder: (context) => const CarrierBottomNavigationBar(),
                         ),
                       );
                     }

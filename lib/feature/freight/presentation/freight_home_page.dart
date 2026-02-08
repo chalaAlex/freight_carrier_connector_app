@@ -1,3 +1,4 @@
+import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class FreightHomePage extends StatefulWidget {
@@ -10,9 +11,14 @@ class FreightHomePage extends StatefulWidget {
 class _FreightHomePageState extends State<FreightHomePage> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    final text = Theme.of(context).textTheme;
+
     return Scaffold(
-      body: Center(
-        child: Text("Freight Page"),
+      backgroundColor: colors.background,
+      body: Column(children: [
+        
+        ],
       ),
     );
   }

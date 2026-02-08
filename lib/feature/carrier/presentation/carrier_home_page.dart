@@ -11,9 +11,7 @@ class _CarrierHomePageState extends State<CarrierHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("Carrier Home Page"),
-      ),
+      body: Column(children: [Center(child: Text('List of freights'))]),
     );
   }
 }
