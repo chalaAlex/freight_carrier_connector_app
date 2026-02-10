@@ -132,7 +132,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds an individual filter chip
   Widget _buildFilterChip(String label) {
     final isSelected = _selectedFilter == label;
     return FilterChip(
@@ -145,6 +144,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
         // TODO: Implement filtering logic
       },
       backgroundColor: AppColors.white,
+      // ignore: deprecated_member_use
       selectedColor: AppColors.primary.withOpacity(0.2),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
@@ -160,16 +160,12 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds the main content area with state-based rendering
   Widget _buildContent() {
     return BlocBuilder<TruckBloc, TruckState>(
       builder: (context, state) {
-        // Handle initial and loading states
         if (state is TruckInitial || state is TruckLoading) {
           return const ShimmerLoader();
         }
-
-        // Handle error state
         if (state is TruckError) {
           return ErrorRetryWidget(
             message: state.message,
@@ -178,8 +174,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
             },
           );
         }
-
-        // Handle success states (including pagination states)
         if (state is TruckSuccess) {
           final trucks = state.trucks.data ?? [];
 
@@ -245,6 +239,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
   Widget _buildPaginationError(String message) {
     return Container(
       padding: const EdgeInsets.all(SizeManager.s16),
+      // ignore: deprecated_member_use
       color: AppColors.error.withOpacity(0.1),
       child: Row(
         children: [

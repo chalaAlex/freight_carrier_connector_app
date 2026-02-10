@@ -34,15 +34,6 @@ UserDto _$UserDtoFromJson(Map<String, dynamic> json) => UserDto(
   createdAt: json['createdAt'] as String?,
 );
 
-Map<String, dynamic> _$UserDtoToJson(UserDto instance) => <String, dynamic>{
-  '_id': instance.id,
-  'firstName': instance.firstName,
-  'lastName': instance.lastName,
-  'email': instance.email,
-  'phone': instance.phone,
-  'role': instance.role,
-  'createdAt': instance.createdAt,
-};
 
 LoginDataModel _$LoginDataModelFromJson(Map<String, dynamic> json) =>
     LoginDataModel(
@@ -51,5 +42,3 @@ LoginDataModel _$LoginDataModelFromJson(Map<String, dynamic> json) =>
           : UserDto.fromJson(json['user'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$LoginDataModelToJson(LoginDataModel instance) =>
-    <String, dynamic>{'user': instance.user};

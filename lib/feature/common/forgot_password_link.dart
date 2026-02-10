@@ -4,7 +4,7 @@ import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordLink extends StatelessWidget {
-  const ForgotPasswordLink();
+  const ForgotPasswordLink({super.key});
 
   @override
   Widget build(BuildContext context) {

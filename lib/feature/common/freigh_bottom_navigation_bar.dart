@@ -1,5 +1,3 @@
-import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
-import 'package:clean_architecture/feature/freight/presentation/freight_home_page.dart';
 import 'package:flutter/material.dart';
 
 class FreighBottomNavigationBar extends StatefulWidget {
@@ -12,9 +10,6 @@ class FreighBottomNavigationBar extends StatefulWidget {
 
 class _FreighBottomNavigationBar extends State<FreighBottomNavigationBar> {
   int _currentIndex = 0;
-
-  // final List<Widget> _screens = const [FreightHomePage(), CarrierHomePage()];
-
   void _onItemTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -24,7 +19,6 @@ class _FreighBottomNavigationBar extends State<FreighBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onItemTapped,

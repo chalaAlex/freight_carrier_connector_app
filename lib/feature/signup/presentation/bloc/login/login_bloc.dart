@@ -1,3 +1,4 @@
+// ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/signup/domain/usecases/login_usecase.dart';
@@ -28,12 +29,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           errorMessage: failure.message,
         ),
       ),
-      (user) => emit(
-        state.copyWith(
-          status: LoginStatus.success,
-          user: user,
-        ),
-      ),
+      (user) => emit(state.copyWith(status: LoginStatus.success, user: user)),
     );
   }
 }

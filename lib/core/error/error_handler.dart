@@ -2,31 +2,29 @@ import 'package:clean_architecture/core/error/failure.dart';
 import 'package:dio/dio.dart';
 
 enum DataSource {
-  SUCCESS,
-  BAD_REQUEST,
-  NO_CONTENT,
-  FORBIDDEN,
-  UNAUTHORIZED,
-  NOTFOUND,
-  INTERNAL_SERVER_ERROR,
-  CONNECT_TIMEOUT,
-  CANCEL,
-  SEND_TIMEOUT,
-  CACHE_ERROR,
-  NO_INTERNET_CONNECTION,
-  DEFAULT,
-  RECEIVE_TIMEOUT,
+  success,
+  badRequest,
+  noContent,
+  forbidden,
+  unauthorized,
+  notFound,
+  internalServerError,
+  connectTimeOut,
+  cancel,
+  sendTimeOut,
+  cacheError,
+  noInternetConnection,
+  defaultErr,
+  recieveTimeOut,
 }
 
 class ErrorHandler implements Exception {
   ErrorHandler.handle(dynamic error) {
     (error);
     if (error is DioException) {
-      // Dio error so it's an error from the response of the API
-
       failure = _handleError(error);
     } else {
-      failure = DataSource.DEFAULT.getFailure();
+      failure = DataSource.defaultErr.getFailure();
     }
   }
 
@@ -36,138 +34,114 @@ class ErrorHandler implements Exception {
     (error);
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
-        return DataSource.CONNECT_TIMEOUT.getFailure();
+        return DataSource.connectTimeOut.getFailure();
       case DioExceptionType.sendTimeout:
-        return DataSource.SEND_TIMEOUT.getFailure();
+        return DataSource.sendTimeOut.getFailure();
       case DioExceptionType.receiveTimeout:
-        return DataSource.RECEIVE_TIMEOUT.getFailure();
+        return DataSource.recieveTimeOut.getFailure();
       case DioExceptionType.cancel:
-        return DataSource.CANCEL.getFailure();
+        return DataSource.cancel.getFailure();
       case DioExceptionType.badResponse:
         switch (error.response?.statusCode) {
-          case ResponseCode.BAD_REQUEST:
-            return DataSource.BAD_REQUEST.getFailure();
-          case ResponseCode.UNAUTHORIZED:
-            return DataSource.UNAUTHORIZED.getFailure();
-          case ResponseCode.NOTFOUND:
-            return DataSource.NOTFOUND.getFailure();
-          case ResponseCode.FORBIDDEN:
-            return DataSource.FORBIDDEN.getFailure();
-          case ResponseCode.INTERNAL_SERVER_ERROR:
-            return DataSource.INTERNAL_SERVER_ERROR.getFailure();
+          case ResponseCode.badRequest:
+            return DataSource.badRequest.getFailure();
+          case ResponseCode.unauthorized:
+            return DataSource.unauthorized.getFailure();
+          case ResponseCode.notFound:
+            return DataSource.notFound.getFailure();
+          case ResponseCode.forbidden:
+            return DataSource.forbidden.getFailure();
+          case ResponseCode.internalServerError:
+            return DataSource.internalServerError.getFailure();
           default:
-            return DataSource.DEFAULT.getFailure();
+            return DataSource.defaultErr.getFailure();
         }
-
       default:
-        // Handle unknown error types
-        return DataSource.DEFAULT.getFailure();
+        return DataSource.defaultErr.getFailure();
     }
   }
 }
 
 class ResponseCode {
-  static const int BAD_REQUEST =
-      400; // The server could not understand the request due to invalid syntax
-
-  static const int CACHE_ERROR = -6; // Error while retrieving data from cache
-  static const int CANCEL = -3; // Request canceled by the client
-  static const int CONNECT_TIMEOUT = -2; // Request timeout due to client delay
-  // local status code
-  static const int DEFAULT = -1;
-
-  static const int FORBIDDEN =
-      403; // The client does not have permission to access the requested resource
-
-  static const int INTERNAL_SERVER_ERROR =
-      500; // A generic error message indicating that the server encountered an unexpected condition
-
-  static const int NOTFOUND = 404;
-  static const int NO_CONTENT =
-      204; // The server successfully processed the request, but there is no content to return
-  static const int NO_INTERNET_CONNECTION =
-      -7; // No internet connection available
-
-  static const int RECEIVE_TIMEOUT = -4; // Response timeout due to server delay
-  static const int SEND_TIMEOUT = -5; // Response timeout due to server delay
-  // api status codes
-  static const int SUCCESS = 200; // The request has succeeded
-
-  static const int UNAUTHORIZED =
-      401; // The request requires user authentication
+  static const int badRequest = 400;
+  static const int cacheError = -6;
+  static const int cancel = -3;
+  static const int connectTimeOut = -2;
+  static const int defaultErr = -1;
+  static const int forbidden = 403;
+  static const int internalServerError = 500;
+  static const int notFound = 404;
+  static const int noContent = 204;
+  static const int noInternetConnection = -7;
+  static const int recieveTimeOut = -4;
+  static const int sendTimeOut = -5;
+  static const int success = 200;
+  static const int unauthorized = 401;
 }
 
 extension DataSourceExtension on DataSource {
   Failure getFailure() {
     switch (this) {
-      case DataSource.BAD_REQUEST:
-        return Failure(ResponseCode.BAD_REQUEST, ResponseMessage.BAD_REQUEST);
-      case DataSource.FORBIDDEN:
-        return Failure(ResponseCode.FORBIDDEN, ResponseMessage.FORBIDDEN);
-      case DataSource.UNAUTHORIZED:
-        return Failure(ResponseCode.UNAUTHORIZED, ResponseMessage.UNAUTHORIZED);
-      case DataSource.INTERNAL_SERVER_ERROR:
+      case DataSource.badRequest:
+        return Failure(ResponseCode.badRequest, ResponseMessage.badRequest);
+      case DataSource.forbidden:
+        return Failure(ResponseCode.forbidden, ResponseMessage.forbidden);
+      case DataSource.unauthorized:
+        return Failure(ResponseCode.unauthorized, ResponseMessage.unauthorized);
+      case DataSource.internalServerError:
         return Failure(
-          ResponseCode.INTERNAL_SERVER_ERROR,
-          ResponseMessage.INTERNAL_SERVER_ERROR,
+          ResponseCode.internalServerError,
+          ResponseMessage.internalServerError,
         );
-      case DataSource.NOTFOUND:
-        return Failure(ResponseCode.NOTFOUND, ResponseMessage.NOTFOUND);
-      case DataSource.DEFAULT:
-        return Failure(ResponseCode.DEFAULT, ResponseMessage.DEFAULT);
-      case DataSource.CONNECT_TIMEOUT:
+      case DataSource.notFound:
+        return Failure(ResponseCode.notFound, ResponseMessage.notFound);
+      case DataSource.defaultErr:
+        return Failure(ResponseCode.defaultErr, ResponseMessage.defaultErr);
+      case DataSource.connectTimeOut:
         return Failure(
-          ResponseCode.CONNECT_TIMEOUT,
-          ResponseMessage.CONNECT_TIMEOUT,
+          ResponseCode.connectTimeOut,
+          ResponseMessage.connectTimeOut,
         );
-      case DataSource.CANCEL:
-        return Failure(ResponseCode.CANCEL, ResponseMessage.CANCEL);
-      case DataSource.RECEIVE_TIMEOUT:
+      case DataSource.cancel:
+        return Failure(ResponseCode.cancel, ResponseMessage.cancel);
+      case DataSource.recieveTimeOut:
         return Failure(
-          ResponseCode.RECEIVE_TIMEOUT,
-          ResponseMessage.RECEIVE_TIMEOUT,
+          ResponseCode.recieveTimeOut,
+          ResponseMessage.recieveTimeOut,
         );
-      case DataSource.SEND_TIMEOUT:
-        return Failure(ResponseCode.SEND_TIMEOUT, ResponseMessage.SEND_TIMEOUT);
-      case DataSource.CACHE_ERROR:
-        return Failure(ResponseCode.CACHE_ERROR, ResponseMessage.CACHE_ERROR);
-      case DataSource.NO_INTERNET_CONNECTION:
+      case DataSource.sendTimeOut:
+        return Failure(ResponseCode.sendTimeOut, ResponseMessage.sendTimeOut);
+      case DataSource.cacheError:
+        return Failure(ResponseCode.cacheError, ResponseMessage.cacheError);
+      case DataSource.noInternetConnection:
         return Failure(
-          ResponseCode.NO_INTERNET_CONNECTION,
-          ResponseMessage.NO_INTERNET_CONNECTION,
+          ResponseCode.noInternetConnection,
+          ResponseMessage.noInternetConnection,
         );
       default:
-        return Failure(ResponseCode.DEFAULT, ResponseMessage.DEFAULT);
+        return Failure(ResponseCode.defaultErr, ResponseMessage.defaultErr);
     }
   }
 }
 
 class ResponseMessage {
-  static const String BAD_REQUEST = 'bad request, try again later';
-  static const String CACHE_ERROR = 'cache error, try again';
-  static const String CANCEL = 'request cancelled';
-  static const String CONNECT_TIMEOUT = ' timeout , try again later';
-  // Local status messages
-  static const String DEFAULT = 'some thing wrong, try again later';
-
-  static const String FORBIDDEN = 'forbidden, try again later';
-  static const String INTERNAL_SERVER_ERROR = 'Internal Server Error';
-
-  static const String NOTFOUND = 'requested item not found';
-
-  static const String NO_CONTENT = 'no content';
-  static const String NO_INTERNET_CONNECTION =
-      'Please check your Internet Connection';
-
-  static const String RECEIVE_TIMEOUT = ' timeout , try again later';
-  static const String SEND_TIMEOUT = ' timeout , try again later';
-  // API status messages
-  static const String SUCCESS = 'success';
-
-  static const String UNAUTHORIZED = 'unauthorized';
+  static const String badRequest = 'bad request, try again later';
+  static const String cacheError = 'cache error, try again';
+  static const String cancel = 'request cancelled';
+  static const String connectTimeOut = ' timeout , try again later';
+  static const String defaultErr = 'some thing wrong, try again later';
+  static const String forbidden = 'forbidden, try again later';
+  static const String internalServerError = 'Internal Server Error';
+  static const String notFound = 'requested item not found';
+  static const String noContent = 'no content';
+  static const String noInternetConnection = 'Please check your Internet Connection';
+  static const String recieveTimeOut = ' timeout , try again later';
+  static const String sendTimeOut = ' timeout , try again later';
+  static const String success = 'success';
+  static const String unauthorized = 'unauthorized';
 }
 
 class ApiInternalStatus {
-  static const bool FAILURE = false;
-  static const bool SUCCESS = true;
+  static const bool failure = false;
+  static const bool success = true;
 }

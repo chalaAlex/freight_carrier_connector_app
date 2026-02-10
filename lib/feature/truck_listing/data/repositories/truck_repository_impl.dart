@@ -15,7 +15,6 @@ class TruckRepositoryImpl implements TruckRepository {
   Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(int page) async {
     try {
       final response = await remoteDataSource.getTrucks(page);
-      print({response.statusCode});
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Right(TruckResponseMapper().mapToEntity(response));
       } else {

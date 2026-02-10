@@ -10,14 +10,6 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource {
 
   @override
   Future<LoginBaseResponse> login(LoginRequest loginRequest) async {
-    final resp = await client.login(loginRequest.email, loginRequest.password);
-    // Debug: print raw JSON to help diagnose null fields in mapped entity
-    try {
-      // LoginBaseResponse has toJson via generated code
-      print('DEBUG: Raw login response json: ${resp.toJson()}');
-    } catch (e) {
-      print('DEBUG: Could not toJson login response: $e');
-    }
-    return resp;
+    return await client.login(loginRequest.email, loginRequest.password);
   }
 }

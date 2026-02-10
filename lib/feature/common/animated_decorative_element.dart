@@ -11,6 +11,7 @@ class AnimatedDecorativeElement extends StatelessWidget {
   final int delayMs;
 
   const AnimatedDecorativeElement({
+    super.key,
     this.left,
     this.right,
     required this.top,

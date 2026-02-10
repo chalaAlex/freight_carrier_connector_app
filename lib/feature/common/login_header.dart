@@ -1,11 +1,11 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/core/assets/app_assets.dart';
-import 'package:clean_architecture/feature/common/animated_decorative-element.dart';
+import 'package:clean_architecture/feature/common/animated_decorative_element.dart';
 import 'package:flutter/material.dart';
 
 class LoginHeader extends StatelessWidget {
-  const LoginHeader();
+  const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,9 @@ class LoginHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
+            // ignore: deprecated_member_use
             colors.primary.withOpacity(0.85),
+            // ignore: deprecated_member_use
             colors.primary.withOpacity(0.65),
           ],
         ),

@@ -259,6 +259,7 @@ class _FoSignupScreenState extends State<FoSignupScreen> {
                               SizeManager.r12,
                             ),
                           ),
+                          // ignore: deprecated_member_use
                           disabledBackgroundColor: colors.primary.withOpacity(
                             0.5,
                           ),
@@ -314,32 +315,6 @@ class _FoSignupScreenState extends State<FoSignupScreen> {
           ),
         ),
       ),
-    );
-  }
-
-
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    String? hint,
-    TextInputType? keyboardType,
-    Widget? prefix,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefix: prefix,
-      ),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return '$label is required';
-        }
-        return null;
-      },
     );
   }
 }

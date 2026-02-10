@@ -65,5 +65,3 @@ TruckDataModel _$TruckDataModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$TruckDataModelToJson(TruckDataModel instance) =>
-    <String, dynamic>{'trucks': instance.trucks};

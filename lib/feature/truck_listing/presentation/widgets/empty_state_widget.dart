@@ -23,6 +23,7 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               Icons.local_shipping_outlined,
               size: 80,
+              // ignore: deprecated_member_use
               color: AppColors.grey.withOpacity(0.5),
             ),
             const SizedBox(height: SizeManager.s24),

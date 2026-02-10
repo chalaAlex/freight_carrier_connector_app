@@ -116,7 +116,6 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = SizeManager;
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: SizeManager.screenHorizontalPadding,

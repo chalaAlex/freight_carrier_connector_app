@@ -257,6 +257,7 @@ class _CoSignupScreenState extends State<CoSignupScreen> {
                               SizeManager.r12,
                             ),
                           ),
+                          // ignore: deprecated_member_use
                           disabledBackgroundColor: colors.primary.withOpacity(
                             0.5,
                           ),

@@ -11,7 +11,6 @@ class GetTrucksUseCase extends UseCase<TruckBaseResponseEntity, int> {
 
   @override
   Future<Either<Failure, TruckBaseResponseEntity>> call(int page) async {
-    print('GetTrucksUseCase called with page: $page');
     return await repository.fetchTrucks(page);
   }
 }

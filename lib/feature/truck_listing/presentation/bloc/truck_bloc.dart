@@ -1,3 +1,4 @@
+// ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/entities/truck.dart';

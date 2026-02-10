@@ -1,3 +1,4 @@
+// ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/sign_up_entity.dart';
@@ -16,7 +17,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     SignUpSubmitted event,
     Emitter<SignUpState> emit,
   ) async {
-    /// 1️⃣ Move to loading state
     emit(state.copyWith(status: SignUpStatus.loading, errorMessage: null));
 
     final result = await _signUpUsecase(
@@ -31,7 +31,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       ),
     );
 
-    /// 2️⃣ Handle Either result
     result.fold(
       (Failure failure) => emit(
         state.copyWith(
@@ -39,12 +38,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
           errorMessage: failure.message,
         ),
       ),
-      (SignUpBaseResponseEntity user) => emit(
-        state.copyWith(
-          status: SignUpStatus.success,
-          user: user,
-        ),
-      ),
+      (SignUpBaseResponseEntity user) =>
+          emit(state.copyWith(status: SignUpStatus.success, user: user)),
     );
   }
 }
