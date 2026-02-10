@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture/core/error/failure.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/entities/truck.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'truck_event.dart';
 import 'truck_state.dart';
@@ -14,20 +15,26 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
     on<FetchNextPage>(_onFetchNextPage);
   }
 
-  Future<void> _onFetchInitialTrucks(
-    FetchInitialTrucks event,
-    Emitter<TruckState> emit,
-  ) async {
+  Future<void> _onFetchInitialTrucks(FetchInitialTrucks event, Emitter<TruckState> emit) async {
     emit(TruckLoading());
+    
     final result = await getTrucksUseCase(1);
 
-    result.fold(
-      (Failure failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(TruckSuccess(
+    final trucks = result.fold((failure) {
+      emit(TruckError(failure.message));
+      return null;
+    }, (trucks) => trucks);
+
+    if (trucks == null) {
+      return;
+    }
+
+    emit(
+      TruckSuccess(
         trucks: trucks,
         currentPage: 1,
-        hasMorePages: trucks.length == trucksPerPage,
-      )),
+        hasMorePages: trucks.data?.length == trucksPerPage,
+      ),
     );
   }
 
@@ -40,11 +47,13 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
 
     result.fold(
       (Failure failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(TruckSuccess(
-        trucks: trucks,
-        currentPage: 1,
-        hasMorePages: trucks.length == trucksPerPage,
-      )),
+      (trucks) => emit(
+        TruckSuccess(
+          trucks: trucks,
+          currentPage: 1,
+          hasMorePages: trucks.data?.length == trucksPerPage,
+        ),
+      ),
     );
   }
 
@@ -63,17 +72,23 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
     final result = await getTrucksUseCase(nextPage);
 
     result.fold(
-      (Failure failure) => emit(TruckPaginationError(
-        currentState.trucks,
-        failure.message,
-      )),
+      (Failure failure) =>
+          emit(TruckPaginationError(currentState.trucks, failure.message)),
       (newTrucks) {
-        final allTrucks = [...currentState.trucks, ...newTrucks];
-        emit(TruckSuccess(
-          trucks: allTrucks,
-          currentPage: nextPage,
-          hasMorePages: newTrucks.length == trucksPerPage,
-        ));
+        final mergedData = [...?currentState.trucks.data, ...?newTrucks.data];
+        final allTrucks = TruckBaseResponseEntity(
+          statusCode: newTrucks.statusCode ?? currentState.trucks.statusCode,
+          message: newTrucks.message ?? currentState.trucks.message,
+          total: newTrucks.total ?? currentState.trucks.total,
+          data: mergedData,
+        );
+        emit(
+          TruckSuccess(
+            trucks: allTrucks,
+            currentPage: nextPage,
+            hasMorePages: newTrucks.data?.length == trucksPerPage,
+          ),
+        );
       },
     );
   }

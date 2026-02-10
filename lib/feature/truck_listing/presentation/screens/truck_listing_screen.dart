@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
-import '../../domain/entities/truck.dart';
 import '../bloc/truck_bloc.dart';
 import '../bloc/truck_event.dart';
 import '../bloc/truck_state.dart';
@@ -12,18 +11,6 @@ import '../widgets/truck_list_view.dart';
 import '../widgets/error_retry_widget.dart';
 import '../widgets/empty_state_widget.dart';
 
-/// Main screen for displaying the truck listing feature.
-///
-/// This screen implements:
-/// - Initial loading with shimmer effect
-/// - Pull-to-refresh functionality
-/// - Infinite scroll pagination
-/// - Error handling with retry
-/// - Empty state display
-/// - Search bar and filter chips
-/// - Floating action button for posting freight
-///
-/// The screen uses [TruckBloc] for state management and follows Clean Architecture principles.
 class TruckListingScreen extends StatefulWidget {
   const TruckListingScreen({super.key});
 
@@ -40,7 +27,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
-    
+
     // Dispatch initial fetch event
     context.read<TruckBloc>().add(FetchInitialTrucks());
   }
@@ -70,7 +57,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
   /// Handles pull-to-refresh action
   Future<void> _onRefresh() async {
     context.read<TruckBloc>().add(RefreshTrucks());
-    
+
     // Wait for the refresh to complete
     await context.read<TruckBloc>().stream.firstWhere(
       (state) => state is! TruckLoading,
@@ -85,9 +72,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
         children: [
           _buildSearchBar(),
           _buildFilterChips(),
-          Expanded(
-            child: _buildContent(),
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
       floatingActionButton: _buildFloatingActionButton(),
@@ -196,17 +181,17 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
 
         // Handle success states (including pagination states)
         if (state is TruckSuccess) {
-          // Show empty state if no trucks
-          if (state.trucks.isEmpty) {
+          final trucks = state.trucks.data ?? [];
+
+          if (trucks.isEmpty) {
             return const EmptyStateWidget();
           }
 
-          // Show truck list with pull-to-refresh
           return RefreshIndicator(
             onRefresh: _onRefresh,
             color: AppColors.primary,
             child: TruckListView(
-              trucks: state.trucks,
+              trucks: trucks,
               scrollController: _scrollController,
               onEndReached: () {
                 context.read<TruckBloc>().add(FetchNextPage());
@@ -215,18 +200,15 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
             ),
           );
         }
-
         // Handle pagination loading state
         if (state is TruckPaginationLoading) {
           return RefreshIndicator(
             onRefresh: _onRefresh,
             color: AppColors.primary,
             child: TruckListView(
-              trucks: state.currentTrucks,
+              trucks: state.currentTrucks.data ?? [],
               scrollController: _scrollController,
-              onEndReached: () {
-                // Already loading, do nothing
-              },
+              onEndReached: () {},
               currentState: state,
             ),
           );
@@ -241,11 +223,9 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
               children: [
                 Expanded(
                   child: TruckListView(
-                    trucks: state.currentTrucks,
+                    trucks: state.currentTrucks.data ?? [],
                     scrollController: _scrollController,
-                    onEndReached: () {
-                      // Don't trigger while in error state
-                    },
+                    onEndReached: () {},
                     currentState: state,
                   ),
                 ),
@@ -256,9 +236,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
         }
 
         // Fallback for unknown states
-        return const Center(
-          child: Text('Unknown state'),
-        );
+        return const Center(child: Text('Unknown state'));
       },
     );
   }
@@ -270,19 +248,12 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
       color: AppColors.error.withOpacity(0.1),
       child: Row(
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: AppColors.error,
-            size: 20,
-          ),
+          const Icon(Icons.error_outline, color: AppColors.error, size: 20),
           const SizedBox(width: SizeManager.s8),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
-                color: AppColors.error,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: AppColors.error, fontSize: 14),
             ),
           ),
           TextButton(

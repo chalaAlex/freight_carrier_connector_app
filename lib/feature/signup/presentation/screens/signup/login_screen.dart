@@ -5,10 +5,10 @@ import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
 import 'package:clean_architecture/feature/common/forgot_password_link.dart';
 import 'package:clean_architecture/feature/common/login_header.dart';
-import 'package:clean_architecture/feature/freight/presentation/freight_home_page.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_event.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_state.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,7 +34,7 @@ class LoginScreen extends StatelessWidget {
       final targetPage = role == 'carrier_owner'
           ? const CarrierHomePage()
           : role == 'user'
-              ? const FreightHomePage()
+              ? const TruckListingScreen()
               : null;
 
       if (targetPage != null) {

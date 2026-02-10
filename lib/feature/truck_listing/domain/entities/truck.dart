@@ -2,7 +2,24 @@ import 'package:equatable/equatable.dart';
 
 enum TruckType { flatbed, refrigerated, dryVan }
 
-class Truck extends Equatable {
+class TruckBaseResponseEntity extends Equatable {
+  final int? statusCode;
+  final String? message;
+  final int? total;
+  final List<TruckDataEntity>? data;
+
+  const TruckBaseResponseEntity({
+    this.statusCode,
+    this.message,
+    this.total,
+    this.data,
+  });
+
+  @override
+  List<Object?> get props => [statusCode, message, total, data];
+}
+
+class TruckDataEntity extends Equatable {
   final String id;
   final String model;
   final String company;
@@ -15,7 +32,7 @@ class Truck extends Equatable {
   final String imageUrl;
   final bool isAvailable;
 
-  const Truck({
+  const TruckDataEntity({
     required this.id,
     required this.model,
     required this.company,
@@ -31,16 +48,16 @@ class Truck extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        model,
-        company,
-        pricePerDay,
-        pricePerHour,
-        capacityTons,
-        type,
-        location,
-        radiusKm,
-        imageUrl,
-        isAvailable,
-      ];
+    id,
+    model,
+    company,
+    pricePerDay,
+    pricePerHour,
+    capacityTons,
+    type,
+    location,
+    radiusKm,
+    imageUrl,
+    isAvailable,
+  ];
 }

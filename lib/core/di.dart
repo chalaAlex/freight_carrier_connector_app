@@ -16,7 +16,8 @@ import 'package:clean_architecture/feature/signup/domain/usecases/login_usecase.
 import 'package:clean_architecture/feature/signup/domain/usecases/sign_up_usecase.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
-import 'package:clean_architecture/feature/truck_listing/data/datasources/mock_truck_api_service.dart';
+import 'package:clean_architecture/feature/truck_listing/data/datasources/truck_remote_data_source.dart';
+import 'package:clean_architecture/feature/truck_listing/data/datasources/truck_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/truck_listing/data/repositories/truck_repository_impl.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/repositories/truck_repository.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
@@ -25,6 +26,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
+
 Future<void> init(Environment prod) async {
   // ------------------ Network ------------------ //
   sl.registerLazySingleton<Dio>(() => DioFactory.createDio());
@@ -40,35 +42,23 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<LoginRemoteDataSource>(
     () => LoginRemoteDataSourceImpl(client: sl()),
   );
-  
-  // Truck Listing Data Sources
-  sl.registerLazySingleton<MockTruckApiService>(
-    () => MockTruckApiService(simulateFailures: false),
+  sl.registerFactory<TruckRemoteDataSource>(
+    () => TruckRemoteDataSourceImpl(client: sl()),
   );
-  
+
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
   sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl()));
-  sl.registerFactory<TruckRepositoryImpl>(() => TruckRepositoryImpl(sl()));
-
-
-  
-  
-  // Truck Listing Repositories
   sl.registerFactory<TruckRepository>(() => TruckRepositoryImpl(sl()));
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
   sl.registerFactory(() => LoginUsecase(sl()));
-  
-  // Truck Listing Usecases
   sl.registerFactory(() => GetTrucksUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
   sl.registerFactory(() => LoginBloc(sl()));
   sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
-  
-  // Truck Listing Blocs
   sl.registerFactory(() => TruckBloc(sl()));
 }

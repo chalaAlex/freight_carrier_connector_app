@@ -10,7 +10,6 @@ class BaseResponse {
   int? statusCode;
 }
 
-
 @JsonSerializable()
 class SignUpModel extends BaseResponse {
   @JsonKey(name: 'data')

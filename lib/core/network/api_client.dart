@@ -1,5 +1,6 @@
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
+import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 part 'api_client.g.dart';
@@ -24,4 +25,10 @@ abstract class ApiClient {
     @Field("email") String email,
     @Field("password") String password,
   );
+
+  @GET("/trucks")
+  Future<TruckBaseResponse> getTrucks({
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+  });
 }

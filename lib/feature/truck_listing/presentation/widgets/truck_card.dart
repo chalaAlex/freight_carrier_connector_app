@@ -3,14 +3,8 @@ import 'package:clean_architecture/cofig/size_manager.dart';
 import '../../domain/entities/truck.dart';
 import 'truck_image_section.dart';
 import 'truck_info_section.dart';
-
-/// A card widget that displays comprehensive truck information.
-///
-/// Combines [TruckImageSection] and [TruckInfoSection] to show a complete
-/// truck listing with image, availability badge, details, and action buttons.
-/// Provides tap feedback through InkWell.
 class TruckCard extends StatelessWidget {
-  final Truck truck;
+  final TruckDataEntity truck;
   final VoidCallback? onTap;
 
   const TruckCard({
@@ -36,9 +30,7 @@ class TruckCard extends StatelessWidget {
               imageUrl: truck.imageUrl,
               isAvailable: truck.isAvailable,
             ),
-            TruckInfoSection(
-              truck: truck,
-            ),
+            TruckInfoSection(truck: truck),
           ],
         ),
       ),

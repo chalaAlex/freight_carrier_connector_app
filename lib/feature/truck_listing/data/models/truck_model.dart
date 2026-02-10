@@ -1,49 +1,90 @@
+import 'package:json_annotation/json_annotation.dart';
 import '../../domain/entities/truck.dart';
+part 'truck_model.g.dart';
 
-class TruckModel extends Truck {
-  const TruckModel({
-    required super.id,
-    required super.model,
-    required super.company,
-    required super.pricePerDay,
-    required super.pricePerHour,
-    required super.capacityTons,
-    required super.type,
-    required super.location,
-    required super.radiusKm,
-    required super.imageUrl,
-    required super.isAvailable,
+@JsonSerializable()
+class TruckBaseResponse {
+  @JsonKey(name: 'message')
+  String? message;
+
+  @JsonKey(name: 'statusCode')
+  int? statusCode;
+
+  @JsonKey(name: 'total')
+  int? total;
+
+  @JsonKey(name: 'data')
+  TruckDataModel? data;
+
+  TruckBaseResponse({this.message, this.statusCode, this.data, this.total});
+
+  factory TruckBaseResponse.fromJson(Map<String, dynamic> json) =>
+      _$TruckBaseResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TruckBaseResponseToJson(this);
+}
+
+@JsonSerializable()
+class TruckDto {
+  @JsonKey(name: '_id')
+  final String id;
+
+  @JsonKey(name: 'model')
+  final String model;
+
+  @JsonKey(name: 'company')
+  final String company;
+
+  @JsonKey(name: 'pricePerDay')
+  final num pricePerDay;
+
+  @JsonKey(name: 'pricePerHour')
+  final num pricePerHour;
+
+  @JsonKey(name: 'capacityTons')
+  final num capacityTons;
+
+  @JsonKey(name: 'type')
+  final TruckType type;
+
+  @JsonKey(name: 'location')
+  final String location;
+
+  @JsonKey(name: 'radiusKm')
+  final num radiusKm;
+  @JsonKey(name: 'imageUrl')
+  final String imageUrl;
+
+  @JsonKey(name: 'isAvailable')
+  final bool isAvailable;
+
+  const TruckDto({
+    required this.id,
+    required this.model,
+    required this.company,
+    required this.pricePerDay,
+    required this.pricePerHour,
+    required this.capacityTons,
+    required this.type,
+    required this.location,
+    required this.radiusKm,
+    required this.imageUrl,
+    required this.isAvailable,
   });
 
-  factory TruckModel.fromJson(Map<String, dynamic> json) {
-    return TruckModel(
-      id: json['id'] as String,
-      model: json['model'] as String,
-      company: json['company'] as String,
-      pricePerDay: (json['pricePerDay'] as num).toDouble(),
-      pricePerHour: (json['pricePerHour'] as num).toDouble(),
-      capacityTons: (json['capacityTons'] as num).toDouble(),
-      type: TruckType.values.byName(json['type'] as String),
-      location: json['location'] as String,
-      radiusKm: (json['radiusKm'] as num).toDouble(),
-      imageUrl: json['imageUrl'] as String,
-      isAvailable: json['isAvailable'] as bool,
-    );
-  }
+  factory TruckDto.fromJson(Map<String, dynamic> json) =>
+      _$TruckDtoFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'model': model,
-      'company': company,
-      'pricePerDay': pricePerDay,
-      'pricePerHour': pricePerHour,
-      'capacityTons': capacityTons,
-      'type': type.name,
-      'location': location,
-      'radiusKm': radiusKm,
-      'imageUrl': imageUrl,
-      'isAvailable': isAvailable,
-    };
-  }
+  Map<String, dynamic> toJson() => _$TruckDtoToJson(this);
+}
+
+@JsonSerializable()
+class TruckDataModel {
+  @JsonKey(name: 'trucks')
+  final List<TruckDto>? trucks;
+
+  TruckDataModel({this.trucks});
+
+  factory TruckDataModel.fromJson(Map<String, dynamic> json) =>
+      _$TruckDataModelFromJson(json);
 }

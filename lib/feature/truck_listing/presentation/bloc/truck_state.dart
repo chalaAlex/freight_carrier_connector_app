@@ -13,7 +13,7 @@ class TruckInitial extends TruckState {}
 class TruckLoading extends TruckState {}
 
 class TruckSuccess extends TruckState {
-  final List<Truck> trucks;
+  final TruckBaseResponseEntity trucks;
   final int currentPage;
   final bool hasMorePages;
 
@@ -27,7 +27,7 @@ class TruckSuccess extends TruckState {
   List<Object?> get props => [trucks, currentPage, hasMorePages];
 
   TruckSuccess copyWith({
-    List<Truck>? trucks,
+    TruckBaseResponseEntity? trucks,
     int? currentPage,
     bool? hasMorePages,
   }) {
@@ -49,7 +49,7 @@ class TruckError extends TruckState {
 }
 
 class TruckPaginationLoading extends TruckState {
-  final List<Truck> currentTrucks;
+  final TruckBaseResponseEntity currentTrucks;
 
   const TruckPaginationLoading(this.currentTrucks);
 
@@ -58,7 +58,7 @@ class TruckPaginationLoading extends TruckState {
 }
 
 class TruckPaginationError extends TruckState {
-  final List<Truck> currentTrucks;
+  final TruckBaseResponseEntity currentTrucks;
   final String message;
 
   const TruckPaginationError(this.currentTrucks, this.message);
