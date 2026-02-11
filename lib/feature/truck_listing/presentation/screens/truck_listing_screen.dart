@@ -79,7 +79,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds the app bar with branding
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       title: const Text(StringManager.truckListingTitle),
@@ -89,7 +88,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds the search bar below the app bar
   Widget _buildSearchBar() {
     return Container(
       padding: const EdgeInsets.all(SizeManager.s16),
@@ -113,7 +111,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds the filter chips row
   Widget _buildFilterChips() {
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -228,14 +225,10 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
             ),
           );
         }
-
-        // Fallback for unknown states
         return const Center(child: Text('Unknown state'));
       },
     );
   }
-
-  /// Builds the pagination error widget at the bottom of the list
   Widget _buildPaginationError(String message) {
     return Container(
       padding: const EdgeInsets.all(SizeManager.s16),
