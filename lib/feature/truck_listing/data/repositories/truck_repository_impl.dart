@@ -12,9 +12,21 @@ class TruckRepositoryImpl implements TruckRepository {
   TruckRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(int page) async {
+  Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(
+    int page, {
+    String? search,
+    String? company,
+    bool? isAvailable,
+    String? carrierType,
+  }) async {
     try {
-      final response = await remoteDataSource.getTrucks(page);
+      final response = await remoteDataSource.getTrucks(
+        page,
+        search: search,
+        company: company,
+        isAvailable: isAvailable,
+        carrierType: carrierType,
+      );
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Right(TruckResponseMapper().mapToEntity(response));
       } else {

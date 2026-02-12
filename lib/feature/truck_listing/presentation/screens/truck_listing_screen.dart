@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/utils/debouncer.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
 import '../bloc/truck_bloc.dart';
 import '../bloc/truck_event.dart';
 import '../bloc/truck_state.dart';
@@ -20,13 +22,16 @@ class TruckListingScreen extends StatefulWidget {
 
 class _TruckListingScreenState extends State<TruckListingScreen> {
   late ScrollController _scrollController;
-  String _selectedFilter = StringManager.filterAll;
+  late TextEditingController _searchController;
+  late Debouncer _searchDebouncer;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    _searchController = TextEditingController();
+    _searchDebouncer = Debouncer(delay: const Duration(milliseconds: 500));
 
     // Dispatch initial fetch event
     context.read<TruckBloc>().add(FetchInitialTrucks());
@@ -36,6 +41,8 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchDebouncer.dispose();
     super.dispose();
   }
 
@@ -93,42 +100,110 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
       padding: const EdgeInsets.all(SizeManager.s16),
       color: AppColors.primary,
       child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          _searchDebouncer.run(() {
+            context.read<TruckBloc>().add(SearchTrucks(value));
+          });
+        },
         decoration: InputDecoration(
           hintText: StringManager.searchHint,
           prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    context.read<TruckBloc>().add(const SearchTrucks(''));
+                  },
+                )
+              : null,
+          filled: true,
+          fillColor: AppColors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(SizeManager.r12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: SizeManager.s16,
+            vertical: SizeManager.s12,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildFilterChips() {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: SizeManager.s16,
-        vertical: SizeManager.s12,
-      ),
-      child: Row(
-        children: [
-          _buildFilterChip(StringManager.filterAll),
-          const SizedBox(width: SizeManager.s8),
-          _buildFilterChip(StringManager.filterAvailable),
-          const SizedBox(width: SizeManager.s8),
-          _buildFilterChip(StringManager.filterRefrigerated),
-        ],
-      ),
+    return BlocBuilder<TruckBloc, TruckState>(
+      builder: (context, state) {
+        final activeFilter =
+            state is TruckSuccess ? state.activeFilter : const TruckFilter();
+
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: SizeManager.s16,
+            vertical: SizeManager.s12,
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildFilterChip(
+                  label: StringManager.filterAll,
+                  filterType: FilterType.all,
+                  isSelected: activeFilter.type == FilterType.all,
+                  activeFilter: activeFilter,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                _buildFilterChip(
+                  label: StringManager.filterAvailable,
+                  filterType: FilterType.available,
+                  isSelected: activeFilter.type == FilterType.available,
+                  activeFilter: activeFilter,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                _buildFilterChip(
+                  label: StringManager.filterFlatbed,
+                  filterType: FilterType.flatbed,
+                  isSelected: activeFilter.type == FilterType.flatbed,
+                  activeFilter: activeFilter,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                _buildFilterChip(
+                  label: StringManager.filterRefrigerated,
+                  filterType: FilterType.refrigerated,
+                  isSelected: activeFilter.type == FilterType.refrigerated,
+                  activeFilter: activeFilter,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                _buildFilterChip(
+                  label: StringManager.filterDryVan,
+                  filterType: FilterType.dryVan,
+                  isSelected: activeFilter.type == FilterType.dryVan,
+                  activeFilter: activeFilter,
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    final isSelected = _selectedFilter == label;
+  Widget _buildFilterChip({
+    required String label,
+    required FilterType filterType,
+    required bool isSelected,
+    required TruckFilter activeFilter,
+  }) {
     return FilterChip(
       label: Text(label),
       selected: isSelected,
       onSelected: (selected) {
-        setState(() {
-          _selectedFilter = label;
-        });
-        // TODO: Implement filtering logic
+        final newFilter = activeFilter.copyWith(
+          type: selected ? filterType : FilterType.all,
+        );
+        context.read<TruckBloc>().add(FilterTrucks(newFilter));
       },
       backgroundColor: AppColors.white,
       // ignore: deprecated_member_use
@@ -165,7 +240,10 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
           final trucks = state.trucks.data ?? [];
 
           if (trucks.isEmpty) {
-            return const EmptyStateWidget();
+            // Show different messages for empty data vs no results from filters
+            return state.activeFilter.hasActiveFilters
+                ? _buildNoResultsWidget()
+                : const EmptyStateWidget();
           }
 
           return RefreshIndicator(
@@ -248,6 +326,62 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Builds the no results widget when filters return empty results
+  Widget _buildNoResultsWidget() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(SizeManager.s24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: AppColors.lightGrey,
+            ),
+            const SizedBox(height: SizeManager.s16),
+            Text(
+              StringManager.noResultsFound,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: SizeManager.s8),
+            Text(
+              StringManager.tryDifferentFilters,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: SizeManager.s24),
+            ElevatedButton(
+              onPressed: () {
+                _searchController.clear();
+                context.read<TruckBloc>().add(ClearFilters());
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: AppColors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SizeManager.s24,
+                  vertical: SizeManager.s12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(SizeManager.r12),
+                ),
+              ),
+              child: const Text(StringManager.clearFilters),
+            ),
+          ],
+        ),
       ),
     );
   }

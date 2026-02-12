@@ -94,14 +94,18 @@ class _ApiClient implements ApiClient {
     int? page,
     int? limit,
     String? search,
+    String? company,
     bool? isAvailable,
+    String? carrierType,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page': page,
       r'limit': limit,
       r'search': search,
+      r'company': company,
       r'isAvailable': isAvailable,
+      r'carrierType': carrierType,
     };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};

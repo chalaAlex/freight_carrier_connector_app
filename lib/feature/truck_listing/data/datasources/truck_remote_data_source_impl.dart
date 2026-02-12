@@ -8,7 +8,21 @@ class TruckRemoteDataSourceImpl implements TruckRemoteDataSource {
   TruckRemoteDataSourceImpl({required this.client});
 
   @override
-  Future<TruckBaseResponse> getTrucks(int page) async {
-    return await client.getTrucks(page: page, limit: 10);
+  Future<TruckBaseResponse> getTrucks(
+    int page, {
+    String? search,
+    String? company,
+    bool? isAvailable,
+    String? carrierType,
+  }) async {
+    return await client.getTrucks(
+      page: page,
+      limit: 10,
+      search: search,
+      company: company,
+      isAvailable: isAvailable,
+      carrierType: carrierType,
+    );
   }
 }
+

@@ -30,5 +30,9 @@ abstract class ApiClient {
   Future<TruckBaseResponse> getTrucks({
     @Query("page") int? page,
     @Query("limit") int? limit,
+    @Query("search") String? search,
+    @Query("company") String? company,
+    @Query("isAvailable") bool? isAvailable,
+    @Query("carrierType") String? carrierType,
   });
 }

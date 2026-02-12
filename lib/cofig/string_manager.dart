@@ -50,6 +50,11 @@ class StringManager {
   static const String filterAll = 'All Trucks';
   static const String filterAvailable = 'Available';
   static const String filterRefrigerated = 'Refrigerated';
+  static const String filterFlatbed = 'Flatbed';
+  static const String filterDryVan = 'Dry Van';
+  static const String noResultsFound = 'No trucks found';
+  static const String tryDifferentFilters = 'Try adjusting your filters';
+  static const String clearFilters = 'Clear Filters';
   static const String postFreight = 'Post Freight';
   static const String available = 'Available';
   static const String busy = 'Busy';

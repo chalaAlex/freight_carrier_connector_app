@@ -3,5 +3,11 @@ import 'package:clean_architecture/feature/truck_listing/domain/entities/truck.d
 import 'package:dartz/dartz.dart';
 
 abstract class TruckRepository {
-  Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(int page);
+  Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(
+    int page, {
+    String? search,
+    String? company,
+    bool? isAvailable,
+    String? carrierType,
+  });
 }
