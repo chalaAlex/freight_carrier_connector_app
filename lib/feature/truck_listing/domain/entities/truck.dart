@@ -26,7 +26,7 @@ class TruckDataEntity extends Equatable {
   final double pricePerDay;
   final double pricePerHour;
   final double capacityTons;
-  final TruckType type;
+  final TruckType carrierType;
   final String location;
   final double radiusKm;
   final String imageUrl;
@@ -39,7 +39,7 @@ class TruckDataEntity extends Equatable {
     required this.pricePerDay,
     required this.pricePerHour,
     required this.capacityTons,
-    required this.type,
+    required this.carrierType,
     required this.location,
     required this.radiusKm,
     required this.imageUrl,
@@ -54,7 +54,7 @@ class TruckDataEntity extends Equatable {
     pricePerDay,
     pricePerHour,
     capacityTons,
-    type,
+    carrierType,
     location,
     radiusKm,
     imageUrl,

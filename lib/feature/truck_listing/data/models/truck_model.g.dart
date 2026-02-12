@@ -31,7 +31,7 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   pricePerDay: json['pricePerDay'] as num,
   pricePerHour: json['pricePerHour'] as num,
   capacityTons: json['capacityTons'] as num,
-  type: $enumDecode(_$TruckTypeEnumMap, json['type']),
+  carrierType: $enumDecode(_$TruckTypeEnumMap, json['carrierType']),
   location: json['location'] as String,
   radiusKm: json['radiusKm'] as num,
   imageUrl: json['imageUrl'] as String,
@@ -45,7 +45,7 @@ Map<String, dynamic> _$TruckDtoToJson(TruckDto instance) => <String, dynamic>{
   'pricePerDay': instance.pricePerDay,
   'pricePerHour': instance.pricePerHour,
   'capacityTons': instance.capacityTons,
-  'type': _$TruckTypeEnumMap[instance.type]!,
+  'carrierType': _$TruckTypeEnumMap[instance.carrierType]!,
   'location': instance.location,
   'radiusKm': instance.radiusKm,
   'imageUrl': instance.imageUrl,
@@ -65,3 +65,5 @@ TruckDataModel _$TruckDataModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
+Map<String, dynamic> _$TruckDataModelToJson(TruckDataModel instance) =>
+    <String, dynamic>{'trucks': instance.trucks};

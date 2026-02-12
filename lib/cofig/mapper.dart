@@ -100,7 +100,7 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckDataEntity> {
       pricePerDay: double.tryParse(dto.pricePerDay.toString()) ?? 0.0,
       pricePerHour: double.tryParse(dto.pricePerHour.toString()) ?? 0.0,
       capacityTons: double.tryParse(dto.capacityTons.toString()) ?? 0.0,
-      type: dto.type,
+      carrierType: dto.carrierType,
       location: dto.location,
       radiusKm: double.tryParse(dto.radiusKm.toString()) ?? 0.0,
       imageUrl: dto.imageUrl,

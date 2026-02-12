@@ -90,9 +90,19 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<TruckBaseResponse> getTrucks({int? page, int? limit}) async {
+  Future<TruckBaseResponse> getTrucks({
+    int? page,
+    int? limit,
+    String? search,
+    bool? isAvailable,
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'page': page, r'limit': limit};
+    final queryParameters = <String, dynamic>{
+      r'page': page,
+      r'limit': limit,
+      r'search': search,
+      r'isAvailable': isAvailable,
+    };
     queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;

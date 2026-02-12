@@ -44,8 +44,8 @@ class TruckDto {
   @JsonKey(name: 'capacityTons')
   final num capacityTons;
 
-  @JsonKey(name: 'type')
-  final TruckType type;
+  @JsonKey(name: 'carrierType')
+  final TruckType carrierType;
 
   @JsonKey(name: 'location')
   final String location;
@@ -65,7 +65,7 @@ class TruckDto {
     required this.pricePerDay,
     required this.pricePerHour,
     required this.capacityTons,
-    required this.type,
+    required this.carrierType,
     required this.location,
     required this.radiusKm,
     required this.imageUrl,

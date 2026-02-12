@@ -96,16 +96,6 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
         decoration: InputDecoration(
           hintText: StringManager.searchHint,
           prefixIcon: const Icon(Icons.search),
-          filled: true,
-          fillColor: AppColors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(SizeManager.r12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: SizeManager.s16,
-            vertical: SizeManager.s12,
-          ),
         ),
       ),
     );
@@ -229,6 +219,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
       },
     );
   }
+
   Widget _buildPaginationError(String message) {
     return Container(
       padding: const EdgeInsets.all(SizeManager.s16),

@@ -123,7 +123,7 @@ class TruckInfoSection extends StatelessWidget {
   }
 
   IconData _getTruckTypeIcon() {
-    switch (truck.type) {
+    switch (truck.carrierType) {
       case TruckType.flatbed:
         return Icons.local_shipping;
       case TruckType.refrigerated:
@@ -134,7 +134,7 @@ class TruckInfoSection extends StatelessWidget {
   }
 
   String _getTruckTypeLabel() {
-    switch (truck.type) {
+    switch (truck.carrierType) {
       case TruckType.flatbed:
         return 'Flatbed';
       case TruckType.refrigerated:
