@@ -4,6 +4,8 @@ import 'package:clean_architecture/cofig/env/env.dart';
 import 'package:clean_architecture/core/theme/theme_cubit.dart';
 import 'package:clean_architecture/core/network/api_client.dart';
 import 'package:clean_architecture/core/network/dio_factory.dart';
+import 'package:clean_architecture/core/token/toke_local_data_source.dart';
+import 'package:clean_architecture/core/token/toke_local_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -23,13 +25,22 @@ import 'package:clean_architecture/feature/truck_listing/domain/repositories/tru
 import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck_bloc.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init(Environment prod) async {
+  // ------------------ STORAGE ------------------ //
+  sl.registerLazySingleton(() => const FlutterSecureStorage());
+
+  // ------------------ TOKEN LOCAL DATASOURCE ------------------ //
+  sl.registerLazySingleton<TokenLocalDataSource>(
+    () => TokenLocalDataSourceImpl(sl()),
+  );
+
   // ------------------ Network ------------------ //
-  sl.registerLazySingleton<Dio>(() => DioFactory.createDio());
+  sl.registerLazySingleton<Dio>(() => DioFactory.createDio(sl()));
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl()));
 
   // ------------------ Environments ------------------ //
@@ -48,7 +59,7 @@ Future<void> init(Environment prod) async {
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
-  sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl()));
+  sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl(), sl()));
   sl.registerFactory<TruckRepository>(() => TruckRepositoryImpl(sl()));
 
   // ------------------ Usecases ------------------ //
