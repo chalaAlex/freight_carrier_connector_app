@@ -1,3 +1,4 @@
+import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
@@ -45,6 +46,9 @@ abstract class ApiClient {
     @Query("search") String? search,
     @Query("region") String? region,
   });
+
+  @GET("/cargoType")
+  Future<CargoTypeBaseResponse> getCargoTypes();
 
   @POST("/freights")
   Future<FreightBaseResponse> createFreight(@Body() Map<String, dynamic> body);

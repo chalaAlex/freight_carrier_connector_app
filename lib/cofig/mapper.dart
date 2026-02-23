@@ -1,6 +1,8 @@
 import 'package:clean_architecture/cofig/base_mapper.dart';
+import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
+import 'package:clean_architecture/feature/freight/domain/entity/cargo_type_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
@@ -191,5 +193,24 @@ extension RegionBaseResponseMapper on LocationBaseResponse {
       message: message,
       data: data?.map((e) => e.toEntity()).toList(),
     );
+  }
+}
+
+// CargoType
+
+extension CargoTypeBaseResponseMapper on CargoTypeBaseResponse {
+  CargoTypeBaseResponseEntity toEntity() {
+    return CargoTypeBaseResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      data: data?.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+extension CargoTypeDtoMapper on CargoTypeDto {
+  CargoTypeEntity toEntity() {
+    return CargoTypeEntity(id: id, cargoType: cargoType);
   }
 }

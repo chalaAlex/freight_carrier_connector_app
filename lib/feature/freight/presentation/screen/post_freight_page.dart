@@ -4,6 +4,8 @@ import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/request/create_freight_request.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_state.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_event.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_state.dart';
@@ -34,7 +36,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
   final _priceController = TextEditingController();
 
   // State
-  String _selectedCargoType = 'General Merchandise';
+  String? _selectedCargoType;
   String _selectedTruckType = 'BOX';
   String _selectedPricingType = 'Fixed';
 
@@ -46,6 +48,48 @@ class _PostFreightPageState extends State<PostFreightPage> {
   String? _selectedDropoffCity;
   List<String> _pickupCities = [];
   List<String> _dropoffCities = [];
+
+  // Step tracking
+  int get _currentStep {
+    // Step 1: Cargo Details
+    if (_descriptionController.text.isEmpty ||
+        _weightController.text.isEmpty ||
+        _quantityController.text.isEmpty) {
+      return 1;
+    }
+
+    // Step 2: Route & Schedule
+    if (_selectedPickupRegion == null ||
+        _selectedPickupCity == null ||
+        _pickupAddressController.text.isEmpty ||
+        _selectedDropoffRegion == null ||
+        _selectedDropoffCity == null ||
+        _dropoffAddressController.text.isEmpty ||
+        _pickupDateController.text.isEmpty ||
+        _deliveryDeadlineController.text.isEmpty) {
+      return 2;
+    }
+
+    // Step 3: Requirements & Pricing
+    return 3;
+  }
+
+  String get _stepDescription {
+    switch (_currentStep) {
+      case 1:
+        return 'Cargo Details';
+      case 2:
+        return 'Route & Schedule';
+      case 3:
+        return 'Requirements & Pricing';
+      default:
+        return 'Details';
+    }
+  }
+
+  double get _progressPercentage {
+    return _currentStep / 3;
+  }
 
   @override
   void dispose() {
@@ -67,6 +111,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
       if (_descriptionController.text.isEmpty ||
           _weightController.text.isEmpty ||
           _quantityController.text.isEmpty ||
+          _selectedCargoType == null ||
           _selectedPickupRegion == null ||
           _selectedPickupCity == null ||
           _pickupAddressController.text.isEmpty ||
@@ -105,7 +150,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
       // Create request object
       final request = CreateFreightRequest(
         cargo: Cargo(
-          type: _selectedCargoType,
+          type: _selectedCargoType!,
           description: _descriptionController.text,
           weightKg: double.parse(_weightController.text),
           quantity: int.parse(_quantityController.text),
@@ -313,29 +358,49 @@ class _PostFreightPageState extends State<PostFreightPage> {
   }
 
   Widget _buildStepIndicator() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Step 1 of 3: Details',
-          style: TextStyle(color: AppColors.grey, fontSize: 14),
-        ),
-        const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SizeManager.s12,
-            vertical: 4,
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Text(
-            'REQUIRED',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+        Row(
+          children: [
+            Text(
+              'Step $_currentStep of 3: $_stepDescription',
+              style: const TextStyle(
+                color: AppColors.grey,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SizeManager.s12,
+                vertical: 4,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                'REQUIRED',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: SizeManager.s12),
+        // Progress bar
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: _progressPercentage,
+            backgroundColor: AppColors.grey.withOpacity(0.2),
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+            minHeight: 6,
           ),
         ),
       ],
@@ -350,20 +415,88 @@ class _PostFreightPageState extends State<PostFreightPage> {
       children: [
         _buildLabel(colorScheme, 'CARGO TYPE'),
         const SizedBox(height: SizeManager.s8),
-        _buildDropdown(
-          colorScheme: colorScheme,
-          value: _selectedCargoType,
-          items: const [
-            'General Merchandise',
-            'Electronics',
-            'Food',
-            'Furniture',
-          ],
-          hint: 'Select Cargo Type',
-          onChanged: (value) {
-            setState(() {
-              _selectedCargoType = value!;
-            });
+        BlocBuilder<CargoTypeBloc, CargoTypeState>(
+          builder: (context, state) {
+            if (state is CargoTypeLoading) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SizeManager.s12,
+                  vertical: SizeManager.s16,
+                ),
+                decoration: BoxDecoration(
+                  color: colorScheme.background,
+                  borderRadius: BorderRadius.circular(SizeManager.r6),
+                  border: Border.all(color: colorScheme.border, width: 1),
+                ),
+                child: const Center(
+                  child: SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            if (state is CargoTypeError) {
+              return Container(
+                padding: const EdgeInsets.all(SizeManager.s12),
+                decoration: BoxDecoration(
+                  color: colorScheme.background,
+                  borderRadius: BorderRadius.circular(SizeManager.r6),
+                  border: Border.all(color: AppColors.error, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: AppColors.error,
+                      size: 20,
+                    ),
+                    const SizedBox(width: SizeManager.s8),
+                    Expanded(
+                      child: Text(
+                        state.message,
+                        style: TextStyle(
+                          color: colorScheme.textSecondary,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is CargoTypeLoaded) {
+              final cargoTypes = state.cargoTypes
+                  .map((e) => e.cargoType ?? '')
+                  .where((e) => e.isNotEmpty)
+                  .toList();
+
+              return _buildDropdown(
+                colorScheme: colorScheme,
+                value: _selectedCargoType,
+                items: cargoTypes,
+                hint: 'Select Cargo Type',
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCargoType = value;
+                  });
+                },
+              );
+            }
+
+            return _buildDropdown(
+              colorScheme: colorScheme,
+              value: _selectedCargoType,
+              items: const [],
+              hint: 'Select Cargo Type',
+              onChanged: (value) {},
+            );
           },
         ),
         const SizedBox(height: SizeManager.s16),
@@ -782,6 +915,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
       keyboardType: keyboardType,
       readOnly: readOnly,
       onTap: onTap,
+      onChanged: (_) => setState(() {}), // Update step indicator
       style: TextStyle(color: colorScheme.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         hintText: hint,
