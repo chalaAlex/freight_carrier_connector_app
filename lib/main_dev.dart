@@ -6,6 +6,9 @@ import 'package:clean_architecture/core/theme/theme_cubit.dart';
 import 'package:clean_architecture/core/theme/theme_state.dart';
 import 'package:clean_architecture/core/di.dart';
 import 'package:clean_architecture/feature/common/role_selection.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location_event.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
@@ -30,6 +33,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => sl<LoginBloc>()),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
         BlocProvider(create: (_) => sl<TruckBloc>()),
+        BlocProvider(create: (_) => sl<FreightBloc>()),
+        BlocProvider(
+          create: (_) => sl<LocationBloc>()..add(const FetchRegionsEvent()),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

@@ -11,35 +11,15 @@ import 'package:clean_architecture/feature/freight/presentation/bloc/location_bl
 import 'package:clean_architecture/feature/freight/presentation/bloc/location_event.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/location_state.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
-import 'package:clean_architecture/core/di.dart' as di;
 
-class PostFreightPage extends StatelessWidget {
+class PostFreightPage extends StatefulWidget {
   const PostFreightPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => di.sl<FreightBloc>()),
-        BlocProvider(
-          create: (context) =>
-              di.sl<LocationBloc>()..add(const FetchRegionsEvent()),
-        ),
-      ],
-      child: const _PostFreightPageContent(),
-    );
-  }
+  State<PostFreightPage> createState() => _PostFreightPageState();
 }
 
-class _PostFreightPageContent extends StatefulWidget {
-  const _PostFreightPageContent();
-
-  @override
-  State<_PostFreightPageContent> createState() =>
-      _PostFreightPageContentState();
-}
-
-class _PostFreightPageContentState extends State<_PostFreightPageContent> {
+class _PostFreightPageState extends State<PostFreightPage> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers
@@ -443,122 +423,179 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
       icon: Icons.route,
       title: 'ROUTE INFORMATION',
       children: [
-        Row(
-          children: [
-            Container(
-              width: 4,
-              height: 400,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [AppColors.success, AppColors.error],
+        BlocBuilder<LocationBloc, LocationState>(
+          builder: (context, state) {
+            if (state is LocationLoading) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(SizeManager.s32),
+                  child: CircularProgressIndicator(color: AppColors.primary),
                 ),
-              ),
-            ),
-            const SizedBox(width: SizeManager.s12),
-            Expanded(
-              child: Column(
-                children: [
-                  // Pickup Region Dropdown
-                  _buildLabel(colorScheme, 'PICKUP REGION'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildDropdown(
-                    colorScheme: colorScheme,
-                    value: _selectedPickupRegion,
-                    items: _regions
-                        .map((r) => r.region ?? '')
-                        .where((r) => r.isNotEmpty)
-                        .toList(),
-                    hint: 'Select Pickup Region',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPickupRegion = value;
-                        _selectedPickupCity = null;
-                        _pickupCities =
-                            _regions
-                                .firstWhere((r) => r.region == value)
-                                .cities ??
-                            [];
-                      });
-                    },
+              );
+            }
+
+            if (state is LocationError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(SizeManager.s16),
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: AppColors.error,
+                        size: 48,
+                      ),
+                      const SizedBox(height: SizeManager.s12),
+                      Text(
+                        state.message,
+                        style: TextStyle(
+                          color: colorScheme.textSecondary,
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: SizeManager.s16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          context.read<LocationBloc>().add(
+                            const FetchRegionsEvent(),
+                          );
+                        },
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Retry'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: SizeManager.s16,
+                            vertical: SizeManager.s8,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: SizeManager.s12),
-                  // Pickup City Dropdown
-                  _buildLabel(colorScheme, 'PICKUP CITY'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildDropdown(
-                    colorScheme: colorScheme,
-                    value: _selectedPickupCity,
-                    items: _pickupCities,
-                    hint: 'Select Pickup City',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedPickupCity = value;
-                      });
-                    },
+                ),
+              );
+            }
+
+            return Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 400,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [AppColors.success, AppColors.error],
+                    ),
                   ),
-                  const SizedBox(height: SizeManager.s12),
-                  // Pickup Address
-                  _buildLabel(colorScheme, 'PICKUP ADDRESS'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildTextField(
-                    colorScheme: colorScheme,
-                    controller: _pickupAddressController,
-                    hint: 'Enter pickup address',
+                ),
+                const SizedBox(width: SizeManager.s12),
+                Expanded(
+                  child: Column(
+                    children: [
+                      // Pickup Region Dropdown
+                      _buildLabel(colorScheme, 'PICKUP REGION'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildDropdown(
+                        colorScheme: colorScheme,
+                        value: _selectedPickupRegion,
+                        items: _regions
+                            .map((r) => r.region ?? '')
+                            .where((r) => r.isNotEmpty)
+                            .toList(),
+                        hint: 'Select Pickup Region',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPickupRegion = value;
+                            _selectedPickupCity = null;
+                            _pickupCities =
+                                _regions
+                                    .firstWhere((r) => r.region == value)
+                                    .cities ??
+                                [];
+                          });
+                        },
+                      ),
+                      const SizedBox(height: SizeManager.s12),
+                      // Pickup City Dropdown
+                      _buildLabel(colorScheme, 'PICKUP CITY'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildDropdown(
+                        colorScheme: colorScheme,
+                        value: _selectedPickupCity,
+                        items: _pickupCities,
+                        hint: 'Select Pickup City',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPickupCity = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: SizeManager.s12),
+                      // Pickup Address
+                      _buildLabel(colorScheme, 'PICKUP ADDRESS'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildTextField(
+                        colorScheme: colorScheme,
+                        controller: _pickupAddressController,
+                        hint: 'Enter pickup address',
+                      ),
+                      const SizedBox(height: SizeManager.s16),
+                      // Dropoff Region Dropdown
+                      _buildLabel(colorScheme, 'DROP-OFF REGION'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildDropdown(
+                        colorScheme: colorScheme,
+                        value: _selectedDropoffRegion,
+                        items: _regions
+                            .map((r) => r.region ?? '')
+                            .where((r) => r.isNotEmpty)
+                            .toList(),
+                        hint: 'Select Drop-off Region',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDropoffRegion = value;
+                            _selectedDropoffCity = null;
+                            _dropoffCities =
+                                _regions
+                                    .firstWhere((r) => r.region == value)
+                                    .cities ??
+                                [];
+                          });
+                        },
+                      ),
+                      const SizedBox(height: SizeManager.s12),
+                      // Dropoff City Dropdown
+                      _buildLabel(colorScheme, 'DROP-OFF CITY'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildDropdown(
+                        colorScheme: colorScheme,
+                        value: _selectedDropoffCity,
+                        items: _dropoffCities,
+                        hint: 'Select Drop-off City',
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDropoffCity = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: SizeManager.s12),
+                      // Dropoff Address
+                      _buildLabel(colorScheme, 'DROP-OFF ADDRESS'),
+                      const SizedBox(height: SizeManager.s8),
+                      _buildTextField(
+                        colorScheme: colorScheme,
+                        controller: _dropoffAddressController,
+                        hint: 'Enter drop-off address',
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: SizeManager.s16),
-                  // Dropoff Region Dropdown
-                  _buildLabel(colorScheme, 'DROP-OFF REGION'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildDropdown(
-                    colorScheme: colorScheme,
-                    value: _selectedDropoffRegion,
-                    items: _regions
-                        .map((r) => r.region ?? '')
-                        .where((r) => r.isNotEmpty)
-                        .toList(),
-                    hint: 'Select Drop-off Region',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDropoffRegion = value;
-                        _selectedDropoffCity = null;
-                        _dropoffCities =
-                            _regions
-                                .firstWhere((r) => r.region == value)
-                                .cities ??
-                            [];
-                      });
-                    },
-                  ),
-                  const SizedBox(height: SizeManager.s12),
-                  // Dropoff City Dropdown
-                  _buildLabel(colorScheme, 'DROP-OFF CITY'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildDropdown(
-                    colorScheme: colorScheme,
-                    value: _selectedDropoffCity,
-                    items: _dropoffCities,
-                    hint: 'Select Drop-off City',
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedDropoffCity = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: SizeManager.s12),
-                  // Dropoff Address
-                  _buildLabel(colorScheme, 'DROP-OFF ADDRESS'),
-                  const SizedBox(height: SizeManager.s8),
-                  _buildTextField(
-                    colorScheme: colorScheme,
-                    controller: _dropoffAddressController,
-                    hint: 'Enter drop-off address',
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
