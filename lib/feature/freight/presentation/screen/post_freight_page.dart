@@ -7,6 +7,10 @@ import 'package:clean_architecture/core/request/create_freight_request.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_event.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location_event.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location_state.dart';
+import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 import 'package:clean_architecture/core/di.dart' as di;
 
 class PostFreightPage extends StatelessWidget {
@@ -14,8 +18,14 @@ class PostFreightPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<FreightBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => di.sl<FreightBloc>()),
+        BlocProvider(
+          create: (context) =>
+              di.sl<LocationBloc>()..add(const FetchRegionsEvent()),
+        ),
+      ],
       child: const _PostFreightPageContent(),
     );
   }
@@ -36,11 +46,7 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
   final _descriptionController = TextEditingController();
   final _weightController = TextEditingController();
   final _quantityController = TextEditingController();
-  final _pickupRegionController = TextEditingController();
-  final _pickupCityController = TextEditingController();
   final _pickupAddressController = TextEditingController();
-  final _dropoffRegionController = TextEditingController();
-  final _dropoffCityController = TextEditingController();
   final _dropoffAddressController = TextEditingController();
   final _pickupDateController = TextEditingController();
   final _deliveryDeadlineController = TextEditingController();
@@ -52,16 +58,21 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
   String _selectedTruckType = 'BOX';
   String _selectedPricingType = 'Fixed';
 
+  // Location state
+  List<RegionEntity> _regions = [];
+  String? _selectedPickupRegion;
+  String? _selectedPickupCity;
+  String? _selectedDropoffRegion;
+  String? _selectedDropoffCity;
+  List<String> _pickupCities = [];
+  List<String> _dropoffCities = [];
+
   @override
   void dispose() {
     _descriptionController.dispose();
     _weightController.dispose();
     _quantityController.dispose();
-    _pickupRegionController.dispose();
-    _pickupCityController.dispose();
     _pickupAddressController.dispose();
-    _dropoffRegionController.dispose();
-    _dropoffCityController.dispose();
     _dropoffAddressController.dispose();
     _pickupDateController.dispose();
     _deliveryDeadlineController.dispose();
@@ -76,11 +87,11 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
       if (_descriptionController.text.isEmpty ||
           _weightController.text.isEmpty ||
           _quantityController.text.isEmpty ||
-          _pickupRegionController.text.isEmpty ||
-          _pickupCityController.text.isEmpty ||
+          _selectedPickupRegion == null ||
+          _selectedPickupCity == null ||
           _pickupAddressController.text.isEmpty ||
-          _dropoffRegionController.text.isEmpty ||
-          _dropoffCityController.text.isEmpty ||
+          _selectedDropoffRegion == null ||
+          _selectedDropoffCity == null ||
           _dropoffAddressController.text.isEmpty ||
           _pickupDateController.text.isEmpty ||
           _deliveryDeadlineController.text.isEmpty ||
@@ -121,13 +132,13 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
         ),
         route: FreightRoute(
           pickup: Location(
-            region: _pickupRegionController.text,
-            city: _pickupCityController.text,
+            region: _selectedPickupRegion!,
+            city: _selectedPickupCity!,
             address: _pickupAddressController.text,
           ),
           dropoff: Location(
-            region: _dropoffRegionController.text,
-            city: _dropoffCityController.text,
+            region: _selectedDropoffRegion!,
+            city: _selectedDropoffCity!,
             address: _dropoffAddressController.text,
           ),
         ),
@@ -145,7 +156,35 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
         ),
       );
 
-      print(request);
+      // Print all form data to console
+      print('==================== FREIGHT DATA ====================');
+      print('CARGO DETAILS:');
+      print('  - Cargo Type: $_selectedCargoType');
+      print('  - Description: ${_descriptionController.text}');
+      print('  - Weight (kg): ${_weightController.text}');
+      print('  - Quantity: ${_quantityController.text}');
+      print('');
+      print('ROUTE INFORMATION:');
+      print('  - Pickup Region: $_selectedPickupRegion');
+      print('  - Pickup City: $_selectedPickupCity');
+      print('  - Pickup Address: ${_pickupAddressController.text}');
+      print('  - Drop-off Region: $_selectedDropoffRegion');
+      print('  - Drop-off City: $_selectedDropoffCity');
+      print('  - Drop-off Address: ${_dropoffAddressController.text}');
+      print('');
+      print('SCHEDULE:');
+      print('  - Pickup Date: ${_pickupDateController.text}');
+      print('  - Delivery Deadline: ${_deliveryDeadlineController.text}');
+      print('');
+      print('TRUCK REQUIREMENTS:');
+      print('  - Truck Type: $_selectedTruckType');
+      print('  - Required Capacity (tons): ${_capacityController.text}');
+      print('');
+      print('PRICING:');
+      print('  - Pricing Type: $_selectedPricingType');
+      print('  - Offered Price (ETB): ${_priceController.text}');
+      print('======================================================');
+
       // Dispatch event to BLoC
       context.read<FreightBloc>().add(CreateFreightEvent(request));
     }
@@ -172,30 +211,40 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
 
-    return BlocListener<FreightBloc, FreightState>(
-      listener: (context, state) {
-        if (state is FreightCreateSuccess) {
-          // Show success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Freight published successfully!'),
-              backgroundColor: AppColors.success,
-              duration: Duration(seconds: 3),
-            ),
-          );
-          // Navigate back or clear form
-          Navigator.pop(context);
-        } else if (state is FreightError) {
-          // Show error message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: AppColors.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<FreightBloc, FreightState>(
+          listener: (context, state) {
+            if (state is FreightCreateSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Freight published successfully!'),
+                  backgroundColor: AppColors.success,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+              Navigator.pop(context);
+            } else if (state is FreightError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: AppColors.error,
+                  duration: const Duration(seconds: 3),
+                ),
+              );
+            }
+          },
+        ),
+        BlocListener<LocationBloc, LocationState>(
+          listener: (context, state) {
+            if (state is LocationLoaded) {
+              setState(() {
+                _regions = state.regions;
+              });
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: colorScheme.background,
         appBar: _buildAppBar(colorScheme),
@@ -330,6 +379,7 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
             'Food',
             'Furniture',
           ],
+          hint: 'Select Cargo Type',
           onChanged: (value) {
             setState(() {
               _selectedCargoType = value!;
@@ -397,8 +447,8 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
           children: [
             Container(
               width: 4,
-              height: 120,
-              decoration: BoxDecoration(
+              height: 400,
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -410,48 +460,100 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
             Expanded(
               child: Column(
                 children: [
-                  _buildTextField(
+                  // Pickup Region Dropdown
+                  _buildLabel(colorScheme, 'PICKUP REGION'),
+                  const SizedBox(height: SizeManager.s8),
+                  _buildDropdown(
                     colorScheme: colorScheme,
-                    controller: _pickupRegionController,
-                    hint: 'Pickup Region',
-                    prefixIcon: Icons.location_on,
-                    suffixIcon: Icons.keyboard_arrow_down,
+                    value: _selectedPickupRegion,
+                    items: _regions
+                        .map((r) => r.region ?? '')
+                        .where((r) => r.isNotEmpty)
+                        .toList(),
+                    hint: 'Select Pickup Region',
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPickupRegion = value;
+                        _selectedPickupCity = null;
+                        _pickupCities =
+                            _regions
+                                .firstWhere((r) => r.region == value)
+                                .cities ??
+                            [];
+                      });
+                    },
                   ),
                   const SizedBox(height: SizeManager.s12),
-                  _buildTextField(
+                  // Pickup City Dropdown
+                  _buildLabel(colorScheme, 'PICKUP CITY'),
+                  const SizedBox(height: SizeManager.s8),
+                  _buildDropdown(
                     colorScheme: colorScheme,
-                    controller: _pickupCityController,
-                    hint: 'Pickup City',
-                    prefixIcon: Icons.location_on,
-                    suffixIcon: Icons.keyboard_arrow_down,
+                    value: _selectedPickupCity,
+                    items: _pickupCities,
+                    hint: 'Select Pickup City',
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPickupCity = value;
+                      });
+                    },
                   ),
                   const SizedBox(height: SizeManager.s12),
+                  // Pickup Address
+                  _buildLabel(colorScheme, 'PICKUP ADDRESS'),
+                  const SizedBox(height: SizeManager.s8),
                   _buildTextField(
                     colorScheme: colorScheme,
                     controller: _pickupAddressController,
-                    hint: 'Pickup Address',
+                    hint: 'Enter pickup address',
                   ),
                   const SizedBox(height: SizeManager.s16),
-                  _buildTextField(
+                  // Dropoff Region Dropdown
+                  _buildLabel(colorScheme, 'DROP-OFF REGION'),
+                  const SizedBox(height: SizeManager.s8),
+                  _buildDropdown(
                     colorScheme: colorScheme,
-                    controller: _dropoffRegionController,
-                    hint: 'Drop-off Region',
-                    prefixIcon: Icons.location_on,
-                    suffixIcon: Icons.keyboard_arrow_down,
+                    value: _selectedDropoffRegion,
+                    items: _regions
+                        .map((r) => r.region ?? '')
+                        .where((r) => r.isNotEmpty)
+                        .toList(),
+                    hint: 'Select Drop-off Region',
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDropoffRegion = value;
+                        _selectedDropoffCity = null;
+                        _dropoffCities =
+                            _regions
+                                .firstWhere((r) => r.region == value)
+                                .cities ??
+                            [];
+                      });
+                    },
                   ),
                   const SizedBox(height: SizeManager.s12),
-                  _buildTextField(
+                  // Dropoff City Dropdown
+                  _buildLabel(colorScheme, 'DROP-OFF CITY'),
+                  const SizedBox(height: SizeManager.s8),
+                  _buildDropdown(
                     colorScheme: colorScheme,
-                    controller: _dropoffCityController,
-                    hint: 'Drop-off City',
-                    prefixIcon: Icons.location_on,
-                    suffixIcon: Icons.keyboard_arrow_down,
+                    value: _selectedDropoffCity,
+                    items: _dropoffCities,
+                    hint: 'Select Drop-off City',
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedDropoffCity = value;
+                      });
+                    },
                   ),
                   const SizedBox(height: SizeManager.s12),
+                  // Dropoff Address
+                  _buildLabel(colorScheme, 'DROP-OFF ADDRESS'),
+                  const SizedBox(height: SizeManager.s8),
                   _buildTextField(
                     colorScheme: colorScheme,
                     controller: _dropoffAddressController,
-                    hint: 'Drop-off Address',
+                    hint: 'Enter drop-off address',
                   ),
                 ],
               ),
@@ -680,8 +782,9 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
 
   Widget _buildDropdown({
     required AppColorScheme colorScheme,
-    required String value,
+    required String? value,
     required List<String> items,
+    required String hint,
     required ValueChanged<String?> onChanged,
   }) {
     return Container(
@@ -697,6 +800,13 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
           isExpanded: true,
           dropdownColor: colorScheme.surface,
           style: TextStyle(color: colorScheme.textPrimary, fontSize: 14),
+          hint: Text(
+            hint,
+            style: TextStyle(
+              color: colorScheme.textSecondary.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
           icon: Icon(
             Icons.keyboard_arrow_down,
             color: colorScheme.textSecondary,
@@ -704,7 +814,7 @@ class _PostFreightPageContentState extends State<_PostFreightPageContent> {
           items: items.map((String item) {
             return DropdownMenuItem<String>(value: item, child: Text(item));
           }).toList(),
-          onChanged: onChanged,
+          onChanged: items.isEmpty ? null : onChanged,
         ),
       ),
     );

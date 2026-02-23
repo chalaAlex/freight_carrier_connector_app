@@ -1,4 +1,5 @@
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
+import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
@@ -35,6 +36,14 @@ abstract class ApiClient {
     @Query("company") String? company,
     @Query("isAvailable") bool? isAvailable,
     @Query("carrierType") String? carrierType,
+  });
+
+  @GET("/location")
+  Future<LocationBaseResponse> getLocation({
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+    @Query("search") String? search,
+    @Query("region") String? region,
   });
 
   @POST("/freights")
