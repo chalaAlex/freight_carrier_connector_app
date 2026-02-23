@@ -1,4 +1,6 @@
 import 'package:clean_architecture/cofig/base_mapper.dart';
+import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
+import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/login_entity.dart';
@@ -106,5 +108,69 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckDataEntity> {
       imageUrl: dto.imageUrl,
       isAvailable: dto.isAvailable,
     );
+  }
+}
+
+extension FreightDtoMapper on FreightDto {
+  FreightEntity toEntity() {
+    return FreightEntity(
+      id: id,
+      status: status,
+      createdAt: createdAt != null ? DateTime.parse(createdAt!) : null,
+      cargo: cargo?.toEntity(),
+      route: route?.toEntity(),
+      schedule: schedule?.toEntity(),
+      truckRequirement: truckRequirement?.toEntity(),
+      pricing: pricing?.toEntity(),
+    );
+  }
+}
+
+extension CargoDtoMapper on CargoDto {
+  CargoEntity toEntity() {
+    return CargoEntity(
+      type: type,
+      description: description,
+      weightKg: weightKg,
+      quantity: quantity,
+    );
+  }
+}
+
+extension RouteDtoMapper on RouteDto {
+  RouteEntity toEntity() {
+    return RouteEntity(
+      pickup: pickup?.toEntity(),
+      dropoff: dropoff?.toEntity(),
+    );
+  }
+}
+
+extension LocationDtoMapper on LocationDto {
+  LocationEntity toEntity() {
+    return LocationEntity(city: city, address: address);
+  }
+}
+
+extension ScheduleDtoMapper on ScheduleDto {
+  ScheduleEntity toEntity() {
+    return ScheduleEntity(
+      pickupDate: pickupDate != null ? DateTime.parse(pickupDate!) : null,
+      deliveryDeadline: deliveryDeadline != null
+          ? DateTime.parse(deliveryDeadline!)
+          : null,
+    );
+  }
+}
+
+extension TruckRequirementDtoMapper on TruckRequirementDto {
+  TruckRequirementEntity toEntity() {
+    return TruckRequirementEntity(type: type, minCapacityKg: minCapacityKg);
+  }
+}
+
+extension PricingDtoMapper on PricingDto {
+  PricingEntity toEntity() {
+    return PricingEntity(type: type, amount: amount);
   }
 }

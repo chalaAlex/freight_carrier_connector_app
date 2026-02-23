@@ -6,6 +6,13 @@ import 'package:clean_architecture/core/network/api_client.dart';
 import 'package:clean_architecture/core/network/dio_factory.dart';
 import 'package:clean_architecture/core/token/toke_local_data_source.dart';
 import 'package:clean_architecture/core/token/toke_local_data_source_impl.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/freight_remote_data_source.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/freight_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/freight/data/repositories/freight_repository_impl.dart';
+import 'package:clean_architecture/feature/freight/domain/repositories/freight_repository.dart';
+import 'package:clean_architecture/feature/freight/domain/usecases/create_freight_usecase.dart';
+import 'package:clean_architecture/feature/freight/domain/usecases/get_freights_usecase.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -56,20 +63,29 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<TruckRemoteDataSource>(
     () => TruckRemoteDataSourceImpl(client: sl()),
   );
+  sl.registerFactory<FreightRemoteDataSource>(
+    () => FreightRemoteDataSourceImpl(client: sl()),
+  );
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
   sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl(), sl()));
   sl.registerFactory<TruckRepository>(() => TruckRepositoryImpl(sl()));
+  sl.registerFactory<FreightRepository>(() => FreightRepositoryImpl(sl()));
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
   sl.registerFactory(() => LoginUsecase(sl()));
   sl.registerFactory(() => GetTrucksUseCase(sl()));
+  sl.registerFactory(() => CreateFreightUseCase(sl()));
+  sl.registerFactory(() => GetFreightsUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
   sl.registerFactory(() => LoginBloc(sl()));
   sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
   sl.registerFactory(() => TruckBloc(sl()));
+  sl.registerFactory(
+    () => FreightBloc(createFreightUseCase: sl(), getFreightsUseCase: sl()),
+  );
 }

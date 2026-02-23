@@ -6,6 +6,16 @@ part of 'sign_up_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+BaseResponse _$BaseResponseFromJson(Map<String, dynamic> json) => BaseResponse()
+  ..message = json['message'] as String?
+  ..statusCode = (json['statusCode'] as num?)?.toInt();
+
+Map<String, dynamic> _$BaseResponseToJson(BaseResponse instance) =>
+    <String, dynamic>{
+      'message': instance.message,
+      'statusCode': instance.statusCode,
+    };
+
 SignUpModel _$SignUpModelFromJson(Map<String, dynamic> json) =>
     SignUpModel(
         data: json['data'] == null

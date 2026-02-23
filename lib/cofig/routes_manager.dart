@@ -1,5 +1,7 @@
 import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
-import 'package:clean_architecture/feature/freight/presentation/freight_home_page.dart';
+import 'package:clean_architecture/feature/common/carrier_bottom_navigation_bar.dart';
+import 'package:clean_architecture/feature/freight/presentation/screen/freight_home_page.dart';
+import 'package:clean_architecture/feature/freight/presentation/screen/post_freight_page.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/co_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/fo_signup_screen.dart';
@@ -14,6 +16,8 @@ class Routes {
   static const String foHomePageRoute = "/foHomePage";
   static const String coHomePageRoute = "/coHomePage";
   static const String truckListingRoute = "/truckListing";
+  static const String bottomNavBar = "/bottomNavBar";
+  static const String postFreightRoute = "/postFreight";
 }
 
 class RouteGenerator {
@@ -25,7 +29,7 @@ class RouteGenerator {
         );
 
       case Routes.loginScreenRoute:
-        return MaterialPageRoute(builder: (_) =>  LoginScreen());
+        return MaterialPageRoute(builder: (_) => LoginScreen());
 
       case Routes.coSignupRoute:
         return MaterialPageRoute(
@@ -33,19 +37,21 @@ class RouteGenerator {
         );
 
       case Routes.foHomePageRoute:
-        return MaterialPageRoute(
-          builder: (_) => const FreightHomePage(),
-        );
+        return MaterialPageRoute(builder: (_) => const FreightHomePage());
 
       case Routes.coHomePageRoute:
-        return MaterialPageRoute(
-          builder: (_) => const CarrierHomePage(),
-        );
+        return MaterialPageRoute(builder: (_) => const CarrierHomePage());
 
       case Routes.truckListingRoute:
+        return MaterialPageRoute(builder: (_) => const TruckListingScreen());
+
+      case Routes.bottomNavBar:
         return MaterialPageRoute(
-          builder: (_) => const TruckListingScreen(),
+          builder: (_) => const CarrierBottomNavigationBar(),
         );
+
+      case Routes.postFreightRoute:
+        return MaterialPageRoute(builder: (_) => const PostFreightPage());
 
       default:
         return MaterialPageRoute(

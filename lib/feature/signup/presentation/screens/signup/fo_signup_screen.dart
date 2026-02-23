@@ -236,12 +236,7 @@ class _FoSignupScreenState extends State<FoSignupScreen> {
                       );
                     }
                     if (state.status == SignUpStatus.success) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const CarrierBottomNavigationBar(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, Routes.loginScreenRoute);
                     }
                   },
                   child: BlocBuilder<SignUpBloc, SignUpState>(

@@ -1,3 +1,4 @@
+import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
@@ -35,4 +36,7 @@ abstract class ApiClient {
     @Query("isAvailable") bool? isAvailable,
     @Query("carrierType") String? carrierType,
   });
+
+  @POST("/freights")
+  Future<FreightBaseResponse> createFreight(@Body() Map<String, dynamic> body);
 }

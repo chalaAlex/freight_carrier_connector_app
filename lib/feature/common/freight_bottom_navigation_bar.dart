@@ -1,14 +1,16 @@
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 
-class CarrierBottomNavigationBar extends StatefulWidget {
-  const CarrierBottomNavigationBar({super.key});
+class FreightBottomNavigationBar extends StatefulWidget {
+  const FreightBottomNavigationBar({super.key});
 
   @override
-  State<CarrierBottomNavigationBar> createState() => _CarrierBottomNavigationBarState();
+  State<FreightBottomNavigationBar> createState() =>
+      _FreightBottomNavigationBarState();
 }
 
-class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar> {
+class _FreightBottomNavigationBarState
+    extends State<FreightBottomNavigationBar> {
   int currentIndex = 0;
 
   final List<Widget> screens = [
@@ -23,7 +25,6 @@ class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        
         bottomNavigationBar: BottomAppBar(
           elevation: 1,
           height: 60,

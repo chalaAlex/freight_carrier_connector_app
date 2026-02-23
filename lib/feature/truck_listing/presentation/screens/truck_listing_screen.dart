@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
+import 'package:clean_architecture/cofig/routes_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/utils/debouncer.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
@@ -390,7 +391,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
   Widget _buildFloatingActionButton() {
     return FloatingActionButton.extended(
       onPressed: () {
-        // TODO: Navigate to post freight screen
+        Navigator.pushNamed(context, Routes.postFreightRoute);
       },
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.white,

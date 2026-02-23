@@ -2,13 +2,13 @@ import 'package:animate_do/animate_do.dart';
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
-import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
+import 'package:clean_architecture/feature/common/carrier_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/common/forgot_password_link.dart';
+import 'package:clean_architecture/feature/common/freight_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/common/login_header.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_event.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_state.dart';
-import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,9 +32,9 @@ class LoginScreen extends StatelessWidget {
     if (state.status == LoginStatus.success) {
       final role = state.user?.data?.role;
       final targetPage = role == 'carrier_owner'
-          ? const CarrierHomePage()
+          ? const FreightBottomNavigationBar()
           : role == 'user'
-              ? const TruckListingScreen()
+              ? const CarrierBottomNavigationBar()
               : null;
 
       if (targetPage != null) {
