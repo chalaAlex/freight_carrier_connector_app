@@ -4,7 +4,7 @@ import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import '../../domain/entities/truck.dart';
 class TruckInfoSection extends StatelessWidget {
-  final TruckDataEntity truck;
+  final TruckEntity truck;
 
   const TruckInfoSection({
     super.key,
@@ -24,14 +24,14 @@ class TruckInfoSection extends StatelessWidget {
           const SizedBox(height: SizeManager.s8),
 
           Text(
-            truck.company,
+            truck.brand,
             style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey),
           ),
           const SizedBox(height: SizeManager.s16),
 
           Text(
-            'ETB ${truck.pricePerDay.toStringAsFixed(0)} ${StringManager.pricePerDay} • '
-            'ETB ${truck.pricePerHour.toStringAsFixed(0)} ${StringManager.pricePerHour}',
+            'ETB ${truck.pricePerKm.toStringAsFixed(0)} ${StringManager.pricePerKm} • ',
+            // 'ETB ${truck.pricePerHour.toStringAsFixed(0)} ${StringManager.pricePerHour}',
             style: theme.textTheme.titleMedium?.copyWith(
               color: AppColors.primary,
             ),
@@ -55,7 +55,7 @@ class TruckInfoSection extends StatelessWidget {
             Icon(Icons.scale, size: SizeManager.iconSize, color: AppColors.grey),
             const SizedBox(width: SizeManager.s8),
             Text(
-              '${truck.capacityTons.toStringAsFixed(1)} ${StringManager.tons}',
+              '${truck.loadCapacity.toStringAsFixed(1)} ${StringManager.tons}',
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(width: SizeManager.s24),
@@ -123,7 +123,7 @@ class TruckInfoSection extends StatelessWidget {
   }
 
   IconData _getTruckTypeIcon() {
-    switch (truck.carrierType) {
+    switch (truck.features) {
       case TruckType.flatbed:
         return Icons.local_shipping;
       case TruckType.refrigerated:
@@ -134,7 +134,7 @@ class TruckInfoSection extends StatelessWidget {
   }
 
   String _getTruckTypeLabel() {
-    switch (truck.carrierType) {
+    switch (truck.features) {
       case TruckType.flatbed:
         return 'Flatbed';
       case TruckType.refrigerated:

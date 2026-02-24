@@ -1,6 +1,8 @@
 import 'package:clean_architecture/cofig/env/app_config.dart';
 import 'package:clean_architecture/cofig/env/env_config.dart';
-import 'package:clean_architecture/cofig/env/env.dart';
+import 'package:clean_architecture/cofig/env/environment.dart';
+import 'package:clean_architecture/core/storage/supabase_config.dart';
+import 'package:clean_architecture/core/storage/supabase_storage_service.dart';
 import 'package:clean_architecture/core/theme/theme_cubit.dart';
 import 'package:clean_architecture/core/network/api_client.dart';
 import 'package:clean_architecture/core/network/dio_factory.dart';
@@ -12,19 +14,25 @@ import 'package:clean_architecture/feature/freight/data/datasources/location_rem
 import 'package:clean_architecture/feature/freight/data/datasources/location_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight/data/datasources/cargo_type_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight/data/datasources/cargo_type_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/upload_remote_data_source.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/upload_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/freight_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/location_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/cargo_type_repository_impl.dart';
+import 'package:clean_architecture/feature/freight/data/repositories/upload_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/freight_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/location_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/cargo_type_repository.dart';
+import 'package:clean_architecture/feature/freight/domain/repositories/upload_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/create_freight_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_freights_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_locations_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_cargo_types_usecase.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/location_bloc.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_bloc.dart';
+import 'package:clean_architecture/feature/freight/domain/usecases/upload_usecase.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight/freight_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -46,12 +54,25 @@ import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init(Environment prod) async {
+  // ------------------ Initialize Supabase ------------------ //
+  await Supabase.initialize(
+    url: SupabaseConfig.supabaseUrl,
+    anonKey: SupabaseConfig.supabaseAnonKey,
+  );
+
   // ------------------ STORAGE ------------------ //
   sl.registerLazySingleton(() => const FlutterSecureStorage());
+
+  // ------------------ Supabase Storage ------------------ //
+  sl.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+  sl.registerLazySingleton<SupabaseStorageService>(
+    () => SupabaseStorageService(sl(), SupabaseConfig.storageBucket),
+  );
 
   // ------------------ TOKEN LOCAL DATASOURCE ------------------ //
   sl.registerLazySingleton<TokenLocalDataSource>(
@@ -84,6 +105,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<CargoTypeRemoteDataSource>(
     () => CargoTypeRemoteDataSourceImpl(sl()),
   );
+  sl.registerFactory<FileRemoteDataSource>(
+    () => FileRemoteDataSourceImpl(sl()),
+  );
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
@@ -92,6 +116,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<FreightRepository>(() => FreightRepositoryImpl(sl()));
   sl.registerFactory<LocationRepository>(() => LocationRepositoryImpl(sl()));
   sl.registerFactory<CargoTypeRepository>(() => CargoTypeRepositoryImpl(sl()));
+  sl.registerFactory<FileRepository>(() => FileRepositoryImpl(sl()));
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
@@ -101,6 +126,8 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetFreightsUseCase(sl()));
   sl.registerFactory(() => GetLocationsUseCase(sl()));
   sl.registerFactory(() => GetCargoTypesUseCase(sl()));
+  sl.registerFactory(() => UploadFileUseCase(sl()));
+  sl.registerFactory(() => UploadMultipleFilesUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -112,4 +139,7 @@ Future<void> init(Environment prod) async {
   );
   sl.registerFactory(() => LocationBloc(getLocationsUseCase: sl()));
   sl.registerFactory(() => CargoTypeBloc(sl()));
+  sl.registerFactory(
+    () => UploadBloc(uploadFileUseCase: sl(), uploadMultipleFilesUseCase: sl()),
+  );
 }

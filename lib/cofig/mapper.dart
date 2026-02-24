@@ -91,27 +91,46 @@ class TruckResponseMapper
       statusCode: dto.statusCode,
       message: dto.message,
       total: dto.total,
-      data: dto.data?.trucks?.map((e) => _dataMapper.mapToEntity(e)).toList(),
+      trucks: dto.data?.trucks?.map((e) => _dataMapper.mapToEntity(e)).toList(),
     );
   }
 }
 
-class TruckDataMapper extends BaseMapper<TruckDto, TruckDataEntity> {
+class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
   @override
-  TruckDataEntity mapToEntity(TruckDto dto) {
-    return TruckDataEntity(
+  TruckEntity mapToEntity(TruckDto dto) {
+    return TruckEntity(
       id: dto.id,
       model: dto.model,
-      company: dto.company,
-      pricePerDay: double.tryParse(dto.pricePerDay.toString()) ?? 0.0,
-      pricePerHour: double.tryParse(dto.pricePerHour.toString()) ?? 0.0,
-      capacityTons: double.tryParse(dto.capacityTons.toString()) ?? 0.0,
-      carrierType: dto.carrierType,
+      plateNumber: dto.plateNumber,
+      brand: dto.brand,
+      pricePerKm: double.tryParse(dto.pricePerKm.toString()) ?? 0.0,
+      loadCapacity: double.tryParse(dto.loadCapacity.toString()) ?? 0.0,
+      features: _mapStringToTruckType(dto.features),
       location: dto.location,
       radiusKm: double.tryParse(dto.radiusKm.toString()) ?? 0.0,
-      imageUrl: dto.imageUrl,
+      images: dto.image,
       isAvailable: dto.isAvailable,
+      createdAt: dto.createdAt != null
+          ? DateTime.tryParse(dto.createdAt!)
+          : null,
+      updatedAt: dto.updatedAt != null
+          ? DateTime.tryParse(dto.updatedAt!)
+          : null,
     );
+  }
+
+  TruckType _mapStringToTruckType(String features) {
+    switch (features.toLowerCase()) {
+      case 'flatbed':
+        return TruckType.flatbed;
+      case 'refrigerated':
+        return TruckType.refrigerated;
+      case 'dryvan':
+        return TruckType.dryVan;
+      default:
+        return TruckType.dryVan;
+    }
   }
 }
 

@@ -20,11 +20,16 @@ enum DataSource {
 
 class ErrorHandler implements Exception {
   ErrorHandler.handle(dynamic error) {
-    (error);
+    print('🔍 ErrorHandler: Handling error of type ${error.runtimeType}');
+    print('🔍 Error details: $error');
+
     if (error is DioException) {
       failure = _handleError(error);
     } else {
-      failure = DataSource.defaultErr.getFailure();
+      // For non-Dio exceptions, preserve the actual error message
+      final errorMessage = error.toString();
+      print('🔍 Non-Dio error message: $errorMessage');
+      failure = Failure(ResponseCode.defaultErr, errorMessage);
     }
   }
 
@@ -134,7 +139,8 @@ class ResponseMessage {
   static const String internalServerError = 'Internal Server Error';
   static const String notFound = 'requested item not found';
   static const String noContent = 'no content';
-  static const String noInternetConnection = 'Please check your Internet Connection';
+  static const String noInternetConnection =
+      'Please check your Internet Connection';
   static const String recieveTimeOut = ' timeout , try again later';
   static const String sendTimeOut = ' timeout , try again later';
   static const String success = 'success';

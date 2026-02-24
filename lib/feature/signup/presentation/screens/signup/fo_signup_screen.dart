@@ -1,6 +1,5 @@
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
-import 'package:clean_architecture/feature/common/carrier_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/common/password_text_field.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/input_text_field.dart';
 import 'package:flutter/material.dart';

@@ -24,13 +24,11 @@ class FreightBaseResponse {
 class FreightDto {
   @JsonKey(name: '_id')
   final String? id;
-
   final CargoDto? cargo;
   final RouteDto? route;
   final ScheduleDto? schedule;
   final TruckRequirementDto? truckRequirement;
   final PricingDto? pricing;
-
   final String? status;
   final String? createdAt;
 

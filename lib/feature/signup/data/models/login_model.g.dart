@@ -34,6 +34,7 @@ UserDto _$UserDtoFromJson(Map<String, dynamic> json) => UserDto(
   createdAt: json['createdAt'] as String?,
 );
 
+// ignore: unused_element
 Map<String, dynamic> _$UserDtoToJson(UserDto instance) => <String, dynamic>{
   '_id': instance.id,
   'firstName': instance.firstName,
@@ -51,5 +52,6 @@ LoginDataModel _$LoginDataModelFromJson(Map<String, dynamic> json) =>
           : UserDto.fromJson(json['user'] as Map<String, dynamic>),
     );
 
+// ignore: unused_element
 Map<String, dynamic> _$LoginDataModelToJson(LoginDataModel instance) =>
     <String, dynamic>{'user': instance.user};

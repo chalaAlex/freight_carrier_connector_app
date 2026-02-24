@@ -1,4 +1,3 @@
-
 import 'package:animate_do/animate_do.dart';
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +14,7 @@ class ForgotPasswordLink extends StatelessWidget {
       duration: const Duration(milliseconds: 2000),
       child: Center(
         child: GestureDetector(
-          onTap: () {
-            // TODO: implement forgot password navigation
-          },
+          onTap: () {},
           child: Text(
             'Forgot Password?',
             style: text.bodyMedium?.copyWith(

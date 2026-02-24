@@ -3,14 +3,17 @@ import 'package:clean_architecture/cofig/size_manager.dart';
 import '../../domain/entities/truck.dart';
 import 'truck_image_section.dart';
 import 'truck_info_section.dart';
+
 class TruckCard extends StatelessWidget {
-  final TruckDataEntity truck;
+  final TruckEntity truck;
   final VoidCallback? onTap;
+  final int index;
 
   const TruckCard({
     super.key,
     required this.truck,
     this.onTap,
+    required this.index,
   });
 
   @override
@@ -27,7 +30,7 @@ class TruckCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TruckImageSection(
-              imageUrl: truck.imageUrl,
+              imageUrl: truck.images.isNotEmpty ? truck.images[0] : '',
               isAvailable: truck.isAvailable,
             ),
             TruckInfoSection(truck: truck),

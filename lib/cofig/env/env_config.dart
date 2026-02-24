@@ -1,4 +1,4 @@
-import 'env.dart';
+import 'environment.dart';
 import 'env_config/dev_config.dart';
 import 'env_config/stage_config.dart';
 import 'env_config/prod_config.dart';

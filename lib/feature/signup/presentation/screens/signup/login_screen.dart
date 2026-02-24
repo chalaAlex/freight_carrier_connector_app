@@ -11,6 +11,7 @@ import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -34,8 +35,8 @@ class LoginScreen extends StatelessWidget {
       final targetPage = role == 'carrier_owner'
           ? const FreightBottomNavigationBar()
           : role == 'user'
-              ? const CarrierBottomNavigationBar()
-              : null;
+          ? const CarrierBottomNavigationBar()
+          : null;
 
       if (targetPage != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,16 +47,21 @@ class LoginScreen extends StatelessWidget {
           );
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(StringManager.unknownRole)),
+        Fluttertoast.showToast(
+          msg: StringManager.unknownRole,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     } else if (state.status == LoginStatus.failure) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage ?? StringManager.loginFailed),
-          backgroundColor: Colors.red,
-        ),
+      Fluttertoast.showToast(
+        msg: state.errorMessage ?? StringManager.loginFailed,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     }
   }
@@ -83,11 +89,11 @@ class _LoginContentState extends State<_LoginContent> {
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
       context.read<LoginBloc>().add(
-            LoginSubmitted(
-              email: _emailController.text.trim(),
-              password: _passwordController.text,
-            ),
-          );
+        LoginSubmitted(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        ),
+      );
     }
   }
 
@@ -198,13 +204,17 @@ class _PasswordFieldState extends State<_PasswordField> {
         labelText: StringManager.passwordLabel,
         suffixIcon: IconButton(
           icon: Icon(
-            _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+            _obscure
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
           ),
           onPressed: () => setState(() => _obscure = !_obscure),
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return StringManager.passwordRequired;
+        if (value == null || value.isEmpty) {
+          return StringManager.passwordRequired;
+        }
         if (value.length < 6) return StringManager.passwordTooShort;
         return null;
       },
@@ -218,7 +228,6 @@ class _LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<LoginBloc>().state;
-
     final isLoading = state.status == LoginStatus.loading;
 
     return FadeInUp(
@@ -226,7 +235,9 @@ class _LoginButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading
             ? null
-            : () => context.findAncestorStateOfType<_LoginContentState>()?._submit(),
+            : () => context
+                  .findAncestorStateOfType<_LoginContentState>()
+                  ?._submit(),
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: SizeManager.s16),
         ),

@@ -238,7 +238,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
           );
         }
         if (state is TruckSuccess) {
-          final trucks = state.trucks.data ?? [];
+          final trucks = state.trucks.trucks ?? [];
 
           if (trucks.isEmpty) {
             // Show different messages for empty data vs no results from filters
@@ -266,7 +266,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
             onRefresh: _onRefresh,
             color: AppColors.primary,
             child: TruckListView(
-              trucks: state.currentTrucks.data ?? [],
+              trucks: state.currentTrucks.trucks ?? [],
               scrollController: _scrollController,
               onEndReached: () {},
               currentState: state,
@@ -283,7 +283,7 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
               children: [
                 Expanded(
                   child: TruckListView(
-                    trucks: state.currentTrucks.data ?? [],
+                    trucks: state.currentTrucks.trucks ?? [],
                     scrollController: _scrollController,
                     onEndReached: () {},
                     currentState: state,

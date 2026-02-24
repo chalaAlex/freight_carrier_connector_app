@@ -6,10 +6,12 @@ part of 'sign_up_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+// ignore: unused_element
 BaseResponse _$BaseResponseFromJson(Map<String, dynamic> json) => BaseResponse()
   ..message = json['message'] as String?
   ..statusCode = (json['statusCode'] as num?)?.toInt();
 
+// ignore: unused_element
 Map<String, dynamic> _$BaseResponseToJson(BaseResponse instance) =>
     <String, dynamic>{
       'message': instance.message,

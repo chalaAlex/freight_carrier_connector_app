@@ -197,12 +197,14 @@ class _ApiClient implements ApiClient {
   }
 
   @override
-  Future<FreightBaseResponse> createFreight(Map<String, dynamic> body) async {
+  Future<FreightBaseResponse> createFreight(
+    CreateFreightRequest request,
+  ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(body);
+    _data.addAll(request.toJson());
     final _options = _setStreamType<FreightBaseResponse>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(

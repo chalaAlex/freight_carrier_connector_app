@@ -5,7 +5,7 @@ import 'truck_card.dart';
 import 'pagination_loader.dart';
 
 class TruckListView extends StatelessWidget {
-  final List<TruckDataEntity> trucks;
+  final List<TruckEntity> trucks;
   final ScrollController scrollController;
   final VoidCallback onEndReached;
   final TruckState? currentState;
@@ -33,7 +33,7 @@ class TruckListView extends StatelessWidget {
 
         final truck = trucks[index];
 
-        return TruckCard(truck: truck, onTap: () {});
+        return TruckCard(truck: truck, onTap: () {}, index: index,);
       },
     );
   }

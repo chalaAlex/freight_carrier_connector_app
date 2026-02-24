@@ -6,58 +6,64 @@ class TruckBaseResponseEntity extends Equatable {
   final int? statusCode;
   final String? message;
   final int? total;
-  final List<TruckDataEntity>? data;
+  final List<TruckEntity>? trucks;
 
   const TruckBaseResponseEntity({
     this.statusCode,
     this.message,
     this.total,
-    this.data,
+    this.trucks,
   });
 
   @override
-  List<Object?> get props => [statusCode, message, total, data];
+  List<Object?> get props => [statusCode, message, total, trucks];
 }
 
-class TruckDataEntity extends Equatable {
+class TruckEntity extends Equatable {
   final String id;
   final String model;
-  final String company;
-  final double pricePerDay;
-  final double pricePerHour;
-  final double capacityTons;
-  final TruckType carrierType;
+  final String plateNumber;
+  final String brand;
+  final double pricePerKm;
+  final double loadCapacity;
+  final TruckType features;
   final String location;
   final double radiusKm;
-  final String imageUrl;
+  final List<String> images;
   final bool isAvailable;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
-  const TruckDataEntity({
+  const TruckEntity({
     required this.id,
     required this.model,
-    required this.company,
-    required this.pricePerDay,
-    required this.pricePerHour,
-    required this.capacityTons,
-    required this.carrierType,
+    required this.plateNumber,
+    required this.brand,
+    required this.pricePerKm,
+    required this.loadCapacity,
+    required this.features,
     required this.location,
     required this.radiusKm,
-    required this.imageUrl,
+    required this.images,
     required this.isAvailable,
+    this.createdAt,
+    this.updatedAt,
   });
 
   @override
   List<Object?> get props => [
-    id,
-    model,
-    company,
-    pricePerDay,
-    pricePerHour,
-    capacityTons,
-    carrierType,
-    location,
-    radiusKm,
-    imageUrl,
-    isAvailable,
-  ];
+        id,
+        model,
+        plateNumber,
+        brand,
+        pricePerKm,
+        loadCapacity,
+        features,
+        location,
+        radiusKm,
+        images,
+        isAvailable,
+        createdAt,
+        updatedAt,
+      ];
 }

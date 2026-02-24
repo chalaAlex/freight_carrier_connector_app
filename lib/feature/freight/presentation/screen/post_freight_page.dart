@@ -1,17 +1,23 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/request/create_freight_request.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_bloc.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_state.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/freight_bloc.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/freight_event.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/freight_state.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/location_bloc.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/location_event.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/location_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight/freight_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight/freight_event.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/freight/freight_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_event.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_event.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_state.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 
 class PostFreightPage extends StatefulWidget {
@@ -39,6 +45,13 @@ class _PostFreightPageState extends State<PostFreightPage> {
   String? _selectedCargoType;
   String _selectedTruckType = 'BOX';
   String _selectedPricingType = 'Fixed';
+
+  // Image state
+  final List<File> _selectedImages = [];
+  final ImagePicker _imagePicker = ImagePicker();
+  static const int _maxImages = 5;
+  List<String> _uploadedImageUrls = [];
+  bool _isUploadingImages = false;
 
   // Location state
   List<RegionEntity> _regions = [];
@@ -122,12 +135,12 @@ class _PostFreightPageState extends State<PostFreightPage> {
           _deliveryDeadlineController.text.isEmpty ||
           _capacityController.text.isEmpty ||
           _priceController.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please fill in all required fields'),
-            backgroundColor: AppColors.error,
-            duration: Duration(seconds: 2),
-          ),
+        Fluttertoast.showToast(
+          msg: "Please fill in all required fields",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
         return;
       }
@@ -137,12 +150,12 @@ class _PostFreightPageState extends State<PostFreightPage> {
       final deliveryDeadline = _parseDate(_deliveryDeadlineController.text);
 
       if (pickupDate == null || deliveryDeadline == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Invalid date format'),
-            backgroundColor: AppColors.error,
-            duration: Duration(seconds: 2),
-          ),
+        Fluttertoast.showToast(
+          msg: "Invalid date format",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
         return;
       }
@@ -180,36 +193,6 @@ class _PostFreightPageState extends State<PostFreightPage> {
           amount: double.parse(_priceController.text),
         ),
       );
-
-      // Print all form data to console
-      print('==================== FREIGHT DATA ====================');
-      print('CARGO DETAILS:');
-      print('  - Cargo Type: $_selectedCargoType');
-      print('  - Description: ${_descriptionController.text}');
-      print('  - Weight (kg): ${_weightController.text}');
-      print('  - Quantity: ${_quantityController.text}');
-      print('');
-      print('ROUTE INFORMATION:');
-      print('  - Pickup Region: $_selectedPickupRegion');
-      print('  - Pickup City: $_selectedPickupCity');
-      print('  - Pickup Address: ${_pickupAddressController.text}');
-      print('  - Drop-off Region: $_selectedDropoffRegion');
-      print('  - Drop-off City: $_selectedDropoffCity');
-      print('  - Drop-off Address: ${_dropoffAddressController.text}');
-      print('');
-      print('SCHEDULE:');
-      print('  - Pickup Date: ${_pickupDateController.text}');
-      print('  - Delivery Deadline: ${_deliveryDeadlineController.text}');
-      print('');
-      print('TRUCK REQUIREMENTS:');
-      print('  - Truck Type: $_selectedTruckType');
-      print('  - Required Capacity (tons): ${_capacityController.text}');
-      print('');
-      print('PRICING:');
-      print('  - Pricing Type: $_selectedPricingType');
-      print('  - Offered Price (ETB): ${_priceController.text}');
-      print('======================================================');
-
       // Dispatch event to BLoC
       context.read<FreightBloc>().add(CreateFreightEvent(request));
     }
@@ -241,21 +224,21 @@ class _PostFreightPageState extends State<PostFreightPage> {
         BlocListener<FreightBloc, FreightState>(
           listener: (context, state) {
             if (state is FreightCreateSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Freight published successfully!'),
-                  backgroundColor: AppColors.success,
-                  duration: Duration(seconds: 3),
-                ),
+              Fluttertoast.showToast(
+                msg: "Freight published successfully!",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
               );
               Navigator.pop(context);
             } else if (state is FreightError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: AppColors.error,
-                  duration: const Duration(seconds: 3),
-                ),
+              Fluttertoast.showToast(
+                msg: state.message,
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
               );
             }
           },
@@ -269,6 +252,44 @@ class _PostFreightPageState extends State<PostFreightPage> {
             }
           },
         ),
+        BlocListener<UploadBloc, UploadState>(
+          listener: (context, state) {
+            if (state is UploadLoading) {
+              setState(() {
+                _isUploadingImages = true;
+              });
+              print(
+                '📤 Uploading images: ${state.currentIndex}/${state.totalFiles}',
+              );
+            } else if (state is UploadSuccess) {
+              setState(() {
+                _isUploadingImages = false;
+                // Accumulate URLs instead of replacing them
+                _uploadedImageUrls.addAll(state.uploadedUrls);
+              });
+              print('✅ Upload successful!');
+              print('📸 Uploaded image URLs:');
+              for (int i = 0; i < state.uploadedUrls.length; i++) {
+                print('   Image ${i + 1}: ${state.uploadedUrls[i]}');
+              }
+              _showSuccesToastMessage(
+                'Image uploaded successfully! (${_uploadedImageUrls.length} total)',
+              );
+
+              // Reset upload state after handling
+              context.read<UploadBloc>().add(const ResetUploadEvent());
+            } else if (state is UploadError) {
+              setState(() {
+                _isUploadingImages = false;
+              });
+              print('❌ Upload failed: ${state.message}');
+              _showErrorSnackBar('Upload failed: ${state.message}');
+
+              // Reset upload state after handling
+              context.read<UploadBloc>().add(const ResetUploadEvent());
+            }
+          },
+        ),
       ],
       child: Scaffold(
         backgroundColor: colorScheme.background,
@@ -276,7 +297,6 @@ class _PostFreightPageState extends State<PostFreightPage> {
         body: BlocBuilder<FreightBloc, FreightState>(
           builder: (context, state) {
             final isLoading = state is FreightLoading;
-
             return Stack(
               children: [
                 SingleChildScrollView(
@@ -299,6 +319,8 @@ class _PostFreightPageState extends State<PostFreightPage> {
                           const SizedBox(height: SizeManager.s24),
                           _buildPricingSection(colorScheme),
                           const SizedBox(height: SizeManager.s32),
+                          _buildImageUpload(colorScheme),
+                          const SizedBox(height: SizeManager.s32),
                           _buildPublishButton(isLoading),
                           const SizedBox(height: SizeManager.s24),
                         ],
@@ -308,6 +330,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
                 ),
                 if (isLoading)
                   Container(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.3),
                     child: const Center(
                       child: CircularProgressIndicator(
@@ -341,9 +364,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
       ),
       actions: [
         TextButton(
-          onPressed: () {
-            print('Draft saved');
-          },
+          onPressed: () {},
           child: const Text(
             'Save Draft',
             style: TextStyle(
@@ -378,6 +399,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
                 vertical: 4,
               ),
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: AppColors.primary.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -398,6 +420,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: _progressPercentage,
+            // ignore: deprecated_member_use
             backgroundColor: AppColors.grey.withOpacity(0.2),
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
             minHeight: 6,
@@ -920,6 +943,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(
+          // ignore: deprecated_member_use
           color: colorScheme.textSecondary.withOpacity(0.5),
           fontSize: 14,
         ),
@@ -974,6 +998,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
           hint: Text(
             hint,
             style: TextStyle(
+              // ignore: deprecated_member_use
               color: colorScheme.textSecondary.withOpacity(0.5),
               fontSize: 14,
             ),
@@ -1068,6 +1093,326 @@ class _PostFreightPageState extends State<PostFreightPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImageUpload(AppColorScheme colorScheme) {
+    return _buildSection(
+      colorScheme: colorScheme,
+      icon: Icons.camera_alt_outlined,
+      title: 'FREIGHT IMAGES (OPTIONAL)',
+      children: [
+        _buildLabel(colorScheme, 'ADD PHOTOS OF YOUR FREIGHT'),
+        const SizedBox(height: SizeManager.s8),
+        Text(
+          'Add up to $_maxImages photos to help carriers understand your freight better',
+          style: TextStyle(color: colorScheme.textSecondary, fontSize: 12),
+        ),
+        const SizedBox(height: SizeManager.s16),
+
+        // Image grid
+        if (_selectedImages.isNotEmpty) ...[
+          _buildImageGrid(colorScheme),
+          const SizedBox(height: SizeManager.s16),
+        ],
+
+        // Upload status
+        if (_uploadedImageUrls.isNotEmpty) ...[
+          Container(
+            padding: const EdgeInsets.all(SizeManager.s12),
+            decoration: BoxDecoration(
+              // ignore: deprecated_member_use
+              color: AppColors.success.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(SizeManager.r6),
+              // ignore: deprecated_member_use
+              border: Border.all(color: AppColors.success.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.cloud_done,
+                  color: AppColors.success,
+                  size: 20,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                Expanded(
+                  child: Text(
+                    '${_uploadedImageUrls.length} images uploaded to cloud',
+                    style: const TextStyle(
+                      color: AppColors.success,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: SizeManager.s16),
+        ],
+
+        // Add image buttons
+        if (_selectedImages.length < _maxImages) ...[
+          Row(
+            children: [
+              Expanded(
+                child: _buildImageSourceButton(
+                  colorScheme: colorScheme,
+                  icon: Icons.camera_alt,
+                  label: 'Camera',
+                  onTap: () => _pickImage(ImageSource.camera),
+                ),
+              ),
+              const SizedBox(width: SizeManager.s12),
+              Expanded(
+                child: _buildImageSourceButton(
+                  colorScheme: colorScheme,
+                  icon: Icons.photo_library,
+                  label: 'Gallery',
+                  onTap: () => _pickImage(ImageSource.gallery),
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          Container(
+            padding: const EdgeInsets.all(SizeManager.s12),
+            decoration: BoxDecoration(
+              // ignore: deprecated_member_use
+              color: AppColors.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(SizeManager.r6),
+              // ignore: deprecated_member_use
+              border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.check_circle,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: SizeManager.s8),
+                Text(
+                  'Maximum $_maxImages images added',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        // Note: Upload button removed - images are uploaded automatically when selected
+      ],
+    );
+  }
+
+  Widget _buildImageGrid(AppColorScheme colorScheme) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: SizeManager.s8,
+        mainAxisSpacing: SizeManager.s8,
+        childAspectRatio: 1,
+      ),
+      itemCount: _selectedImages.length,
+      itemBuilder: (context, index) {
+        return _buildImageItem(colorScheme, index);
+      },
+    );
+  }
+
+  Widget _buildImageItem(AppColorScheme colorScheme, int index) {
+    final bool isUploaded = index < _uploadedImageUrls.length;
+    final bool isUploading =
+        _isUploadingImages && index == _selectedImages.length - 1;
+
+    return Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SizeManager.r6),
+            border: Border.all(color: colorScheme.border),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(SizeManager.r6),
+            child: Image.file(
+              _selectedImages[index],
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
+        ),
+        // Upload status indicator
+        if (isUploading)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(SizeManager.r6),
+                color: Colors.black.withValues(alpha: 0.5),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.white,
+                  strokeWidth: 3,
+                ),
+              ),
+            ),
+          ),
+        // Uploaded checkmark
+        if (isUploaded && !isUploading)
+          Positioned(
+            bottom: 4,
+            left: 4,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: AppColors.success,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check, color: AppColors.white, size: 16),
+            ),
+          ),
+        // Remove button
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: () => _removeImage(index),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: AppColors.error,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, color: AppColors.white, size: 16),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageSourceButton({
+    required AppColorScheme colorScheme,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: SizeManager.s16),
+        decoration: BoxDecoration(
+          color: colorScheme.background,
+          borderRadius: BorderRadius.circular(SizeManager.r6),
+          border: Border.all(color: colorScheme.border, width: 1),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 32),
+            const SizedBox(height: SizeManager.s8),
+            Text(
+              label,
+              style: TextStyle(
+                color: colorScheme.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        final File imageFile = File(image.path);
+
+        // Check file size (limit to 5MB)
+        final int fileSizeInBytes = await imageFile.length();
+        final double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+
+        if (fileSizeInMB > 5.0) {
+          _showErrorSnackBar(
+            'Image size must be less than 5MB. Current size: ${fileSizeInMB.toStringAsFixed(1)}MB',
+          );
+          return;
+        }
+
+        setState(() {
+          _selectedImages.add(imageFile);
+        });
+        _showSuccesToastMessage(
+          'Image added successfully (${_selectedImages.length}/$_maxImages)',
+        );
+
+        // Automatically upload the newly added image
+        _uploadNewImage(imageFile);
+      }
+    } catch (e) {
+      _showErrorSnackBar('Failed to pick image: ${e.toString()}');
+    }
+  }
+
+  void _uploadNewImage(File imageFile) {
+    print('🚀 Auto-uploading new image...');
+
+    // Generate unique base path for this image
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final basePath = 'freights/freight_$timestamp';
+
+    // Trigger upload via BLoC for single file
+    context.read<UploadBloc>().add(
+      UploadSingleFileEvent(file: imageFile, path: basePath),
+    );
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _selectedImages.removeAt(index);
+      // Also remove the corresponding uploaded URL if it exists
+      if (index < _uploadedImageUrls.length) {
+        _uploadedImageUrls.removeAt(index);
+      }
+    });
+    _showSuccesToastMessage(
+      'Image removed (${_selectedImages.length}/$_maxImages)',
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  void _showSuccesToastMessage(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
     );
   }
 

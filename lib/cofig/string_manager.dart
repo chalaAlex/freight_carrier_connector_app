@@ -58,7 +58,7 @@ class StringManager {
   static const String postFreight = 'Post Freight';
   static const String available = 'Available';
   static const String busy = 'Busy';
-  static const String pricePerDay = 'per day';
+  static const String pricePerKm = 'per Km';
   static const String pricePerHour = 'per hour';
   static const String capacity = 'Capacity';
   static const String tons = 'tons';

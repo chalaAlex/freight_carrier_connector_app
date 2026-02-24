@@ -34,7 +34,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         TruckSuccess(
           trucks: trucks,
           currentPage: 1,
-          hasMorePages: trucks.data?.length == trucksPerPage,
+          hasMorePages: trucks.trucks?.length == trucksPerPage,
         ),
       ),
     );
@@ -69,7 +69,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         TruckSuccess(
           trucks: trucks,
           currentPage: 1,
-          hasMorePages: trucks.data?.length == trucksPerPage,
+          hasMorePages: trucks.trucks?.length == trucksPerPage,
           activeFilter: activeFilter,
         ),
       ),
@@ -106,19 +106,22 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
       (Failure failure) =>
           emit(TruckPaginationError(currentState.trucks, failure.message)),
       (newTrucks) {
-        final mergedData = [...?currentState.trucks.data, ...?newTrucks.data];
+        final mergedData = [
+          ...?currentState.trucks.trucks,
+          ...?newTrucks.trucks,
+        ];
         final allTrucks = TruckBaseResponseEntity(
           statusCode: newTrucks.statusCode ?? currentState.trucks.statusCode,
           message: newTrucks.message ?? currentState.trucks.message,
           total: newTrucks.total ?? currentState.trucks.total,
-          data: mergedData,
+          trucks: mergedData,
         );
 
         emit(
           TruckSuccess(
             trucks: allTrucks,
             currentPage: nextPage,
-            hasMorePages: newTrucks.data?.length == trucksPerPage,
+            hasMorePages: newTrucks.trucks?.length == trucksPerPage,
             activeFilter: currentState.activeFilter,
           ),
         );
@@ -145,8 +148,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         page: 1,
         search: event.query.isNotEmpty ? event.query : null,
         company: null,
-        isAvailable:
-            updatedFilter.type == FilterType.available ? true : null,
+        isAvailable: updatedFilter.type == FilterType.available ? true : null,
         carrierType: _getCarrierTypeString(updatedFilter.type),
       ),
     );
@@ -157,7 +159,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         TruckSuccess(
           trucks: trucks,
           currentPage: 1,
-          hasMorePages: trucks.data?.length == trucksPerPage,
+          hasMorePages: trucks.trucks?.length == trucksPerPage,
           activeFilter: updatedFilter,
         ),
       ),
@@ -192,7 +194,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         TruckSuccess(
           trucks: trucks,
           currentPage: 1,
-          hasMorePages: trucks.data?.length == trucksPerPage,
+          hasMorePages: trucks.trucks?.length == trucksPerPage,
           activeFilter: event.filter,
         ),
       ),
@@ -219,7 +221,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
         TruckSuccess(
           trucks: trucks,
           currentPage: 1,
-          hasMorePages: trucks.data?.length == trucksPerPage,
+          hasMorePages: trucks.trucks?.length == trucksPerPage,
           activeFilter: emptyFilter,
         ),
       ),

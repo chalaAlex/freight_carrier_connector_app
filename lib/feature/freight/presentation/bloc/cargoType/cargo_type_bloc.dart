@@ -1,8 +1,8 @@
 import 'package:clean_architecture/cofig/base_use_case.dart';
 import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_cargo_types_usecase.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_event.dart';
-import 'package:clean_architecture/feature/freight/presentation/bloc/cargo_type_state.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_event.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CargoTypeBloc extends Bloc<CargoTypeEvent, CargoTypeState> {

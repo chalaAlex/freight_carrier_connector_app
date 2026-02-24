@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../../domain/entities/truck.dart';
 part 'truck_model.g.dart';
 
 @JsonSerializable()
@@ -32,44 +31,53 @@ class TruckDto {
   @JsonKey(name: 'model')
   final String model;
 
-  @JsonKey(name: 'company')
-  final String company;
+  @JsonKey(name: 'plateNumber')
+  final String plateNumber;
 
-  @JsonKey(name: 'pricePerDay')
-  final num pricePerDay;
+  @JsonKey(name: 'brand')
+  final String brand;
 
-  @JsonKey(name: 'pricePerHour')
-  final num pricePerHour;
+  @JsonKey(name: 'pricePerKm')
+  final num pricePerKm;
 
-  @JsonKey(name: 'capacityTons')
-  final num capacityTons;
+  @JsonKey(name: 'loadCapacity')
+  final num loadCapacity;
 
-  @JsonKey(name: 'carrierType')
-  final TruckType carrierType;
+  @JsonKey(name: 'features')
+  final String features;
 
   @JsonKey(name: 'location')
   final String location;
 
   @JsonKey(name: 'radiusKm')
   final num radiusKm;
-  @JsonKey(name: 'imageUrl')
-  final String imageUrl;
+
+  @JsonKey(name: 'image')
+  final List<String> image;
 
   @JsonKey(name: 'isAvailable')
   final bool isAvailable;
 
+  @JsonKey(name: 'createdAt')
+  final String? createdAt;
+
+  @JsonKey(name: 'updatedAt')
+  final String? updatedAt;
+
   const TruckDto({
     required this.id,
     required this.model,
-    required this.company,
-    required this.pricePerDay,
-    required this.pricePerHour,
-    required this.capacityTons,
-    required this.carrierType,
+    required this.plateNumber,
+    required this.brand,
+    required this.pricePerKm,
+    required this.loadCapacity,
+    required this.features,
     required this.location,
     required this.radiusKm,
-    required this.imageUrl,
+    required this.image,
     required this.isAvailable,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory TruckDto.fromJson(Map<String, dynamic> json) =>

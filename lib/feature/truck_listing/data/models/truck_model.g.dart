@@ -27,35 +27,33 @@ Map<String, dynamic> _$TruckBaseResponseToJson(TruckBaseResponse instance) =>
 TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   id: json['_id'] as String,
   model: json['model'] as String,
-  company: json['company'] as String,
-  pricePerDay: json['pricePerDay'] as num,
-  pricePerHour: json['pricePerHour'] as num,
-  capacityTons: json['capacityTons'] as num,
-  carrierType: $enumDecode(_$TruckTypeEnumMap, json['carrierType']),
+  plateNumber: json['plateNumber'] as String,
+  brand: json['brand'] as String,
+  pricePerKm: json['pricePerKm'] as num,
+  loadCapacity: json['loadCapacity'] as num,
+  features: json['features'] as String,
   location: json['location'] as String,
   radiusKm: json['radiusKm'] as num,
-  imageUrl: json['imageUrl'] as String,
+  image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),
   isAvailable: json['isAvailable'] as bool,
+  createdAt: json['createdAt'] as String?,
+  updatedAt: json['updatedAt'] as String?,
 );
 
 Map<String, dynamic> _$TruckDtoToJson(TruckDto instance) => <String, dynamic>{
   '_id': instance.id,
   'model': instance.model,
-  'company': instance.company,
-  'pricePerDay': instance.pricePerDay,
-  'pricePerHour': instance.pricePerHour,
-  'capacityTons': instance.capacityTons,
-  'carrierType': _$TruckTypeEnumMap[instance.carrierType]!,
+  'plateNumber': instance.plateNumber,
+  'brand': instance.brand,
+  'pricePerKm': instance.pricePerKm,
+  'loadCapacity': instance.loadCapacity,
+  'features': instance.features,
   'location': instance.location,
   'radiusKm': instance.radiusKm,
-  'imageUrl': instance.imageUrl,
+  'image': instance.image,
   'isAvailable': instance.isAvailable,
-};
-
-const _$TruckTypeEnumMap = {
-  TruckType.flatbed: 'flatbed',
-  TruckType.refrigerated: 'refrigerated',
-  TruckType.dryVan: 'dryVan',
+  'createdAt': instance.createdAt,
+  'updatedAt': instance.updatedAt,
 };
 
 TruckDataModel _$TruckDataModelFromJson(Map<String, dynamic> json) =>
@@ -65,5 +63,6 @@ TruckDataModel _$TruckDataModelFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
+// ignore: unused_element
 Map<String, dynamic> _$TruckDataModelToJson(TruckDataModel instance) =>
     <String, dynamic>{'trucks': instance.trucks};
