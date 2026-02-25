@@ -10,6 +10,7 @@ class CreateFreightRequest {
   final Schedule schedule;
   final TruckRequirement truckRequirement;
   final Pricing pricing;
+  final List<String>? image;
 
   const CreateFreightRequest({
     required this.cargo,
@@ -17,6 +18,7 @@ class CreateFreightRequest {
     required this.schedule,
     required this.truckRequirement,
     required this.pricing,
+    this.image,
   });
 
   factory CreateFreightRequest.fromJson(Map<String, dynamic> json) =>

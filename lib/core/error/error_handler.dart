@@ -20,15 +20,11 @@ enum DataSource {
 
 class ErrorHandler implements Exception {
   ErrorHandler.handle(dynamic error) {
-    print('🔍 ErrorHandler: Handling error of type ${error.runtimeType}');
-    print('🔍 Error details: $error');
-
     if (error is DioException) {
       failure = _handleError(error);
     } else {
       // For non-Dio exceptions, preserve the actual error message
       final errorMessage = error.toString();
-      print('🔍 Non-Dio error message: $errorMessage');
       failure = Failure(ResponseCode.defaultErr, errorMessage);
     }
   }

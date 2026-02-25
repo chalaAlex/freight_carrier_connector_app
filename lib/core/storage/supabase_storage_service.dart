@@ -39,23 +39,9 @@ class SupabaseStorageService {
     required String basePath,
     required List<File> files,
   }) async {
-    print(
-      '🔧 SupabaseStorageService: Starting upload of ${files.length} files',
-    );
-    print('🔧 Bucket name: $_bucketName');
-    print('🔧 Base path: $basePath');
-    print('🔧 Supabase client is ready');
-
-    // Check if bucket exists by trying to list files
     try {
-      print('🔧 Testing bucket access...');
       await _client.storage.from(_bucketName).list();
-      print('✅ Bucket access successful');
     } catch (e) {
-      print('❌ Bucket access failed: $e');
-      print(
-        '❌ This likely means the bucket "$_bucketName" does not exist or you don\'t have permission',
-      );
       throw Exception('Bucket access failed: ${e.toString()}');
     }
 
@@ -65,13 +51,7 @@ class SupabaseStorageService {
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final String fileName = 'image_${timestamp}_$i.jpg';
       final String filePath = '$basePath/$fileName';
-
-      print('🔧 Uploading file $i: $filePath');
-      print('🔧 File exists: ${await files[i].exists()}');
-      print('🔧 File size: ${await files[i].length()} bytes');
-
       try {
-        print('🔧 Calling Supabase upload...');
         await _client.storage
             .from(_bucketName)
             .upload(
@@ -83,21 +63,14 @@ class SupabaseStorageService {
               ),
             );
 
-        print('🔧 Upload successful, getting public URL...');
         final String publicUrl = _client.storage
             .from(_bucketName)
             .getPublicUrl(filePath);
-        print('🔧 Public URL: $publicUrl');
         urls.add(publicUrl);
-      } catch (e, stackTrace) {
-        print('❌ Upload error for file $i: $e');
-        print('❌ Error type: ${e.runtimeType}');
-        print('❌ Stack trace: $stackTrace');
+      } catch (e) {
         throw Exception('Failed to upload file $i: ${e.toString()}');
       }
     }
-
-    print('✅ All uploads completed. Total URLs: ${urls.length}');
     return urls;
   }
 

@@ -24,7 +24,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     emit(const UploadLoading(currentIndex: 0, totalFiles: 1));
 
     try {
-      print("bloc called");
       final result = await uploadFileUseCase(
         UploadFileParams(path: event.path, file: event.file),
       );
@@ -33,7 +32,7 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
         (String url) => emit(UploadSuccess(uploadedUrls: [url])),
       );
     } catch (e) {
-      print("Bloccccccccc $e");
+      throw Exception('Failed to delete file: ${e.toString()}');
     }
   }
 
@@ -41,25 +40,18 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     UploadMultipleFilesEvent event,
     Emitter<UploadState> emit,
   ) async {
-    print("bloc called");
-
     emit(UploadLoading(currentIndex: 0, totalFiles: event.files.length));
 
     try {
       final result = await uploadMultipleFilesUseCase(
         UploadMultipleFilesParams(basePath: event.basePath, files: event.files),
       );
-
-      print(result);
-
-      print("rrrrrrrrrrr");
-
       result.fold(
         (Failure failure) => emit(UploadError(message: failure.message)),
         (List<String> urls) => emit(UploadSuccess(uploadedUrls: urls)),
       );
     } catch (e) {
-      print("mmmmmmmmmmmmmmmmmmmmm $e");
+      throw Exception('Failed to delete file: ${e.toString()}');
     }
   }
 

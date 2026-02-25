@@ -29,17 +29,12 @@ class FileRepositoryImpl implements FileRepository {
     required List<File> files,
   }) async {
     try {
-      print('📦 Repository: Calling remote data source...');
       final result = await remoteDataSource.uploadMultipleFiles(
         basePath: basePath,
         files: files,
       );
-      print('📦 Repository: Upload successful, got ${result.length} URLs');
       return Right(result);
-    } catch (error, stackTrace) {
-      print('❌ Repository error: $error');
-      print('❌ Error type: ${error.runtimeType}');
-      print('❌ Stack trace: $stackTrace');
+    } catch (error) {
       return Left(ErrorHandler.handle(error).failure);
     }
   }

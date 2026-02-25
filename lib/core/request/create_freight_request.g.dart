@@ -16,6 +16,7 @@ CreateFreightRequest _$CreateFreightRequestFromJson(
     json['truckRequirement'] as Map<String, dynamic>,
   ),
   pricing: Pricing.fromJson(json['pricing'] as Map<String, dynamic>),
+  image: (json['image'] as List<dynamic>?)?.map((e) => e as String).toList(),
 );
 
 Map<String, dynamic> _$CreateFreightRequestToJson(
@@ -26,6 +27,7 @@ Map<String, dynamic> _$CreateFreightRequestToJson(
   'schedule': instance.schedule,
   'truckRequirement': instance.truckRequirement,
   'pricing': instance.pricing,
+  'image': instance.image,
 };
 
 Cargo _$CargoFromJson(Map<String, dynamic> json) => Cargo(
