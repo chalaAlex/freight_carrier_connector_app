@@ -12,6 +12,7 @@ import 'package:clean_architecture/feature/freight/presentation/bloc/freight/fre
 import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_event.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/truck_detail/truck_detail_bloc.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
@@ -21,7 +22,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   EnvConfig.init(Environment.dev);
-  //Environment & Supabase initialization
   await init(Environment.dev);
   runApp(const MyApp());
 }
@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => sl<LoginBloc>()),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
         BlocProvider(create: (_) => sl<TruckBloc>()),
+        BlocProvider(create: (_) => sl<TruckDetailBloc>()),
         BlocProvider(create: (_) => sl<FreightBloc>()),
         BlocProvider(
           create: (_) => sl<LocationBloc>()..add(const FetchRegionsEvent()),

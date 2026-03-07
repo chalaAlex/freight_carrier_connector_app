@@ -31,7 +31,9 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   brand: json['brand'] as String,
   pricePerKm: json['pricePerKm'] as num,
   loadCapacity: json['loadCapacity'] as num,
-  features: json['features'] as String,
+  features: (json['features'] as List<dynamic>)
+      .map((e) => e as String)
+      .toList(),
   location: json['location'] as String,
   radiusKm: json['radiusKm'] as num,
   image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),

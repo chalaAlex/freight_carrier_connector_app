@@ -12,7 +12,10 @@ class AppColors {
   static const darkGrey = Color(0xFF2B2B2B);
   static const grey = Color(0xFF7A7A7A);
   static const lightGrey = Color(0xFFF2F2F2);
-  static const white = Color(0xFFFFFFFF);
+  static const white = Color.fromARGB(255, 255, 255, 255);
+  static const background = Color(0xFFF8F9FA);
+  static const lightDark = Color(0xFFF8F9FA);
+
 
   // Status
   static const success = Color(0xFF22C55E);

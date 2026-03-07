@@ -4,15 +4,17 @@ import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/cofig/routes_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/utils/debouncer.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
 import '../bloc/truck_bloc.dart';
 import '../bloc/truck_event.dart';
 import '../bloc/truck_state.dart';
 import '../widgets/shimmer_loader.dart';
-import '../widgets/truck_list_view.dart';
 import '../widgets/error_retry_widget.dart';
 import '../widgets/empty_state_widget.dart';
+import '../widgets/truck_card.dart';
+import '../widgets/pagination_loader.dart';
 
 class TruckListingScreen extends StatefulWidget {
   const TruckListingScreen({super.key});
@@ -74,236 +76,216 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
+
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          _buildSearchBar(),
-          _buildFilterChips(),
-          Expanded(child: _buildContent()),
-        ],
-      ),
-      floatingActionButton: _buildFloatingActionButton(),
-    );
-  }
+      backgroundColor: colorScheme.background,
+      body: BlocBuilder<TruckBloc, TruckState>(
+        builder: (context, state) {
+          if (state is TruckInitial || state is TruckLoading) {
+            return _buildLoadingState(colorScheme);
+          }
+          if (state is TruckError) {
+            return _buildErrorState(state.message, colorScheme);
+          }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: const Text(StringManager.truckListingTitle),
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.white,
-      elevation: 0,
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.all(SizeManager.s16),
-      color: AppColors.primary,
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          _searchDebouncer.run(() {
-            context.read<TruckBloc>().add(SearchTrucks(value));
-          });
+          return _buildSuccessState(state, colorScheme);
         },
-        decoration: InputDecoration(
-          hintText: StringManager.searchHint,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _searchController.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    context.read<TruckBloc>().add(const SearchTrucks(''));
-                  },
-                )
-              : null,
-          filled: true,
-          fillColor: AppColors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(SizeManager.r12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: SizeManager.s16,
-            vertical: SizeManager.s12,
-          ),
-        ),
       ),
     );
   }
 
-  Widget _buildFilterChips() {
-    return BlocBuilder<TruckBloc, TruckState>(
-      builder: (context, state) {
-        final activeFilter =
-            state is TruckSuccess ? state.activeFilter : const TruckFilter();
-
-        return Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SizeManager.s16,
-            vertical: SizeManager.s12,
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildFilterChip(
-                  label: StringManager.filterAll,
-                  filterType: FilterType.all,
-                  isSelected: activeFilter.type == FilterType.all,
-                  activeFilter: activeFilter,
-                ),
-                const SizedBox(width: SizeManager.s8),
-                _buildFilterChip(
-                  label: StringManager.filterAvailable,
-                  filterType: FilterType.available,
-                  isSelected: activeFilter.type == FilterType.available,
-                  activeFilter: activeFilter,
-                ),
-                const SizedBox(width: SizeManager.s8),
-                _buildFilterChip(
-                  label: StringManager.filterFlatbed,
-                  filterType: FilterType.flatbed,
-                  isSelected: activeFilter.type == FilterType.flatbed,
-                  activeFilter: activeFilter,
-                ),
-                const SizedBox(width: SizeManager.s8),
-                _buildFilterChip(
-                  label: StringManager.filterRefrigerated,
-                  filterType: FilterType.refrigerated,
-                  isSelected: activeFilter.type == FilterType.refrigerated,
-                  activeFilter: activeFilter,
-                ),
-                const SizedBox(width: SizeManager.s8),
-                _buildFilterChip(
-                  label: StringManager.filterDryVan,
-                  filterType: FilterType.dryVan,
-                  isSelected: activeFilter.type == FilterType.dryVan,
-                  activeFilter: activeFilter,
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+  Widget _buildLoadingState(AppColorScheme colorScheme) {
+    return CustomScrollView(
+      slivers: [
+        _buildSliverAppBar(colorScheme),
+        _buildSliverFilterChips(const TruckFilter(), colorScheme),
+        const SliverFillRemaining(child: ShimmerLoader()),
+      ],
     );
   }
 
-  Widget _buildFilterChip({
-    required String label,
-    required FilterType filterType,
-    required bool isSelected,
-    required TruckFilter activeFilter,
-  }) {
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        final newFilter = activeFilter.copyWith(
-          type: selected ? filterType : FilterType.all,
-        );
-        context.read<TruckBloc>().add(FilterTrucks(newFilter));
-      },
-      backgroundColor: AppColors.white,
-      // ignore: deprecated_member_use
-      selectedColor: AppColors.primary.withOpacity(0.2),
-      checkmarkColor: AppColors.primary,
-      labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : AppColors.darkGrey,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(SizeManager.r12),
-        side: BorderSide(
-          color: isSelected ? AppColors.primary : AppColors.lightGrey,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    return BlocBuilder<TruckBloc, TruckState>(
-      builder: (context, state) {
-        if (state is TruckInitial || state is TruckLoading) {
-          return const ShimmerLoader();
-        }
-        if (state is TruckError) {
-          return ErrorRetryWidget(
-            message: state.message,
+  Widget _buildErrorState(String message, AppColorScheme colorScheme) {
+    return CustomScrollView(
+      slivers: [
+        _buildSliverAppBar(colorScheme),
+        _buildSliverFilterChips(const TruckFilter(), colorScheme),
+        SliverFillRemaining(
+          child: ErrorRetryWidget(
+            message: message,
             onRetry: () {
               context.read<TruckBloc>().add(FetchInitialTrucks());
             },
-          );
-        }
-        if (state is TruckSuccess) {
-          final trucks = state.trucks.trucks ?? [];
-
-          if (trucks.isEmpty) {
-            // Show different messages for empty data vs no results from filters
-            return state.activeFilter.hasActiveFilters
-                ? _buildNoResultsWidget()
-                : const EmptyStateWidget();
-          }
-
-          return RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: AppColors.primary,
-            child: TruckListView(
-              trucks: trucks,
-              scrollController: _scrollController,
-              onEndReached: () {
-                context.read<TruckBloc>().add(FetchNextPage());
-              },
-              currentState: state,
-            ),
-          );
-        }
-        // Handle pagination loading state
-        if (state is TruckPaginationLoading) {
-          return RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: AppColors.primary,
-            child: TruckListView(
-              trucks: state.currentTrucks.trucks ?? [],
-              scrollController: _scrollController,
-              onEndReached: () {},
-              currentState: state,
-            ),
-          );
-        }
-
-        // Handle pagination error state
-        if (state is TruckPaginationError) {
-          return RefreshIndicator(
-            onRefresh: _onRefresh,
-            color: AppColors.primary,
-            child: Column(
-              children: [
-                Expanded(
-                  child: TruckListView(
-                    trucks: state.currentTrucks.trucks ?? [],
-                    scrollController: _scrollController,
-                    onEndReached: () {},
-                    currentState: state,
-                  ),
-                ),
-                _buildPaginationError(state.message),
-              ],
-            ),
-          );
-        }
-        return const Center(child: Text('Unknown state'));
-      },
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildPaginationError(String message) {
+  Widget _buildSuccessState(TruckState state, AppColorScheme colorScheme) {
+    final trucks = _getTrucks(state);
+    final activeFilter = _getActiveFilter(state);
+    final showPaginationLoader = state is TruckPaginationLoading;
+
+    if (trucks.isEmpty) {
+      return CustomScrollView(
+        slivers: [
+          _buildSliverAppBar(colorScheme),
+          _buildSliverFilterChips(activeFilter, colorScheme),
+          SliverFillRemaining(
+            child: activeFilter.hasActiveFilters
+                ? _buildNoResultsWidget(colorScheme)
+                : const EmptyStateWidget(),
+          ),
+        ],
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: AppColors.primary,
+      child: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          _buildSliverAppBar(colorScheme),
+          _buildSliverFilterChips(activeFilter, colorScheme),
+          SliverPadding(
+            padding: const EdgeInsets.all(SizeManager.s16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index == trucks.length && showPaginationLoader) {
+                  return const PaginationLoader();
+                }
+
+                final truck = trucks[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: SizeManager.s16),
+                  child: TruckCard(
+                    truck: truck,
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.truckDetailRoute,
+                        arguments: truck.id,
+                      );
+                    },
+                    index: index,
+                  ),
+                );
+              }, childCount: trucks.length + (showPaginationLoader ? 1 : 0)),
+            ),
+          ),
+          if (state is TruckPaginationError)
+            SliverToBoxAdapter(
+              child: _buildPaginationError(state.message, colorScheme),
+            ),
+        ],
+      ),
+    );
+  }
+
+  SliverAppBar _buildSliverAppBar(AppColorScheme colorScheme) {
+    return SliverAppBar(
+      floating: true,
+      snap: true,
+      backgroundColor: colorScheme.surface,
+      foregroundColor: colorScheme.textPrimary,
+      elevation: 0,
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: Container(
+          padding: const EdgeInsets.all(SizeManager.s16),
+          color: colorScheme.surface,
+          child: TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              _searchDebouncer.run(() {
+                context.read<TruckBloc>().add(SearchTrucks(value));
+              });
+            },
+            style: TextStyle(fontSize: 14, color: colorScheme.textPrimary),
+            decoration: InputDecoration(
+              hintText: StringManager.searchHint,
+              hintStyle: TextStyle(
+                fontSize: 14,
+                color: colorScheme.textSecondary,
+              ),
+              prefixIcon: Icon(
+                Icons.search,
+                size: 20,
+                color: colorScheme.textSecondary,
+              ),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.clear,
+                        size: 20,
+                        color: colorScheme.textSecondary,
+                      ),
+                      onPressed: () {
+                        _searchController.clear();
+                        context.read<TruckBloc>().add(const SearchTrucks(''));
+                        setState(() {});
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: colorScheme.border,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(SizeManager.r12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: SizeManager.s12,
+                vertical: SizeManager.s8,
+              ),
+              isDense: true,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSliverFilterChips(
+    TruckFilter activeFilter,
+    AppColorScheme colorScheme,
+  ) {
+    return SliverPersistentHeader(
+      pinned: true,
+      delegate: _FilterChipsDelegate(
+        activeFilter: activeFilter,
+        colorScheme: colorScheme,
+        onFilterChanged: (filter) {
+          context.read<TruckBloc>().add(FilterTrucks(filter));
+        },
+      ),
+    );
+  }
+
+  List<dynamic> _getTrucks(TruckState state) {
+    if (state is TruckSuccess) {
+      return state.trucks.trucks ?? [];
+    } else if (state is TruckPaginationLoading) {
+      return state.currentTrucks.trucks ?? [];
+    } else if (state is TruckPaginationError) {
+      return state.currentTrucks.trucks ?? [];
+    }
+    return [];
+  }
+
+  TruckFilter _getActiveFilter(TruckState state) {
+    if (state is TruckSuccess) {
+      return state.activeFilter;
+    }
+    return const TruckFilter();
+  }
+
+  Widget _buildPaginationError(String message, AppColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.all(SizeManager.s16),
-      // ignore: deprecated_member_use
-      color: AppColors.error.withOpacity(0.1),
+      color: AppColors.error.withValues(alpha: 0.1),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: AppColors.error, size: 20),
@@ -331,35 +313,27 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
     );
   }
 
-  /// Builds the no results widget when filters return empty results
-  Widget _buildNoResultsWidget() {
+  Widget _buildNoResultsWidget(AppColorScheme colorScheme) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SizeManager.s24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: AppColors.lightGrey,
-            ),
+            Icon(Icons.search_off, size: 64, color: colorScheme.border),
             const SizedBox(height: SizeManager.s16),
             Text(
               StringManager.noResultsFound,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.darkGrey,
+                color: colorScheme.textPrimary,
               ),
             ),
             const SizedBox(height: SizeManager.s8),
             Text(
               StringManager.tryDifferentFilters,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.grey,
-              ),
+              style: TextStyle(fontSize: 14, color: colorScheme.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: SizeManager.s24),
@@ -386,17 +360,110 @@ class _TruckListingScreenState extends State<TruckListingScreen> {
       ),
     );
   }
+}
 
-  /// Builds the floating action button for posting freight
-  Widget _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      onPressed: () {
-        Navigator.pushNamed(context, Routes.postFreightRoute);
-      },
-      backgroundColor: AppColors.primary,
-      foregroundColor: AppColors.white,
-      icon: const Icon(Icons.add),
-      label: const Text(StringManager.postFreight),
+// Custom delegate for pinned filter chips
+class _FilterChipsDelegate extends SliverPersistentHeaderDelegate {
+  final TruckFilter activeFilter;
+  final AppColorScheme colorScheme;
+  final Function(TruckFilter) onFilterChanged;
+
+  _FilterChipsDelegate({
+    required this.activeFilter,
+    required this.colorScheme,
+    required this.onFilterChanged,
+  });
+
+  @override
+  double get minExtent => 60;
+
+  @override
+  double get maxExtent => 60;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: colorScheme.surface,
+      padding: const EdgeInsets.symmetric(
+        horizontal: SizeManager.s16,
+        vertical: SizeManager.s8,
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            _buildFilterChip(
+              label: StringManager.filterAll,
+              filterType: FilterType.all,
+              isSelected: activeFilter.type == FilterType.all,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _buildFilterChip(
+              label: StringManager.filterAvailable,
+              filterType: FilterType.available,
+              isSelected: activeFilter.type == FilterType.available,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _buildFilterChip(
+              label: StringManager.filterFlatbed,
+              filterType: FilterType.flatbed,
+              isSelected: activeFilter.type == FilterType.flatbed,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _buildFilterChip(
+              label: StringManager.filterRefrigerated,
+              filterType: FilterType.refrigerated,
+              isSelected: activeFilter.type == FilterType.refrigerated,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _buildFilterChip(
+              label: StringManager.filterDryVan,
+              filterType: FilterType.dryVan,
+              isSelected: activeFilter.type == FilterType.dryVan,
+            ),
+          ],
+        ),
+      ),
     );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required FilterType filterType,
+    required bool isSelected,
+  }) {
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        final newFilter = activeFilter.copyWith(
+          type: selected ? filterType : FilterType.all,
+        );
+        onFilterChanged(newFilter);
+      },
+      backgroundColor: colorScheme.surface,
+      selectedColor: AppColors.primary.withValues(alpha: 0.2),
+      checkmarkColor: AppColors.primary,
+      labelStyle: TextStyle(
+        color: isSelected ? AppColors.primary : colorScheme.textPrimary,
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SizeManager.r12),
+        side: BorderSide(
+          color: isSelected ? AppColors.primary : colorScheme.border,
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_FilterChipsDelegate oldDelegate) {
+    return activeFilter != oldDelegate.activeFilter ||
+        colorScheme != oldDelegate.colorScheme;
   }
 }

@@ -64,7 +64,7 @@ class StatefulFreightDropdown extends StatelessWidget {
 
   Widget _buildDropdown() {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       hint: Text(hint, style: TextStyle(color: colorScheme.textSecondary)),
       items: items.map((item) {
         return DropdownMenuItem(value: item, child: Text(item));

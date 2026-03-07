@@ -1,3 +1,4 @@
+import 'package:clean_architecture/feature/my_loads/presentation/screen/my_loads_screen.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar>
 
   final List<Widget> screens = [
     const TruckListingScreen(),
-    TruckListingScreen(),
+    MyLoadsScreen(),
     TruckListingScreen(),
     TruckListingScreen(),
     TruckListingScreen(),
@@ -54,7 +55,7 @@ class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar>
                   });
                 },
                 icon: Icon(
-                  Icons.group,
+                  Icons.fire_truck,
                   size: 30,
                   color: currentIndex == 1
                       ? Colors.blueAccent

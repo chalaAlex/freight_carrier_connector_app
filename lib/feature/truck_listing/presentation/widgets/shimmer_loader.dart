@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
-import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
 
 /// A shimmer loading widget that displays skeleton cards during initial data fetch.
 ///
@@ -9,11 +9,11 @@ import 'package:clean_architecture/core/colors/app_colors.dart';
 class ShimmerLoader extends StatefulWidget {
   final int cardCount;
 
-  const ShimmerLoader({
-    super.key,
-    this.cardCount = 4,
-  }) : assert(cardCount >= 3 && cardCount <= 5,
-            'cardCount must be between 3 and 5');
+  const ShimmerLoader({super.key, this.cardCount = 4})
+    : assert(
+        cardCount >= 3 && cardCount <= 5,
+        'cardCount must be between 3 and 5',
+      );
 
   @override
   State<ShimmerLoader> createState() => _ShimmerLoaderState();
@@ -32,9 +32,10 @@ class _ShimmerLoaderState extends State<ShimmerLoader>
       duration: const Duration(milliseconds: 1500),
     )..repeat();
 
-    _animation = Tween<double>(begin: -2, end: 2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: -2,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -66,8 +67,12 @@ class _ShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
+
     return Card(
       elevation: SizeManager.cardElevation,
+      color: colorScheme.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(SizeManager.cardRadius),
       ),
@@ -75,16 +80,16 @@ class _ShimmerCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image section shimmer
-          _buildImageShimmer(),
+          _buildImageShimmer(colorScheme),
           // Info section shimmer
-          _buildInfoShimmer(),
+          _buildInfoShimmer(colorScheme),
         ],
       ),
     );
   }
 
   /// Builds the shimmer effect for the image section
-  Widget _buildImageShimmer() {
+  Widget _buildImageShimmer(AppColorScheme colorScheme) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(SizeManager.cardRadius),
       child: AnimatedBuilder(
@@ -97,10 +102,10 @@ class _ShimmerCard extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: const [
-                  AppColors.lightGrey,
-                  AppColors.white,
-                  AppColors.lightGrey,
+                colors: [
+                  colorScheme.border,
+                  colorScheme.surface,
+                  colorScheme.border,
                 ],
                 stops: [
                   _calculateStop(animation.value - 1),
@@ -116,36 +121,40 @@ class _ShimmerCard extends StatelessWidget {
   }
 
   /// Builds the shimmer effect for the info section
-  Widget _buildInfoShimmer() {
+  Widget _buildInfoShimmer(AppColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.all(SizeManager.s16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Truck model name shimmer
-          _buildShimmerBox(width: 200, height: 24),
+          _buildShimmerBox(width: 200, height: 24, colorScheme: colorScheme),
           const SizedBox(height: SizeManager.s8),
 
           // Company name shimmer
-          _buildShimmerBox(width: 150, height: 16),
+          _buildShimmerBox(width: 150, height: 16, colorScheme: colorScheme),
           const SizedBox(height: SizeManager.s16),
 
           // Pricing shimmer
-          _buildShimmerBox(width: 250, height: 20),
+          _buildShimmerBox(width: 250, height: 20, colorScheme: colorScheme),
           const SizedBox(height: SizeManager.s16),
 
           // Specs row shimmer
           Row(
             children: [
-              _buildShimmerBox(width: 80, height: 16),
+              _buildShimmerBox(width: 80, height: 16, colorScheme: colorScheme),
               const SizedBox(width: SizeManager.s24),
-              _buildShimmerBox(width: 100, height: 16),
+              _buildShimmerBox(
+                width: 100,
+                height: 16,
+                colorScheme: colorScheme,
+              ),
             ],
           ),
           const SizedBox(height: SizeManager.s12),
 
           // Location shimmer
-          _buildShimmerBox(width: 180, height: 16),
+          _buildShimmerBox(width: 180, height: 16, colorScheme: colorScheme),
           const SizedBox(height: SizeManager.s16),
 
           // Action buttons shimmer
@@ -155,6 +164,7 @@ class _ShimmerCard extends StatelessWidget {
                 child: _buildShimmerBox(
                   width: double.infinity,
                   height: SizeManager.buttonHeight,
+                  colorScheme: colorScheme,
                 ),
               ),
               const SizedBox(width: SizeManager.s12),
@@ -162,6 +172,7 @@ class _ShimmerCard extends StatelessWidget {
                 child: _buildShimmerBox(
                   width: double.infinity,
                   height: SizeManager.buttonHeight,
+                  colorScheme: colorScheme,
                 ),
               ),
             ],
@@ -172,7 +183,11 @@ class _ShimmerCard extends StatelessWidget {
   }
 
   /// Builds a shimmer box with animated gradient
-  Widget _buildShimmerBox({required double width, required double height}) {
+  Widget _buildShimmerBox({
+    required double width,
+    required double height,
+    required AppColorScheme colorScheme,
+  }) {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
@@ -184,10 +199,10 @@ class _ShimmerCard extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: const [
-                AppColors.lightGrey,
-                AppColors.white,
-                AppColors.lightGrey,
+              colors: [
+                colorScheme.border,
+                colorScheme.surface,
+                colorScheme.border,
               ],
               stops: [
                 _calculateStop(animation.value - 1),

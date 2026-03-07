@@ -28,6 +28,8 @@ class SupabaseStorageService {
           .from(_bucketName)
           .getPublicUrl(filePath);
 
+      print(publicUrl);
+
       return publicUrl;
     } catch (e) {
       throw Exception('Failed to upload file: ${e.toString()}');

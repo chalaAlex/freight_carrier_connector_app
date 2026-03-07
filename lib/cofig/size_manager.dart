@@ -13,6 +13,7 @@ class SizeManager {
   static const double s40 = 40.0;
 
   // Radius
+  static const double r4 = 4.0;
   static const double r6 = 6.0;
   static const double r12 = 12.0;
 

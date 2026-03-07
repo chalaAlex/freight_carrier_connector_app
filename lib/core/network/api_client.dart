@@ -2,6 +2,7 @@ import 'package:clean_architecture/core/request/create_freight_request.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
+import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
@@ -40,6 +41,9 @@ abstract class ApiClient {
     @Query("carrierType") String? carrierType,
   });
 
+  @GET("/trucks/{id}")
+  Future<TruckDetailBaseResponse> getTruckDetail(@Path("id") String id);
+
   @GET("/location")
   Future<LocationBaseResponse> getLocation({
     @Query("page") int? page,
@@ -50,6 +54,9 @@ abstract class ApiClient {
 
   @GET("/cargoType")
   Future<CargoTypeBaseResponse> getCargoTypes();
+
+  @GET("/trucks/:id")
+  Future<TruckDetailBaseResponse> getTruck();
 
   @POST("/freights")
   Future<FreightBaseResponse> createFreight(

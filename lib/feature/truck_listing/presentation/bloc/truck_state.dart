@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/truck.dart';
+import '../../domain/entities/truck_entity.dart';
 import '../../domain/models/truck_filter.dart';
 
 abstract class TruckState extends Equatable {

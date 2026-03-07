@@ -1,7 +1,7 @@
 // ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
 import 'package:clean_architecture/core/error/failure.dart';
-import 'package:clean_architecture/feature/truck_listing/domain/entities/truck.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
 import 'truck_event.dart';

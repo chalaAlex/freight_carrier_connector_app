@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
-import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
 
 /// A widget that displays an empty state when no trucks are available.
 ///
@@ -12,6 +12,9 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SizeManager.s24),
@@ -23,8 +26,7 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               Icons.local_shipping_outlined,
               size: 80,
-              // ignore: deprecated_member_use
-              color: AppColors.grey.withOpacity(0.5),
+              color: colorScheme.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: SizeManager.s24),
 
@@ -33,9 +35,9 @@ class EmptyStateWidget extends StatelessWidget {
               StringManager.noTrucksAvailable,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: AppColors.darkGrey,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: colorScheme.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: SizeManager.s12),
 
@@ -44,8 +46,8 @@ class EmptyStateWidget extends StatelessWidget {
               StringManager.checkBackLater,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.grey,
-                  ),
+                color: colorScheme.textSecondary,
+              ),
             ),
           ],
         ),

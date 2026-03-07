@@ -44,7 +44,7 @@ class TruckDto {
   final num loadCapacity;
 
   @JsonKey(name: 'features')
-  final String features;
+  final List<String> features;
 
   @JsonKey(name: 'location')
   final String location;

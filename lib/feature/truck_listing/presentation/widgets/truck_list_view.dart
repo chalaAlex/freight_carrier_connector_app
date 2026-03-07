@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/truck.dart';
+import 'package:clean_architecture/cofig/routes_manager.dart';
+import '../../domain/entities/truck_entity.dart';
 import '../bloc/truck_state.dart';
 import 'truck_card.dart';
 import 'pagination_loader.dart';
@@ -33,7 +34,17 @@ class TruckListView extends StatelessWidget {
 
         final truck = trucks[index];
 
-        return TruckCard(truck: truck, onTap: () {}, index: index,);
+        return TruckCard(
+          truck: truck,
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              Routes.truckDetailRoute,
+              arguments: truck.id,
+            );
+          },
+          index: index,
+        );
       },
     );
   }

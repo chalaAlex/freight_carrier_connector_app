@@ -16,23 +16,29 @@ import 'package:clean_architecture/feature/freight/data/datasources/cargo_type_r
 import 'package:clean_architecture/feature/freight/data/datasources/cargo_type_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight/data/datasources/upload_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight/data/datasources/upload_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/truck_detail_remote_data_source.dart';
+import 'package:clean_architecture/feature/freight/data/datasources/truck_detail_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/freight_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/location_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/cargo_type_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/data/repositories/upload_repository_impl.dart';
+import 'package:clean_architecture/feature/freight/data/repositories/truck_detail_repository_impl.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/freight_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/location_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/cargo_type_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/upload_repository.dart';
+import 'package:clean_architecture/feature/freight/domain/repositories/truck_detail_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/create_freight_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_freights_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_locations_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_cargo_types_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/upload_usecase.dart';
+import 'package:clean_architecture/feature/freight/domain/usecases/get_truck_detail_usecase.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/freight/freight_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/location/location_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
+import 'package:clean_architecture/feature/freight/presentation/bloc/truck_detail/truck_detail_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -79,12 +85,14 @@ Future<void> init(Environment prod) async {
     () => TokenLocalDataSourceImpl(sl()),
   );
 
-  // ------------------ Network ------------------ //
-  sl.registerLazySingleton<Dio>(() => DioFactory.createDio(sl()));
-  sl.registerLazySingleton<ApiClient>(() => ApiClient(sl()));
-
   // ------------------ Environments ------------------ //
   sl.registerSingleton<AppConfig>(EnvConfig.config);
+
+  // ------------------ Network ------------------ //
+  sl.registerLazySingleton<Dio>(
+    () => DioFactory.createDio(sl(), sl<AppConfig>().baseUrl),
+  );
+  sl.registerLazySingleton<ApiClient>(() => ApiClient(sl()));
 
   // ------------------ Data Sources ------------------ //
   sl.registerFactory<SignUpRemoteDataSource>(
@@ -108,6 +116,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<FileRemoteDataSource>(
     () => FileRemoteDataSourceImpl(sl()),
   );
+  sl.registerFactory<TruckDetailRemoteDataSource>(
+    () => TruckDetailRemoteDataSourceImpl(client: sl()),
+  );
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
@@ -117,6 +128,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<LocationRepository>(() => LocationRepositoryImpl(sl()));
   sl.registerFactory<CargoTypeRepository>(() => CargoTypeRepositoryImpl(sl()));
   sl.registerFactory<FileRepository>(() => FileRepositoryImpl(sl()));
+  sl.registerFactory<TruckDetailRepository>(
+    () => TruckDetailRepositoryImpl(sl()),
+  );
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
@@ -128,6 +142,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetCargoTypesUseCase(sl()));
   sl.registerFactory(() => UploadFileUseCase(sl()));
   sl.registerFactory(() => UploadMultipleFilesUseCase(sl()));
+  sl.registerFactory(() => GetTruckDetailUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -142,4 +157,5 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(
     () => UploadBloc(uploadFileUseCase: sl(), uploadMultipleFilesUseCase: sl()),
   );
+  sl.registerFactory(() => TruckDetailBloc(getTruckDetailUseCase: sl()));
 }

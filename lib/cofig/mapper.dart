@@ -2,15 +2,19 @@ import 'package:clean_architecture/cofig/base_mapper.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
+import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart'
+    as detail;
 import 'package:clean_architecture/feature/freight/domain/entity/cargo_type_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
+import 'package:clean_architecture/feature/freight/domain/entity/truck_detail_entity.dart'
+    as detail_entity;
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/login_entity.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
-import 'package:clean_architecture/feature/truck_listing/domain/entities/truck.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
 
 class UserMapper extends BaseMapper<UserResponse, UserModel> {
   @override
@@ -106,7 +110,7 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
       brand: dto.brand,
       pricePerKm: double.tryParse(dto.pricePerKm.toString()) ?? 0.0,
       loadCapacity: double.tryParse(dto.loadCapacity.toString()) ?? 0.0,
-      features: _mapStringToTruckType(dto.features),
+      features: dto.features,
       location: dto.location,
       radiusKm: double.tryParse(dto.radiusKm.toString()) ?? 0.0,
       images: dto.image,
@@ -120,18 +124,18 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
     );
   }
 
-  TruckType _mapStringToTruckType(String features) {
-    switch (features.toLowerCase()) {
-      case 'flatbed':
-        return TruckType.flatbed;
-      case 'refrigerated':
-        return TruckType.refrigerated;
-      case 'dryvan':
-        return TruckType.dryVan;
-      default:
-        return TruckType.dryVan;
-    }
-  }
+  // TruckType _mapStringToTruckType(String features) {
+  //   switch (features.toLowerCase()) {
+  //     case 'flatbed':
+  //       return TruckType.flatbed;
+  //     case 'refrigerated':
+  //       return TruckType.refrigerated;
+  //     case 'dryvan':
+  //       return TruckType.dryVan;
+  //     default:
+  //       return TruckType.dryVan;
+  //   }
+  // }
 }
 
 extension FreightDtoMapper on FreightDto {
@@ -231,5 +235,58 @@ extension CargoTypeBaseResponseMapper on CargoTypeBaseResponse {
 extension CargoTypeDtoMapper on CargoTypeDto {
   CargoTypeEntity toEntity() {
     return CargoTypeEntity(id: id, cargoType: cargoType);
+  }
+}
+
+// Truck Detail Mappers
+
+extension TruckDetailBaseResponseMapper on detail.TruckDetailBaseResponse {
+  detail_entity.TruckDetailBaseEntity toEntity() {
+    return detail_entity.TruckDetailBaseEntity(
+      statusCode: statusCode,
+      message: message,
+      data: data?.toEntity(),
+    );
+  }
+}
+
+extension TruckDetailDataMapper on detail.TruckData {
+  detail_entity.TruckDataEntity toEntity() {
+    return detail_entity.TruckDataEntity(truck: truck?.toEntity());
+  }
+}
+
+extension TruckDetailDtoMapper on detail.TruckDto {
+  detail_entity.TruckEntity toEntity() {
+    return detail_entity.TruckEntity(
+      id: id,
+      truckOwner: truckOwner?.toEntity(),
+      model: model,
+      plateNumber: plateNumber,
+      brand: brand,
+      pricePerKm: pricePerKm,
+      loadCapacity: loadCapacity,
+      features: features,
+      location: location,
+      radiusKm: radiusKm,
+      image: image,
+      aboutTruck: aboutTruck,
+      isAvailable: isAvailable,
+      createdAt: createdAt != null ? DateTime.tryParse(createdAt!) : null,
+      updatedAt: updatedAt != null ? DateTime.tryParse(updatedAt!) : null,
+    );
+  }
+}
+
+extension TruckOwnerDtoMapper on detail.TruckOwnerDto {
+  detail_entity.TruckOwnerEntity toEntity() {
+    return detail_entity.TruckOwnerEntity(
+      id: id,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      ratingQuantity: ratingQuantity,
+      ratingAverage: ratingAverage,
+    );
   }
 }

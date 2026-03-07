@@ -2,145 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
-import '../../domain/entities/truck.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
+import '../../domain/entities/truck_entity.dart';
+
 class TruckInfoSection extends StatelessWidget {
   final TruckEntity truck;
 
-  const TruckInfoSection({
-    super.key,
-    required this.truck,
-  });
+  const TruckInfoSection({super.key, required this.truck});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
 
     return Padding(
       padding: const EdgeInsets.all(SizeManager.s16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(truck.model, style: theme.textTheme.headlineSmall),
-          const SizedBox(height: SizeManager.s8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                truck.model,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: colorScheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: SizeManager.s8),
 
-          Text(
-            truck.brand,
-            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.grey),
+              Text(
+                truck.brand,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.textSecondary,
+                ),
+              ),
+              const SizedBox(height: SizeManager.s16),
+            ],
           ),
-          const SizedBox(height: SizeManager.s16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'ETB ${truck.pricePerKm.toStringAsFixed(0)} ${StringManager.pricePerKm} • ',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
 
-          Text(
-            'ETB ${truck.pricePerKm.toStringAsFixed(0)} ${StringManager.pricePerKm} • ',
-            // 'ETB ${truck.pricePerHour.toStringAsFixed(0)} ${StringManager.pricePerHour}',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: AppColors.primary,
-            ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.location_on,
+                    size: SizeManager.iconSize,
+                    color: colorScheme.textSecondary,
+                  ),
+                  Text(
+                    truck.location,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: SizeManager.s16),
+            ],
           ),
-          const SizedBox(height: SizeManager.s16),
-
-          _buildSpecsRow(theme),
-          const SizedBox(height: SizeManager.s16),
-
-          _buildActionButtons(),
         ],
       ),
     );
-  }
-
-  Widget _buildSpecsRow(ThemeData theme) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(Icons.scale, size: SizeManager.iconSize, color: AppColors.grey),
-            const SizedBox(width: SizeManager.s8),
-            Text(
-              '${truck.loadCapacity.toStringAsFixed(1)} ${StringManager.tons}',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(width: SizeManager.s24),
-
-            Icon(_getTruckTypeIcon(), size: SizeManager.iconSize, color: AppColors.grey),
-            const SizedBox(width: SizeManager.s8),
-            Text(_getTruckTypeLabel(), style: theme.textTheme.bodyMedium),
-          ],
-        ),
-        const SizedBox(height: SizeManager.s12),
-        Row(
-          children: [
-            const Icon(Icons.location_on, size: SizeManager.iconSize, color: AppColors.grey),
-            const SizedBox(width: SizeManager.s8),
-            Expanded(
-              child: Text(
-                '${truck.location} • ${truck.radiusKm.toStringAsFixed(0)}km radius',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Row(
-      children: [
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: truck.isAvailable ? AppColors.primary : AppColors.lightGrey,
-              foregroundColor: truck.isAvailable ? AppColors.white : AppColors.darkGrey,
-              minimumSize: const Size(0, SizeManager.buttonHeight),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SizeManager.r6),
-              ),
-            ),
-            child: Text(
-              truck.isAvailable
-                  ? StringManager.requestTruck
-                  : StringManager.notifyWhenFree,
-            ),
-          ),
-        ),
-        const SizedBox(width: SizeManager.s12),
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
-              minimumSize: const Size(0, SizeManager.buttonHeight),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SizeManager.r6),
-              ),
-            ),
-            child: const Text(StringManager.viewDetails),
-          ),
-        ),
-      ],
-    );
-  }
-
-  IconData _getTruckTypeIcon() {
-    switch (truck.features) {
-      case TruckType.flatbed:
-        return Icons.local_shipping;
-      case TruckType.refrigerated:
-        return Icons.ac_unit;
-      case TruckType.dryVan:
-        return Icons.inventory_2;
-    }
-  }
-
-  String _getTruckTypeLabel() {
-    switch (truck.features) {
-      case TruckType.flatbed:
-        return 'Flatbed';
-      case TruckType.refrigerated:
-        return 'Refrigerated';
-      case TruckType.dryVan:
-        return 'Dry Van';
-    }
   }
 }

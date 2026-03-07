@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
 
 /// A widget that displays an error message with a retry button.
 ///
@@ -22,6 +23,9 @@ class ErrorRetryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(SizeManager.s24),
@@ -30,20 +34,16 @@ class ErrorRetryWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Error icon
-            const Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.error,
-            ),
+            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
             const SizedBox(height: SizeManager.s24),
 
             // Error message
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.grey,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: colorScheme.textSecondary),
             ),
             const SizedBox(height: SizeManager.s32),
 

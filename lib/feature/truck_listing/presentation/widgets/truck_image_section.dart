@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/colors/color_scheme.dart';
 
 /// Widget that displays a truck image with an availability badge overlay.
-/// 
+///
 /// The image is displayed with rounded corners and a badge positioned at the
 /// top-right corner showing either "Available" (green) or "Busy" (red).
 class TruckImageSection extends StatelessWidget {
@@ -19,6 +20,9 @@ class TruckImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(SizeManager.cardRadius),
       child: Stack(
@@ -34,12 +38,12 @@ class TruckImageSection extends StatelessWidget {
               return Container(
                 height: SizeManager.imageHeight,
                 width: double.infinity,
-                color: AppColors.lightGrey,
+                color: colorScheme.border,
                 child: Center(
                   child: CircularProgressIndicator(
                     value: loadingProgress.expectedTotalBytes != null
                         ? loadingProgress.cumulativeBytesLoaded /
-                            loadingProgress.expectedTotalBytes!
+                              loadingProgress.expectedTotalBytes!
                         : null,
                   ),
                 ),
@@ -49,11 +53,11 @@ class TruckImageSection extends StatelessWidget {
               return Container(
                 height: SizeManager.imageHeight,
                 width: double.infinity,
-                color: AppColors.lightGrey,
-                child: const Icon(
+                color: colorScheme.border,
+                child: Icon(
                   Icons.local_shipping,
                   size: 64,
-                  color: AppColors.grey,
+                  color: colorScheme.textSecondary,
                 ),
               );
             },
