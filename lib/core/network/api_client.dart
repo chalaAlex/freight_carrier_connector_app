@@ -3,6 +3,7 @@ import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.d
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart';
+import 'package:clean_architecture/feature/landing/data/featured_carrier_response.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
@@ -62,4 +63,7 @@ abstract class ApiClient {
   Future<FreightBaseResponse> createFreight(
     @Body() CreateFreightRequest request,
   );
+
+  @GET("/carriers/featured")
+  Future<FeaturedCarrierBaseResponse> getFeaturedCarriers();
 }

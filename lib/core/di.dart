@@ -39,6 +39,12 @@ import 'package:clean_architecture/feature/freight/presentation/bloc/location/lo
 import 'package:clean_architecture/feature/freight/presentation/bloc/cargoType/cargo_type_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/truck_detail/truck_detail_bloc.dart';
+import 'package:clean_architecture/feature/landing/data/datasources/featured_carrier_remote_data_source.dart';
+import 'package:clean_architecture/feature/landing/data/datasources/featured_carrier_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/landing/data/repositories/featured_carrier_repository_impl.dart';
+import 'package:clean_architecture/feature/landing/domain/repositories/featured_carrier_repository.dart';
+import 'package:clean_architecture/feature/landing/domain/usecases/get_featured_carriers_usecase.dart';
+import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -119,6 +125,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<TruckDetailRemoteDataSource>(
     () => TruckDetailRemoteDataSourceImpl(client: sl()),
   );
+  sl.registerFactory<FeaturedCarrierRemoteDataSource>(
+    () => FeaturedCarrierRemoteDataSourceImpl(client: sl()),
+  );
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
@@ -130,6 +139,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<FileRepository>(() => FileRepositoryImpl(sl()));
   sl.registerFactory<TruckDetailRepository>(
     () => TruckDetailRepositoryImpl(sl()),
+  );
+  sl.registerFactory<FeaturedCarrierRepository>(
+    () => FeaturedCarrierRepositoryImpl(sl()),
   );
 
   // ------------------ Usecases ------------------ //
@@ -143,6 +155,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => UploadFileUseCase(sl()));
   sl.registerFactory(() => UploadMultipleFilesUseCase(sl()));
   sl.registerFactory(() => GetTruckDetailUseCase(sl()));
+  sl.registerFactory(() => GetFeaturedCarriersUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -158,4 +171,7 @@ Future<void> init(Environment prod) async {
     () => UploadBloc(uploadFileUseCase: sl(), uploadMultipleFilesUseCase: sl()),
   );
   sl.registerFactory(() => TruckDetailBloc(getTruckDetailUseCase: sl()));
+  sl.registerFactory(
+    () => FeaturedCarrierBloc(getFeaturedCarriersUseCase: sl()),
+  );
 }

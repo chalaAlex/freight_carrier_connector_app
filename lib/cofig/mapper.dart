@@ -9,6 +9,8 @@ import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/truck_detail_entity.dart'
     as detail_entity;
+import 'package:clean_architecture/feature/landing/data/featured_carrier_response.dart';
+import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/login_entity.dart';
@@ -287,6 +289,41 @@ extension TruckOwnerDtoMapper on detail.TruckOwnerDto {
       phone: phone,
       ratingQuantity: ratingQuantity,
       ratingAverage: ratingAverage,
+    );
+  }
+}
+
+// Featured Carrier Mapper
+extension CarrierTruckMapper on CarrierTruck {
+  CarrierTruckEntity toEntity() {
+    return CarrierTruckEntity(
+      id: id,
+      truckOwner: truckOwner,
+      driver: driver,
+      company: company,
+      model: model,
+      plateNumber: plateNumber,
+      brand: brand,
+      loadCapacity: loadCapacity,
+      features: features,
+      location: location.toEntity(),
+      image: image,
+      aboutTruck: aboutTruck,
+      isAvailable: isAvailable,
+      isFeatured: isFeatured,
+      isVerified: isVerified,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension TruckLocationMapper on TruckLocation {
+  TruckLocationEntity toEntity() {
+    return TruckLocationEntity(
+      id: id,
+      startLocation: startLocation,
+      destinationLocation: destinationLocation,
     );
   }
 }

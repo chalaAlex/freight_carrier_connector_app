@@ -1,3 +1,4 @@
+import 'package:clean_architecture/feature/landing/presentation/screen/landing_page.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/screen/my_loads_screen.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,13 +7,16 @@ class CarrierBottomNavigationBar extends StatefulWidget {
   const CarrierBottomNavigationBar({super.key});
 
   @override
-  State<CarrierBottomNavigationBar> createState() => _CarrierBottomNavigationBarState();
+  State<CarrierBottomNavigationBar> createState() =>
+      _CarrierBottomNavigationBarState();
 }
 
-class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar> {
+class _CarrierBottomNavigationBarState
+    extends State<CarrierBottomNavigationBar> {
   int currentIndex = 0;
 
   final List<Widget> screens = [
+    const LandingPage(),
     const TruckListingScreen(),
     MyLoadsScreen(),
     TruckListingScreen(),
@@ -24,7 +28,6 @@ class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        
         bottomNavigationBar: BottomAppBar(
           elevation: 1,
           height: 60,
@@ -86,6 +89,20 @@ class _CarrierBottomNavigationBarState extends State<CarrierBottomNavigationBar>
                   Icons.person,
                   size: 30,
                   color: currentIndex == 3
+                      ? Colors.blueAccent
+                      : Colors.grey.shade400,
+                ),
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    currentIndex = 4;
+                  });
+                },
+                icon: Icon(
+                  Icons.person,
+                  size: 30,
+                  color: currentIndex == 4
                       ? Colors.blueAccent
                       : Colors.grey.shade400,
                 ),
