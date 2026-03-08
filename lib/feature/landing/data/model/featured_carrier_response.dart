@@ -3,14 +3,16 @@ part 'featured_carrier_response.g.dart';
 
 @JsonSerializable()
 class FeaturedCarrierBaseResponse {
-  final String status;
+  final int statusCode;
   final int results;
+  final String message;
   final FeaturedCarrierData data;
 
   FeaturedCarrierBaseResponse({
-    required this.status,
+    required this.statusCode,
     required this.results,
     required this.data,
+    required this.message,
   });
 
   factory FeaturedCarrierBaseResponse.fromJson(Map<String, dynamic> json) =>
@@ -46,7 +48,7 @@ class CarrierTruck {
   final int loadCapacity;
 
   final List<String> features;
-  final TruckLocation location;
+  final TruckLocation operatingCorrider;
 
   final List<String> image;
 
@@ -69,7 +71,7 @@ class CarrierTruck {
     required this.brand,
     required this.loadCapacity,
     required this.features,
-    required this.location,
+    required this.operatingCorrider,
     required this.image,
     required this.aboutTruck,
     required this.isAvailable,

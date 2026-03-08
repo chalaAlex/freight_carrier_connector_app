@@ -16,17 +16,20 @@ class FeaturedCarrierRepositoryImpl implements FeaturedCarrierRepository {
   getFeaturedCarriers() async {
     try {
       final response = await remoteDataSource.getFeaturedCarriers();
-      // TODO: Add proper status code check when API is ready
-      final entity = FeaturedCarrierResponseEntity(
-        status: response.status,
-        results: response.results,
-        data: FeaturedCarrierDataEntity(
-          featuredCarrier: response.data.featuredCarrier
-              .map((truck) => truck.toEntity())
-              .toList(),
-        ),
-      );
-      return Right(entity);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final entity = FeaturedCarrierResponseEntity(
+          statusCode: response.statusCode,
+          results: response.results,
+          data: FeaturedCarrierDataEntity(
+            featuredCarrier: response.data.featuredCarrier
+                .map((truck) => truck.toEntity())
+                .toList(),
+          ),
+        );
+        return Right(entity);
+      } else {
+        return Left(Failure(response.statusCode, response.message));
+      }
     } catch (error) {
       return Left(ErrorHandler.handle(error).failure);
     }

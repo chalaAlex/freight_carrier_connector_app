@@ -42,7 +42,7 @@ class _TruckDetailScreenState extends State<TruckDetailScreen> {
               return const TruckDetailErrorWidget(
                 message: 'Truck data not available',
               );
-            } 
+            }
             return TruckDetailContent(truck: truck);
           } else if (state is TruckDetailError) {
             return TruckDetailErrorWidget(

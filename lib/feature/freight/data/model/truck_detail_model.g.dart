@@ -25,13 +25,13 @@ Map<String, dynamic> _$TruckDetailBaseResponseToJson(
 };
 
 TruckData _$TruckDataFromJson(Map<String, dynamic> json) => TruckData(
-  truck: json['truck'] == null
+  carrier: json['carrier'] == null
       ? null
-      : TruckDto.fromJson(json['truck'] as Map<String, dynamic>),
+      : TruckDto.fromJson(json['carrier'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$TruckDataToJson(TruckData instance) => <String, dynamic>{
-  'truck': instance.truck,
+  'carrier': instance.carrier,
 };
 
 TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(

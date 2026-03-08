@@ -45,6 +45,12 @@ import 'package:clean_architecture/feature/landing/data/repositories/featured_ca
 import 'package:clean_architecture/feature/landing/domain/repositories/featured_carrier_repository.dart';
 import 'package:clean_architecture/feature/landing/domain/usecases/get_featured_carriers_usecase.dart';
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_bloc.dart';
+import 'package:clean_architecture/feature/company/data/datasources/company_remote_data_source.dart';
+import 'package:clean_architecture/feature/company/data/datasources/company_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/company/data/repositories/company_repository_impl.dart';
+import 'package:clean_architecture/feature/company/domain/repository/company_repository.dart';
+import 'package:clean_architecture/feature/company/domain/usecase/get_recommended_companies_usecase.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -126,7 +132,10 @@ Future<void> init(Environment prod) async {
     () => TruckDetailRemoteDataSourceImpl(client: sl()),
   );
   sl.registerFactory<FeaturedCarrierRemoteDataSource>(
-    () => FeaturedCarrierRemoteDataSourceImpl(client: sl()),
+    () => FeaturedCarrierRemoteDataSourceImpl(sl()),
+  );
+  sl.registerFactory<CompanyRemoteDataSource>(
+    () => CompanyRemoteDataSourceImpl(client: sl()),
   );
 
   // ------------------ Repositories ------------------ //
@@ -143,6 +152,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<FeaturedCarrierRepository>(
     () => FeaturedCarrierRepositoryImpl(sl()),
   );
+  sl.registerFactory<CompanyRepository>(
+    () => CompanyRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
@@ -156,6 +168,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => UploadMultipleFilesUseCase(sl()));
   sl.registerFactory(() => GetTruckDetailUseCase(sl()));
   sl.registerFactory(() => GetFeaturedCarriersUseCase(sl()));
+  sl.registerFactory(() => GetRecommendedCompaniesUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -173,5 +186,8 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => TruckDetailBloc(getTruckDetailUseCase: sl()));
   sl.registerFactory(
     () => FeaturedCarrierBloc(getFeaturedCarriersUseCase: sl()),
+  );
+  sl.registerFactory(
+    () => RecommendedCompanyBloc(getRecommendedCompaniesUseCase: sl()),
   );
 }

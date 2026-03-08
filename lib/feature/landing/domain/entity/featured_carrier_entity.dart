@@ -1,18 +1,18 @@
 import 'package:equatable/equatable.dart';
 
 class FeaturedCarrierResponseEntity extends Equatable {
-  final String status;
+  final int statusCode;
   final int results;
   final FeaturedCarrierDataEntity data;
 
   const FeaturedCarrierResponseEntity({
-    required this.status,
+    required this.statusCode,
     required this.results,
     required this.data,
   });
 
   @override
-  List<Object?> get props => [status, results, data];
+  List<Object?> get props => [statusCode, results, data];
 }
 
 class FeaturedCarrierDataEntity extends Equatable {
@@ -38,7 +38,7 @@ class CarrierTruckEntity extends Equatable {
   final int loadCapacity;
 
   final List<String> features;
-  final TruckLocationEntity location;
+  final OperatingCorriderEntity operatingCorrider;
 
   final List<String> image;
 
@@ -61,7 +61,7 @@ class CarrierTruckEntity extends Equatable {
     required this.brand,
     required this.loadCapacity,
     required this.features,
-    required this.location,
+    required this.operatingCorrider,
     required this.image,
     required this.aboutTruck,
     required this.isAvailable,
@@ -82,7 +82,7 @@ class CarrierTruckEntity extends Equatable {
         brand,
         loadCapacity,
         features,
-        location,
+        operatingCorrider,
         image,
         aboutTruck,
         isAvailable,
@@ -93,12 +93,12 @@ class CarrierTruckEntity extends Equatable {
       ];
 }
 
-class TruckLocationEntity extends Equatable {
+class OperatingCorriderEntity extends Equatable {
   final String id;
   final String startLocation;
   final String destinationLocation;
 
-  const TruckLocationEntity({
+  const OperatingCorriderEntity({
     required this.id,
     required this.startLocation,
     required this.destinationLocation,

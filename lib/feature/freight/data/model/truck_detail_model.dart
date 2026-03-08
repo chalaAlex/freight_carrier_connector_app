@@ -18,9 +18,9 @@ class TruckDetailBaseResponse {
 
 @JsonSerializable()
 class TruckData {
-  final TruckDto? truck;
+  final TruckDto? carrier;
 
-  const TruckData({this.truck});
+  const TruckData({this.carrier});
 
   factory TruckData.fromJson(Map<String, dynamic> json) =>
       _$TruckDataFromJson(json);

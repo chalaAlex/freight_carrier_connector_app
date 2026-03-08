@@ -25,4 +25,3 @@ class TruckRemoteDataSourceImpl implements TruckRemoteDataSource {
     );
   }
 }
-

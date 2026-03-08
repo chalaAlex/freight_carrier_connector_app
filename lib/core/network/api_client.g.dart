@@ -114,7 +114,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/trucks',
+            '/carrier',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -141,7 +141,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/trucks/${id}',
+            '/carrier/${id}',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -233,7 +233,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/trucks/:id',
+            '/carrier/:id',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -290,7 +290,7 @@ class _ApiClient implements ApiClient {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/carriers/featured',
+            '/carrier/getFeaturedCarier',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -300,6 +300,33 @@ class _ApiClient implements ApiClient {
     late FeaturedCarrierBaseResponse _value;
     try {
       _value = FeaturedCarrierBaseResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options, response: _result);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<CompanyBaseResponse> getRecommendedCompanies() async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<CompanyBaseResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/companies/getRecommendedCompanies',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late CompanyBaseResponse _value;
+    try {
+      _value = CompanyBaseResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options, response: _result);
       rethrow;

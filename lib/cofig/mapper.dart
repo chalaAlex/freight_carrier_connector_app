@@ -1,4 +1,6 @@
 import 'package:clean_architecture/cofig/base_mapper.dart';
+import 'package:clean_architecture/feature/company/data/company_response.dart';
+import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
@@ -9,7 +11,7 @@ import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/truck_detail_entity.dart'
     as detail_entity;
-import 'package:clean_architecture/feature/landing/data/featured_carrier_response.dart';
+import 'package:clean_architecture/feature/landing/data/model/featured_carrier_response.dart';
 import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
@@ -125,19 +127,6 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
           : null,
     );
   }
-
-  // TruckType _mapStringToTruckType(String features) {
-  //   switch (features.toLowerCase()) {
-  //     case 'flatbed':
-  //       return TruckType.flatbed;
-  //     case 'refrigerated':
-  //       return TruckType.refrigerated;
-  //     case 'dryvan':
-  //       return TruckType.dryVan;
-  //     default:
-  //       return TruckType.dryVan;
-  //   }
-  // }
 }
 
 extension FreightDtoMapper on FreightDto {
@@ -222,7 +211,6 @@ extension RegionBaseResponseMapper on LocationBaseResponse {
 }
 
 // CargoType
-
 extension CargoTypeBaseResponseMapper on CargoTypeBaseResponse {
   CargoTypeBaseResponseEntity toEntity() {
     return CargoTypeBaseResponseEntity(
@@ -241,7 +229,6 @@ extension CargoTypeDtoMapper on CargoTypeDto {
 }
 
 // Truck Detail Mappers
-
 extension TruckDetailBaseResponseMapper on detail.TruckDetailBaseResponse {
   detail_entity.TruckDetailBaseEntity toEntity() {
     return detail_entity.TruckDetailBaseEntity(
@@ -254,7 +241,7 @@ extension TruckDetailBaseResponseMapper on detail.TruckDetailBaseResponse {
 
 extension TruckDetailDataMapper on detail.TruckData {
   detail_entity.TruckDataEntity toEntity() {
-    return detail_entity.TruckDataEntity(truck: truck?.toEntity());
+    return detail_entity.TruckDataEntity(truck: carrier?.toEntity());
   }
 }
 
@@ -306,7 +293,7 @@ extension CarrierTruckMapper on CarrierTruck {
       brand: brand,
       loadCapacity: loadCapacity,
       features: features,
-      location: location.toEntity(),
+      operatingCorrider: operatingCorrider.toEntity(),
       image: image,
       aboutTruck: aboutTruck,
       isAvailable: isAvailable,
@@ -319,11 +306,69 @@ extension CarrierTruckMapper on CarrierTruck {
 }
 
 extension TruckLocationMapper on TruckLocation {
-  TruckLocationEntity toEntity() {
-    return TruckLocationEntity(
+  OperatingCorriderEntity toEntity() {
+    return OperatingCorriderEntity(
       id: id,
       startLocation: startLocation,
       destinationLocation: destinationLocation,
+    );
+  }
+}
+
+// Company response-entity mapper
+extension CompanyBaseResponseMapper on CompanyBaseResponse {
+  CompanyBaseResponseEntity toEntity() {
+    return CompanyBaseResponseEntity(
+      status: status,
+      results: results,
+      data: data.toEntity(),
+    );
+  }
+}
+
+extension CompanyDataMapper on CompanyData {
+  CompanyDataEntity toEntity() {
+    return CompanyDataEntity(
+      companies: companies.map((e) => e.toEntity()).toList(),
+    );
+  }
+}
+
+extension CompanyMapper on Company {
+  CompanyEntity toEntity() {
+    return CompanyEntity(
+      id: id,
+      legalEntityName: legalEntityName,
+      companyType: companyType,
+      companyRegistrationNumber: companyRegistrationNumber,
+      headOfficeAddress: headOfficeAddress.toEntity(),
+      email: email,
+      phone: phone,
+      experience: experience,
+      ratingAverage: ratingAverage,
+      ratingQuantity: ratingQuantity,
+      completedShipments: completedShipments,
+      fleetSize: fleetSize,
+      isActive: isActive,
+      isVerified: isVerified,
+      isFeatured: isFeatured,
+      lastActiveAt: lastActiveAt,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      score: score,
+      bannerImage: bannerImage,
+      logo: logo,
+    );
+  }
+}
+
+extension HeadOfficeAddressMapper on HeadOfficeAddress {
+  HeadOfficeAddressEntity toEntity() {
+    return HeadOfficeAddressEntity(
+      city: city,
+      regionState: regionState,
+      country: country,
+      id: id,
     );
   }
 }

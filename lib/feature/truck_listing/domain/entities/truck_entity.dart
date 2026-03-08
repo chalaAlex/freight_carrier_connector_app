@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-// enum TruckType { flatbed, refrigerated, dryVan }
-
 class TruckBaseResponseEntity extends Equatable {
   final int? statusCode;
   final String? message;

@@ -9,16 +9,18 @@ part of 'featured_carrier_response.dart';
 FeaturedCarrierBaseResponse _$FeaturedCarrierBaseResponseFromJson(
   Map<String, dynamic> json,
 ) => FeaturedCarrierBaseResponse(
-  status: json['status'] as String,
+  statusCode: (json['statusCode'] as num).toInt(),
   results: (json['results'] as num).toInt(),
   data: FeaturedCarrierData.fromJson(json['data'] as Map<String, dynamic>),
+  message: json['message'] as String,
 );
 
 Map<String, dynamic> _$FeaturedCarrierBaseResponseToJson(
   FeaturedCarrierBaseResponse instance,
 ) => <String, dynamic>{
-  'status': instance.status,
+  'statusCode': instance.statusCode,
   'results': instance.results,
+  'message': instance.message,
   'data': instance.data,
 };
 
@@ -45,7 +47,9 @@ CarrierTruck _$CarrierTruckFromJson(Map<String, dynamic> json) => CarrierTruck(
   features: (json['features'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  location: TruckLocation.fromJson(json['location'] as Map<String, dynamic>),
+  operatingCorrider: TruckLocation.fromJson(
+    json['operatingCorrider'] as Map<String, dynamic>,
+  ),
   image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),
   aboutTruck: json['aboutTruck'] as String,
   isAvailable: json['isAvailable'] as bool,
@@ -66,7 +70,7 @@ Map<String, dynamic> _$CarrierTruckToJson(CarrierTruck instance) =>
       'brand': instance.brand,
       'loadCapacity': instance.loadCapacity,
       'features': instance.features,
-      'location': instance.location,
+      'operatingCorrider': instance.operatingCorrider,
       'image': instance.image,
       'aboutTruck': instance.aboutTruck,
       'isAvailable': instance.isAvailable,
