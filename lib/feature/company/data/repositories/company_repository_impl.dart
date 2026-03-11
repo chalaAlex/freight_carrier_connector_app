@@ -21,4 +21,16 @@ class CompanyRepositoryImpl implements CompanyRepository {
       return Left(ErrorHandler.handle(error).failure);
     }
   }
+
+  @override
+  Future<Either<Failure, CompanyBaseResponseEntity>>
+  getTopRatedCompanies() async {
+    try {
+      final response = await remoteDataSource.getTopRatedCompanies();
+      return Right(response.toEntity());
+    } catch (error) {
+      print("??????? $error");
+      return Left(ErrorHandler.handle(error).failure);
+    }
+  }
 }

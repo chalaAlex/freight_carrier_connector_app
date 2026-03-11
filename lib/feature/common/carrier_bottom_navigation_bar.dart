@@ -1,5 +1,6 @@
 import 'package:clean_architecture/feature/landing/presentation/screen/landing_page.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/screen/my_loads_screen.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/screens/carrier_listing_screen.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,7 @@ class _CarrierBottomNavigationBarState
 
   final List<Widget> screens = [
     const LandingPage(),
-    const TruckListingScreen(),
+    const CarrierListingScreen(),
     MyLoadsScreen(),
     TruckListingScreen(),
     TruckListingScreen(),

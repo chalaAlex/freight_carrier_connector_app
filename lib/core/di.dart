@@ -50,7 +50,9 @@ import 'package:clean_architecture/feature/company/data/datasources/company_remo
 import 'package:clean_architecture/feature/company/data/repositories/company_repository_impl.dart';
 import 'package:clean_architecture/feature/company/domain/repository/company_repository.dart';
 import 'package:clean_architecture/feature/company/domain/usecase/get_recommended_companies_usecase.dart';
+import 'package:clean_architecture/feature/company/domain/usecase/get_top_rated_companies_usecase.dart';
 import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -169,6 +171,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetTruckDetailUseCase(sl()));
   sl.registerFactory(() => GetFeaturedCarriersUseCase(sl()));
   sl.registerFactory(() => GetRecommendedCompaniesUseCase(sl()));
+  sl.registerFactory(() => GetTopRatedCompaniesUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -189,5 +192,8 @@ Future<void> init(Environment prod) async {
   );
   sl.registerFactory(
     () => RecommendedCompanyBloc(getRecommendedCompaniesUseCase: sl()),
+  );
+  sl.registerFactory(
+    () => TopRatedCompanyBloc(getTopRatedCompaniesUseCase: sl()),
   );
 }

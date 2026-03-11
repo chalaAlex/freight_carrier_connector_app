@@ -7,6 +7,7 @@ class SizeManager {
   // Spacing
   static const double s4 = 4.0;
   static const double s8 = 8.0;
+  static const double s10 = 10.0;
   static const double s12 = 12.0;
   static const double s16 = 16.0;
   static const double s24 = 24.0;
@@ -16,7 +17,11 @@ class SizeManager {
   // Radius
   static const double r4 = 4.0;
   static const double r6 = 6.0;
+  static const double r10 = 10.0;
   static const double r12 = 12.0;
+  static const double r16 = 16.0;
+  static const double r20 = 20.0;
+  static const double r24 = 24.0;
 
   // Icon / Checkbox
   static const double checkboxSize = 24.0;

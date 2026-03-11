@@ -1,5 +1,5 @@
 import 'package:clean_architecture/cofig/base_mapper.dart';
-import 'package:clean_architecture/feature/company/data/company_response.dart';
+import 'package:clean_architecture/feature/company/data/model/company_response.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
@@ -319,8 +319,8 @@ extension TruckLocationMapper on TruckLocation {
 extension CompanyBaseResponseMapper on CompanyBaseResponse {
   CompanyBaseResponseEntity toEntity() {
     return CompanyBaseResponseEntity(
-      status: status,
-      results: results,
+      statusCode: statusCode,
+      total: total,
       data: data.toEntity(),
     );
   }
@@ -337,25 +337,32 @@ extension CompanyDataMapper on CompanyData {
 extension CompanyMapper on Company {
   CompanyEntity toEntity() {
     return CompanyEntity(
-      id: id,
-      legalEntityName: legalEntityName,
-      companyType: companyType,
-      companyRegistrationNumber: companyRegistrationNumber,
-      headOfficeAddress: headOfficeAddress.toEntity(),
-      email: email,
-      phone: phone,
-      experience: experience,
-      ratingAverage: ratingAverage,
-      ratingQuantity: ratingQuantity,
-      completedShipments: completedShipments,
-      fleetSize: fleetSize,
-      isActive: isActive,
-      isVerified: isVerified,
-      isFeatured: isFeatured,
-      lastActiveAt: lastActiveAt,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-      score: score,
+      id: id ?? '',
+      legalEntityName: legalEntityName ?? '',
+      companyType: companyType ?? '',
+      companyRegistrationNumber: companyRegistrationNumber ?? '',
+      headOfficeAddress:
+          headOfficeAddress?.toEntity() ??
+          const HeadOfficeAddressEntity(
+            city: '',
+            regionState: '',
+            country: '',
+            id: '',
+          ),
+      email: email ?? '',
+      phone: phone ?? '',
+      experience: experience ?? 0,
+      ratingAverage: ratingAverage ?? 0.0,
+      ratingQuantity: ratingQuantity ?? 0,
+      completedShipments: completedShipments ?? 0,
+      fleetSize: fleetSize ?? 0,
+      isActive: isActive ?? false,
+      isVerified: isVerified ?? false,
+      isFeatured: isFeatured ?? false,
+      lastActiveAt: lastActiveAt ?? DateTime.now(),
+      createdAt: createdAt ?? DateTime.now(),
+      updatedAt: updatedAt ?? DateTime.now(),
+      score: score ?? 0.0,
       bannerImage: bannerImage,
       logo: logo,
     );
@@ -365,10 +372,10 @@ extension CompanyMapper on Company {
 extension HeadOfficeAddressMapper on HeadOfficeAddress {
   HeadOfficeAddressEntity toEntity() {
     return HeadOfficeAddressEntity(
-      city: city,
-      regionState: regionState,
-      country: country,
-      id: id,
+      city: city ?? '',
+      regionState: regionState ?? '',
+      country: country ?? '',
+      id: id ?? '',
     );
   }
 }

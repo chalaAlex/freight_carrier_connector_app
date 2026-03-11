@@ -1,5 +1,5 @@
 import 'package:clean_architecture/core/request/create_freight_request.dart';
-import 'package:clean_architecture/feature/company/data/company_response.dart';
+import 'package:clean_architecture/feature/company/data/model/company_response.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
@@ -68,6 +68,12 @@ abstract class ApiClient {
   @GET("/carrier/getFeaturedCarier")
   Future<FeaturedCarrierBaseResponse> getFeaturedCarriers();
 
+  @GET("/companies/getTopRatedCompanies")
+  Future<CompanyBaseResponse> getTopRatedCompanies();
+
   @GET("/companies/getRecommendedCompanies")
   Future<CompanyBaseResponse> getRecommendedCompanies();
+
+  @GET("/companies/:id")
+  Future<CompanyBaseResponse> getCompany();
 }

@@ -13,6 +13,9 @@ import 'package:clean_architecture/feature/landing/domain/entity/featured_carrie
 import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
 import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_event.dart';
 import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_state.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_state.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
 import 'package:clean_architecture/feature/company/presentation/screen/company_profile.dart';
 import 'package:clean_architecture/core/di.dart' as di;
@@ -37,6 +40,10 @@ class _LandingPageState extends State<LandingPage> {
           create: (context) =>
               di.sl<RecommendedCompanyBloc>()
                 ..add(const LoadRecommendedCompanies()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              di.sl<TopRatedCompanyBloc>()..add(const LoadTopRatedCompanies()),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
@@ -200,37 +207,34 @@ class _LandingPageState extends State<LandingPage> {
       children: [
         _buildSectionHeader('Top Rated Companies', colorScheme),
         const SizedBox(height: 12),
-        BlocBuilder<FeaturedCarrierBloc, FeaturedCarrierState>(
+        BlocBuilder<TopRatedCompanyBloc, TopRatedCompanyState>(
           builder: (context, state) {
-            if (state is FeaturedCarrierLoading) {
+            if (state is TopRatedCompanyLoading) {
               return _buildLoadingCarriers();
             }
 
-            if (state is FeaturedCarrierError) {
+            if (state is TopRatedCompanyError) {
               return _buildErrorState(state.message, colorScheme);
             }
 
-            if (state is FeaturedCarrierLoaded) {
-              if (state.carriers.isEmpty) {
+            if (state is TopRatedCompanyLoaded) {
+              if (state.companies.isEmpty) {
                 return _buildEmptyState(
                   'No top rated companies available',
                   colorScheme,
                 );
               }
-              // TODO: Replace with actual top-rated API call
-              // For now, show the same carriers but limit to 3
-              final topRatedCarriers = state.carriers.take(3).toList();
 
               return SizedBox(
                 height: 280,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: topRatedCarriers.length,
+                  itemCount: state.companies.length,
                   itemBuilder: (context, index) {
-                    final carrier = topRatedCarriers[index];
-                    return _buildCarrierCardFromEntity(
-                      carrier: carrier,
+                    final company = state.companies[index];
+                    return _buildCompanyCard(
+                      company: company,
                       colorScheme: colorScheme,
                     );
                   },
@@ -868,7 +872,7 @@ class _LandingPageState extends State<LandingPage> {
             Icon(Icons.error_outline, size: 48, color: AppColors.error),
             const SizedBox(height: 16),
             Text(
-              'Failed to load carriers',
+              'Failed to load data',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -884,8 +888,15 @@ class _LandingPageState extends State<LandingPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
+                // Retry all data loading
                 context.read<FeaturedCarrierBloc>().add(
                   const LoadFeaturedCarriers(),
+                );
+                context.read<RecommendedCompanyBloc>().add(
+                  const LoadRecommendedCompanies(),
+                );
+                context.read<TopRatedCompanyBloc>().add(
+                  const LoadTopRatedCompanies(),
                 );
               },
               style: ElevatedButton.styleFrom(
