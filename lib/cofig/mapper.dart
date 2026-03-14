@@ -18,7 +18,19 @@ import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart
 import 'package:clean_architecture/feature/signup/domain/entities/login_entity.dart';
 import 'package:clean_architecture/feature/signup/domain/entities/sign_up_entity.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
+import 'package:clean_architecture/feature/truck_listing/data/models/regions_model.dart'
+    as regions_model;
+import 'package:clean_architecture/feature/truck_listing/data/models/feature_response.dart'
+    as feature_model;
+import 'package:clean_architecture/feature/truck_listing/data/models/brand_response.dart'
+    as brand_model;
 import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/entities/regions_entity.dart'
+    as regions_entity;
+import 'package:clean_architecture/feature/truck_listing/domain/entities/feature_entity.dart'
+    as feature_entity;
+import 'package:clean_architecture/feature/truck_listing/domain/entities/brand_entity.dart'
+    as brand_entity;
 
 class UserMapper extends BaseMapper<UserResponse, UserModel> {
   @override
@@ -112,13 +124,18 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
       model: dto.model,
       plateNumber: dto.plateNumber,
       brand: dto.brand,
-      pricePerKm: double.tryParse(dto.pricePerKm.toString()) ?? 0.0,
+      pricePerKm: dto.pricePerKm != null
+          ? double.tryParse(dto.pricePerKm.toString()) ?? 0.0
+          : 0.0,
       loadCapacity: double.tryParse(dto.loadCapacity.toString()) ?? 0.0,
       features: dto.features,
-      location: dto.location,
-      radiusKm: double.tryParse(dto.radiusKm.toString()) ?? 0.0,
+      location: dto.location, // Now uses the getter from TruckDto
+      radiusKm: dto.radiusKm != null
+          ? double.tryParse(dto.radiusKm.toString()) ?? 0.0
+          : 0.0,
       images: dto.image,
       isAvailable: dto.isAvailable,
+      isVerified: dto.isVerified,
       createdAt: dto.createdAt != null
           ? DateTime.tryParse(dto.createdAt!)
           : null,
@@ -376,6 +393,84 @@ extension HeadOfficeAddressMapper on HeadOfficeAddress {
       regionState: regionState ?? '',
       country: country ?? '',
       id: id ?? '',
+    );
+  }
+}
+
+// Regions response mapper.
+extension TruckListingRegionDtoMapper on regions_model.RegionDto {
+  regions_entity.RegionEntity toEntity() {
+    return regions_entity.RegionEntity(
+      id: id,
+      name: name,
+      country: country,
+      isActive: isActive,
+      createdAt: createdAt != null ? DateTime.tryParse(createdAt!) : null,
+      updatedAt: updatedAt != null ? DateTime.tryParse(updatedAt!) : null,
+    );
+  }
+}
+
+extension TruckListingRegionsBaseResponseMapper
+    on regions_model.RegionsBaseResponse {
+  regions_entity.RegionsBaseResponseEntity toEntity() {
+    return regions_entity.RegionsBaseResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      regions: data?.regions?.map((region) => region.toEntity()).toList(),
+    );
+  }
+}
+
+// Feature response mapper.
+extension FeatureDtoMapper on feature_model.Feature {
+  feature_entity.FeatureEntity toEntity() {
+    return feature_entity.FeatureEntity(
+      id: id ?? '',
+      name: name ?? '',
+      icon: icon ?? '',
+      description: description ?? '',
+      isActive: isActive ?? false,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension FeatureBaseResponseMapper on feature_model.FeatureBaseResponse {
+  feature_entity.FeatureBaseResponseEntity toEntity() {
+    return feature_entity.FeatureBaseResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      features: data?.features?.map((feature) => feature.toEntity()).toList(),
+    );
+  }
+}
+
+extension BrandDtoMapper on brand_model.Brand {
+  brand_entity.BrandEntity toEntity() {
+    return brand_entity.BrandEntity(
+      id: id ?? '',
+      name: name ?? '',
+      description: description ?? '',
+      isActive: isActive ?? false,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension BrandBaseResponseMapper on brand_model.BrandBaseResponse {
+  brand_entity.BrandBaseResponseEntity toEntity() {
+    return brand_entity.BrandBaseResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      brands: data?.brands
+          ?.map((brand) => (brand).toEntity())
+          .toList(),
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:clean_architecture/feature/carrier/presentation/carrier_home_page.dart';
 import 'package:clean_architecture/feature/common/carrier_bottom_navigation_bar.dart';
-import 'package:clean_architecture/feature/company/presentation/screen/company_profile.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/carrier_user_detail.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/carrier_user_review_all.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/freight_home_page.dart';
@@ -52,8 +51,8 @@ class RouteGenerator {
       case Routes.coHomePageRoute:
         return MaterialPageRoute(builder: (_) => const CarrierHomePage());
 
-      case Routes.truckListingRoute:
-        return MaterialPageRoute(builder: (_) => const TruckListingScreen());
+      // case Routes.truckListingRoute:
+      //   return MaterialPageRoute(builder: (_) => const TruckListingScreen());
 
       case Routes.truckDetailRoute:
         final truckId = routeSettings.arguments as String?;

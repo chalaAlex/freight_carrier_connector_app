@@ -1,13 +1,10 @@
 import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class TruckRepository {
   Future<Either<Failure, TruckBaseResponseEntity>> fetchTrucks(
-    int page, {
-    String? search,
-    String? company,
-    bool? isAvailable,
-    String? carrierType,
-  });
+    TruckFilter filter,
+  );
 }

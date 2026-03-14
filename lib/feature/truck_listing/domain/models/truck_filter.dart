@@ -1,84 +1,124 @@
 import 'package:equatable/equatable.dart';
 
-/// Enum representing different filter types for truck listing
-enum FilterType {
-  all,
-  available,
-  flatbed,
-  refrigerated,
-  dryVan,
-}
-
-/// Model class representing filter criteria for truck listing
-/// 
-/// This class encapsulates all possible filter options including:
-/// - Filter type (availability, truck type)
-/// - Search query
-/// - Capacity range
-/// - Price range
+/// Scalable server-side filter model for truck listing.
+/// Each field maps directly to a query parameter sent to the API.
 class TruckFilter extends Equatable {
-  /// The type of filter to apply (all, available, or specific truck type)
-  final FilterType type;
-  
-  /// Search query to match against model, company, and location
-  final String searchQuery;
-  
-  /// Minimum capacity in tons (optional)
-  final double? minCapacity;
-  
-  /// Maximum capacity in tons (optional)
-  final double? maxCapacity;
-  
-  /// Minimum price per day (optional)
-  final double? minPricePerDay;
-  
-  /// Maximum price per day (optional)
-  final double? maxPricePerDay;
+  /// Free-text search (matches model, company, location)
+  final String? search;
+
+  /// Filter by feature name, e.g. "Tracking System"
+  final String? features;
+
+  /// Filter by brand name, e.g. "Volvo"
+  final String? brand;
+
+  /// Filter by region name, e.g. "Oromia"
+  final String? region;
+
+  /// Filter by verification status
+  final bool? isVerified;
+
+  /// Minimum load capacity in tons (maps to capacity_gte)
+  final double? loadCapacityGte;
+
+  /// Filter by availability
+  final bool? isAvailable;
+
+  /// Filter by carrier type, e.g. "flatbed"
+  final String? carrierType;
+
+  /// Pagination
+  final int page;
 
   const TruckFilter({
-    this.type = FilterType.all,
-    this.searchQuery = '',
-    this.minCapacity,
-    this.maxCapacity,
-    this.minPricePerDay,
-    this.maxPricePerDay,
+    this.search,
+    this.features,
+    this.brand,
+    this.region,
+    this.isVerified,
+    this.loadCapacityGte,
+    this.isAvailable,
+    this.carrierType,
+    this.page = 1,
   });
 
-  /// Returns true if any filters are currently active
-  bool get hasActiveFilters =>
-      type != FilterType.all ||
-      searchQuery.isNotEmpty ||
-      minCapacity != null ||
-      maxCapacity != null ||
-      minPricePerDay != null ||
-      maxPricePerDay != null;
+  /// Converts this filter into a map of query parameters,
+  /// omitting any null/empty values.
+  Map<String, dynamic> toQueryParams() {
+    final params = <String, dynamic>{'page': page, 'limit': 10};
 
-  /// Creates a copy of this filter with the given fields replaced
+    if (search != null && search!.isNotEmpty) params['search'] = search;
+    if (features != null && features!.isNotEmpty) params['features'] = features;
+    if (brand != null && brand!.isNotEmpty) params['brand'] = brand;
+    if (region != null && region!.isNotEmpty) params['region'] = region;
+    if (isVerified != null) params['isVerified'] = isVerified;
+    if (loadCapacityGte != null) params['capacity_gte'] = loadCapacityGte;
+    if (isAvailable != null) params['isAvailable'] = isAvailable;
+    if (carrierType != null && carrierType!.isNotEmpty) {
+      params['carrierType'] = carrierType;
+    }
+
+    return params;
+  }
+
+  bool get hasActiveFilters =>
+      search != null ||
+      features != null ||
+      brand != null ||
+      region != null ||
+      isVerified != null ||
+      loadCapacityGte != null ||
+      isAvailable != null ||
+      carrierType != null;
+
   TruckFilter copyWith({
-    FilterType? type,
-    String? searchQuery,
-    double? minCapacity,
-    double? maxCapacity,
-    double? minPricePerDay,
-    double? maxPricePerDay,
+    String? search,
+    String? features,
+    String? brand,
+    String? region,
+    bool? isVerified,
+    double? loadCapacityGte,
+    bool? isAvailable,
+    String? carrierType,
+    int? page,
+    // Pass explicit null to clear a field
+    bool clearSearch = false,
+    bool clearFeature = false,
+    bool clearBrand = false,
+    bool clearRegion = false,
+    bool clearIsVerified = false,
+    bool clearLoadCapacity = false,
+    bool clearIsAvailable = false,
+    bool clearCarrierType = false,
   }) {
     return TruckFilter(
-      type: type ?? this.type,
-      searchQuery: searchQuery ?? this.searchQuery,
-      minCapacity: minCapacity ?? this.minCapacity,
-      maxCapacity: maxCapacity ?? this.maxCapacity,
-      minPricePerDay: minPricePerDay ?? this.minPricePerDay,
-      maxPricePerDay: maxPricePerDay ?? this.maxPricePerDay,
+      search: clearSearch ? null : (search ?? this.search),
+      features: clearFeature ? null : (features ?? this.features),
+      brand: clearBrand ? null : (brand ?? this.brand),
+      region: clearRegion ? null : (region ?? this.region),
+      isVerified: clearIsVerified ? null : (isVerified ?? this.isVerified),
+      loadCapacityGte: clearLoadCapacity
+          ? null
+          : (loadCapacityGte ?? this.loadCapacityGte),
+      isAvailable: clearIsAvailable ? null : (isAvailable ?? this.isAvailable),
+      carrierType: clearCarrierType ? null : (carrierType ?? this.carrierType),
+      page: page ?? this.page,
     );
   }
 
+  /// Returns a reset filter keeping only the page at 1.
+  TruckFilter reset() => const TruckFilter();
+
   @override
   List<Object?> get props => [
-        type,
-        searchQuery,
-        minCapacity,
-        maxCapacity,
-        minPricePerDay,
-        maxPricePerDay,
-      ];
+    search,
+    features,
+    brand,
+    region,
+    isVerified,
+    loadCapacityGte,
+    isAvailable,
+    carrierType,
+    page,
+  ];
 }

@@ -14,6 +14,9 @@ import 'package:clean_architecture/feature/freight/presentation/bloc/location/lo
 import 'package:clean_architecture/feature/freight/presentation/bloc/upload/upload_bloc.dart';
 import 'package:clean_architecture/feature/freight/presentation/bloc/truck_detail/truck_detail_bloc.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck_bloc.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/bloc/region_bloc.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/bloc/feature_bloc.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/bloc/brand_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +40,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => sl<LoginBloc>()),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
         BlocProvider(create: (_) => sl<TruckBloc>()),
+        BlocProvider(create: (_) => sl<RegionBloc>()),
+        BlocProvider(create: (_) => sl<FeatureBloc>()),
+        BlocProvider(create: (_) => sl<BrandBloc>()),
         BlocProvider(create: (_) => sl<TruckDetailBloc>()),
         BlocProvider(create: (_) => sl<FreightBloc>()),
         BlocProvider(

@@ -29,15 +29,16 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   model: json['model'] as String,
   plateNumber: json['plateNumber'] as String,
   brand: json['brand'] as String,
-  pricePerKm: json['pricePerKm'] as num,
+  pricePerKm: json['pricePerKm'] as num?,
   loadCapacity: json['loadCapacity'] as num,
   features: (json['features'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  location: json['location'] as String,
-  radiusKm: json['radiusKm'] as num,
+  operatingCorrider: json['operatingCorrider'] as Map<String, dynamic>?,
+  radiusKm: json['radiusKm'] as num?,
   image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),
   isAvailable: json['isAvailable'] as bool,
+  isVerified: json['isVerified'] as bool?,
   createdAt: json['createdAt'] as String?,
   updatedAt: json['updatedAt'] as String?,
 );
@@ -50,21 +51,21 @@ Map<String, dynamic> _$TruckDtoToJson(TruckDto instance) => <String, dynamic>{
   'pricePerKm': instance.pricePerKm,
   'loadCapacity': instance.loadCapacity,
   'features': instance.features,
-  'location': instance.location,
+  'operatingCorrider': instance.operatingCorrider,
   'radiusKm': instance.radiusKm,
   'image': instance.image,
   'isAvailable': instance.isAvailable,
+  'isVerified': instance.isVerified,
   'createdAt': instance.createdAt,
   'updatedAt': instance.updatedAt,
 };
 
 TruckDataModel _$TruckDataModelFromJson(Map<String, dynamic> json) =>
     TruckDataModel(
-      trucks: (json['trucks'] as List<dynamic>?)
+      trucks: (json['carrier'] as List<dynamic>?)
           ?.map((e) => TruckDto.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
-// ignore: unused_element
 Map<String, dynamic> _$TruckDataModelToJson(TruckDataModel instance) =>
-    <String, dynamic>{'trucks': instance.trucks};
+    <String, dynamic>{'carrier': instance.trucks};

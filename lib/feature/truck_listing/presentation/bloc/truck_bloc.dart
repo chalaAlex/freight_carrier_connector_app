@@ -1,245 +1,121 @@
-// ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
-import 'package:clean_architecture/core/error/failure.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
-import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/models/truck_filter.dart';
+import 'package:clean_architecture/feature/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'truck_event.dart';
 import 'truck_state.dart';
 
 class TruckBloc extends Bloc<TruckEvent, TruckState> {
   final GetTrucksUseCase getTrucksUseCase;
-  static const int trucksPerPage = 10;
+  static const int _perPage = 10;
 
   TruckBloc(this.getTrucksUseCase) : super(TruckInitial()) {
-    on<FetchInitialTrucks>(_onFetchInitialTrucks);
-    on<RefreshTrucks>(_onRefreshTrucks);
+    on<FetchInitialTrucks>(_onFetchInitial);
+    on<RefreshTrucks>(_onRefresh);
     on<FetchNextPage>(_onFetchNextPage);
-    on<SearchTrucks>(_onSearchTrucks);
-    on<FilterTrucks>(_onFilterTrucks);
-    on<ClearFilters>(_onClearFilters);
+    on<ApplyTruckFilter>(_onApplyFilter);
+    on<ResetTruckFilters>(_onResetFilters);
   }
 
-  Future<void> _onFetchInitialTrucks(
-    FetchInitialTrucks event,
-    Emitter<TruckState> emit,
-  ) async {
-    emit(TruckLoading());
+  // ── helpers ──────────────────────────────────────────────────────────────
 
-    final result = await getTrucksUseCase(const GetTrucksParams(page: 1));
-
-    result.fold(
-      (failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(
-        TruckSuccess(
-          trucks: trucks,
-          currentPage: 1,
-          hasMorePages: trucks.trucks?.length == trucksPerPage,
-        ),
-      ),
-    );
+  TruckFilter _currentFilter() {
+    final s = state;
+    if (s is TruckSuccess) return s.activeFilter;
+    if (s is TruckPaginationLoading) return s.activeFilter;
+    if (s is TruckPaginationError) return s.activeFilter;
+    return const TruckFilter();
   }
 
-  Future<void> _onRefreshTrucks(
-    RefreshTrucks event,
-    Emitter<TruckState> emit,
-  ) async {
-    final currentState = state;
-    final activeFilter = currentState is TruckSuccess
-        ? currentState.activeFilter
-        : const TruckFilter();
-
-    emit(TruckLoading());
-
-    final result = await getTrucksUseCase(
-      GetTrucksParams(
-        page: 1,
-        search: activeFilter.searchQuery.isNotEmpty
-            ? activeFilter.searchQuery
-            : null,
-        company: null, // Can be added later if needed
-        isAvailable: activeFilter.type == FilterType.available ? true : null,
-        carrierType: _getCarrierTypeString(activeFilter.type),
-      ),
-    );
-
-    result.fold(
-      (Failure failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(
-        TruckSuccess(
-          trucks: trucks,
-          currentPage: 1,
-          hasMorePages: trucks.trucks?.length == trucksPerPage,
-          activeFilter: activeFilter,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _onFetchNextPage(
-    FetchNextPage event,
-    Emitter<TruckState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is! TruckSuccess || !currentState.hasMorePages) {
-      return;
+  Future<void> _fetch({
+    required TruckFilter filter,
+    required Emitter<TruckState> emit,
+    bool paginating = false,
+    TruckBaseResponseEntity? existing,
+  }) async {
+    if (!paginating) {
+      emit(TruckLoading());
+    } else {
+      emit(TruckPaginationLoading(existing!, filter));
     }
 
-    emit(TruckPaginationLoading(currentState.trucks));
-
-    final nextPage = currentState.currentPage + 1;
-    final result = await getTrucksUseCase(
-      GetTrucksParams(
-        page: nextPage,
-        search: currentState.activeFilter.searchQuery.isNotEmpty
-            ? currentState.activeFilter.searchQuery
-            : null,
-        company: null,
-        isAvailable: currentState.activeFilter.type == FilterType.available
-            ? true
-            : null,
-        carrierType: _getCarrierTypeString(currentState.activeFilter.type),
-      ),
-    );
+    final result = await getTrucksUseCase(filter);
 
     result.fold(
-      (Failure failure) =>
-          emit(TruckPaginationError(currentState.trucks, failure.message)),
+      (failure) {
+        if (paginating) {
+          emit(TruckPaginationError(existing!, failure.message, filter));
+        } else {
+          emit(TruckError(failure.message));
+        }
+      },
       (newTrucks) {
-        final mergedData = [
-          ...?currentState.trucks.trucks,
-          ...?newTrucks.trucks,
-        ];
+        final merged = paginating
+            ? [...?existing!.trucks, ...?newTrucks.trucks]
+            : (newTrucks.trucks ?? []);
+
         final allTrucks = TruckBaseResponseEntity(
-          statusCode: newTrucks.statusCode ?? currentState.trucks.statusCode,
-          message: newTrucks.message ?? currentState.trucks.message,
-          total: newTrucks.total ?? currentState.trucks.total,
-          trucks: mergedData,
+          statusCode: newTrucks.statusCode,
+          message: newTrucks.message,
+          total: newTrucks.total,
+          trucks: merged,
         );
 
         emit(
           TruckSuccess(
             trucks: allTrucks,
-            currentPage: nextPage,
-            hasMorePages: newTrucks.trucks?.length == trucksPerPage,
-            activeFilter: currentState.activeFilter,
+            currentPage: filter.page,
+            hasMorePages: (newTrucks.trucks?.length ?? 0) == _perPage,
+            activeFilter: filter,
           ),
         );
       },
     );
   }
 
-  Future<void> _onSearchTrucks(
-    SearchTrucks event,
+  // ── handlers ─────────────────────────────────────────────────────────────
+
+  Future<void> _onFetchInitial(
+    FetchInitialTrucks event,
     Emitter<TruckState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! TruckSuccess) return;
+    await _fetch(filter: const TruckFilter(page: 1), emit: emit);
+  }
 
-    final updatedFilter = currentState.activeFilter.copyWith(
-      searchQuery: event.query,
-    );
+  Future<void> _onRefresh(RefreshTrucks event, Emitter<TruckState> emit) async {
+    final filter = _currentFilter().copyWith(page: 1);
+    await _fetch(filter: filter, emit: emit);
+  }
 
-    // Trigger new API call with search query
-    emit(TruckLoading());
+  Future<void> _onFetchNextPage(
+    FetchNextPage event,
+    Emitter<TruckState> emit,
+  ) async {
+    final s = state;
+    if (s is! TruckSuccess || !s.hasMorePages) return;
 
-    final result = await getTrucksUseCase(
-      GetTrucksParams(
-        page: 1,
-        search: event.query.isNotEmpty ? event.query : null,
-        company: null,
-        isAvailable: updatedFilter.type == FilterType.available ? true : null,
-        carrierType: _getCarrierTypeString(updatedFilter.type),
-      ),
-    );
-
-    result.fold(
-      (failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(
-        TruckSuccess(
-          trucks: trucks,
-          currentPage: 1,
-          hasMorePages: trucks.trucks?.length == trucksPerPage,
-          activeFilter: updatedFilter,
-        ),
-      ),
+    final nextFilter = s.activeFilter.copyWith(page: s.currentPage + 1);
+    await _fetch(
+      filter: nextFilter,
+      emit: emit,
+      paginating: true,
+      existing: s.trucks,
     );
   }
 
-  Future<void> _onFilterTrucks(
-    FilterTrucks event,
+  Future<void> _onApplyFilter(
+    ApplyTruckFilter event,
     Emitter<TruckState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! TruckSuccess) return;
-
-    // Trigger new API call with filter
-    emit(TruckLoading());
-
-    final result = await getTrucksUseCase(
-      GetTrucksParams(
-        page: 1,
-        search: event.filter.searchQuery.isNotEmpty
-            ? event.filter.searchQuery
-            : null,
-        company: null,
-        isAvailable: event.filter.type == FilterType.available ? true : null,
-        carrierType: _getCarrierTypeString(event.filter.type),
-      ),
-    );
-
-    result.fold(
-      (failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(
-        TruckSuccess(
-          trucks: trucks,
-          currentPage: 1,
-          hasMorePages: trucks.trucks?.length == trucksPerPage,
-          activeFilter: event.filter,
-        ),
-      ),
-    );
+    // Always reset to page 1 when filters change
+    final filter = event.filter.copyWith(page: 1);
+    await _fetch(filter: filter, emit: emit);
   }
 
-  Future<void> _onClearFilters(
-    ClearFilters event,
+  Future<void> _onResetFilters(
+    ResetTruckFilters event,
     Emitter<TruckState> emit,
   ) async {
-    final currentState = state;
-    if (currentState is! TruckSuccess) return;
-
-    const emptyFilter = TruckFilter();
-
-    // Trigger new API call without filters
-    emit(TruckLoading());
-
-    final result = await getTrucksUseCase(const GetTrucksParams(page: 1));
-
-    result.fold(
-      (failure) => emit(TruckError(failure.message)),
-      (trucks) => emit(
-        TruckSuccess(
-          trucks: trucks,
-          currentPage: 1,
-          hasMorePages: trucks.trucks?.length == trucksPerPage,
-          activeFilter: emptyFilter,
-        ),
-      ),
-    );
-  }
-
-  /// Converts FilterType to carrierType string for API
-  String? _getCarrierTypeString(FilterType type) {
-    switch (type) {
-      case FilterType.flatbed:
-        return 'flatbed';
-      case FilterType.refrigerated:
-        return 'refrigerated';
-      case FilterType.dryVan:
-        return 'dryVan';
-      case FilterType.available:
-      case FilterType.all:
-        return null;
-    }
+    await _fetch(filter: const TruckFilter(page: 1), emit: emit);
   }
 }

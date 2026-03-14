@@ -29,6 +29,7 @@ class TruckEntity extends Equatable {
   final double radiusKm;
   final List<String> images;
   final bool isAvailable;
+  final bool? isVerified;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -44,24 +45,26 @@ class TruckEntity extends Equatable {
     required this.radiusKm,
     required this.images,
     required this.isAvailable,
+    this.isVerified,
     this.createdAt,
     this.updatedAt,
   });
 
   @override
   List<Object?> get props => [
-        id,
-        model,
-        plateNumber,
-        brand,
-        pricePerKm,
-        loadCapacity,
-        features,
-        location,
-        radiusKm,
-        images,
-        isAvailable,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    model,
+    plateNumber,
+    brand,
+    pricePerKm,
+    loadCapacity,
+    features,
+    location,
+    radiusKm,
+    images,
+    isAvailable,
+    isVerified,
+    createdAt,
+    updatedAt,
+  ];
 }

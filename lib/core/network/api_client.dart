@@ -7,6 +7,9 @@ import 'package:clean_architecture/feature/freight/data/model/truck_detail_model
 import 'package:clean_architecture/feature/landing/data/model/featured_carrier_response.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
 import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
+import 'package:clean_architecture/feature/truck_listing/data/models/brand_response.dart';
+import 'package:clean_architecture/feature/truck_listing/data/models/feature_response.dart';
+import 'package:clean_architecture/feature/truck_listing/data/models/regions_model.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -41,6 +44,8 @@ abstract class ApiClient {
     @Query("company") String? company,
     @Query("isAvailable") bool? isAvailable,
     @Query("carrierType") String? carrierType,
+    @Query("startLocation") String? startLocation,
+    @Query("destinationLocation") String? destinationLocation,
   });
 
   @GET("/carrier/{id}")
@@ -65,6 +70,9 @@ abstract class ApiClient {
     @Body() CreateFreightRequest request,
   );
 
+  @GET("/companies")
+  Future<CompanyBaseResponse> getComoany();
+
   @GET("/carrier/getFeaturedCarier")
   Future<FeaturedCarrierBaseResponse> getFeaturedCarriers();
 
@@ -76,4 +84,13 @@ abstract class ApiClient {
 
   @GET("/companies/:id")
   Future<CompanyBaseResponse> getCompany();
+
+  @GET("/regions")
+  Future<RegionsBaseResponse> getAllRegions();
+
+  @GET("/features")
+  Future<FeatureBaseResponse> getAllFeatures();
+
+  @GET("/brands")
+  Future<BrandBaseResponse> getAllBrands();
 }

@@ -14,11 +14,7 @@ class _FreightBottomNavigationBarState
   int currentIndex = 0;
 
   final List<Widget> screens = [
-    const TruckListingScreen(),
-    TruckListingScreen(),
-    TruckListingScreen(),
-    TruckListingScreen(),
-    TruckListingScreen(),
+   
   ];
 
   @override

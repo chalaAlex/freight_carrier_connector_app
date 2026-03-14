@@ -28,20 +28,6 @@ class TruckSuccess extends TruckState {
 
   @override
   List<Object?> get props => [trucks, currentPage, hasMorePages, activeFilter];
-
-  TruckSuccess copyWith({
-    TruckBaseResponseEntity? trucks,
-    int? currentPage,
-    bool? hasMorePages,
-    TruckFilter? activeFilter,
-  }) {
-    return TruckSuccess(
-      trucks: trucks ?? this.trucks,
-      currentPage: currentPage ?? this.currentPage,
-      hasMorePages: hasMorePages ?? this.hasMorePages,
-      activeFilter: activeFilter ?? this.activeFilter,
-    );
-  }
 }
 
 class TruckError extends TruckState {
@@ -55,19 +41,25 @@ class TruckError extends TruckState {
 
 class TruckPaginationLoading extends TruckState {
   final TruckBaseResponseEntity currentTrucks;
+  final TruckFilter activeFilter;
 
-  const TruckPaginationLoading(this.currentTrucks);
+  const TruckPaginationLoading(this.currentTrucks, this.activeFilter);
 
   @override
-  List<Object?> get props => [currentTrucks];
+  List<Object?> get props => [currentTrucks, activeFilter];
 }
 
 class TruckPaginationError extends TruckState {
   final TruckBaseResponseEntity currentTrucks;
   final String message;
+  final TruckFilter activeFilter;
 
-  const TruckPaginationError(this.currentTrucks, this.message);
+  const TruckPaginationError(
+    this.currentTrucks,
+    this.message,
+    this.activeFilter,
+  );
 
   @override
-  List<Object?> get props => [currentTrucks, message];
+  List<Object?> get props => [currentTrucks, message, activeFilter];
 }

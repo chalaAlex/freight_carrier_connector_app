@@ -38,7 +38,7 @@ class TruckDto {
   final String brand;
 
   @JsonKey(name: 'pricePerKm')
-  final num pricePerKm;
+  final num? pricePerKm; // Made optional
 
   @JsonKey(name: 'loadCapacity')
   final num loadCapacity;
@@ -46,17 +46,20 @@ class TruckDto {
   @JsonKey(name: 'features')
   final List<String> features;
 
-  @JsonKey(name: 'location')
-  final String location;
+  @JsonKey(name: 'operatingCorrider')
+  final Map<String, dynamic>? operatingCorrider; // Added to get location data
 
   @JsonKey(name: 'radiusKm')
-  final num radiusKm;
+  final num? radiusKm; // Made optional
 
   @JsonKey(name: 'image')
   final List<String> image;
 
   @JsonKey(name: 'isAvailable')
   final bool isAvailable;
+
+  @JsonKey(name: 'isVerified')
+  final bool? isVerified;
 
   @JsonKey(name: 'createdAt')
   final String? createdAt;
@@ -69,16 +72,27 @@ class TruckDto {
     required this.model,
     required this.plateNumber,
     required this.brand,
-    required this.pricePerKm,
+    this.pricePerKm,
     required this.loadCapacity,
     required this.features,
-    required this.location,
-    required this.radiusKm,
+    this.operatingCorrider,
+    this.radiusKm,
     required this.image,
     required this.isAvailable,
+    this.isVerified,
     this.createdAt,
     this.updatedAt,
   });
+
+  // Helper getter to extract location from operatingCorrider
+  String get location {
+    if (operatingCorrider != null) {
+      final start = operatingCorrider!['startLocation'] ?? '';
+      final destination = operatingCorrider!['destinationLocation'] ?? '';
+      return '$start - $destination';
+    }
+    return 'Unknown';
+  }
 
   factory TruckDto.fromJson(Map<String, dynamic> json) =>
       _$TruckDtoFromJson(json);
@@ -88,7 +102,7 @@ class TruckDto {
 
 @JsonSerializable()
 class TruckDataModel {
-  @JsonKey(name: 'trucks')
+  @JsonKey(name: 'carrier')
   final List<TruckDto>? trucks;
 
   TruckDataModel({this.trucks});

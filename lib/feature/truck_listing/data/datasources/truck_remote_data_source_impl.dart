@@ -1,27 +1,17 @@
-import 'package:clean_architecture/core/network/api_client.dart';
 import 'package:clean_architecture/feature/truck_listing/data/datasources/truck_remote_data_source.dart';
 import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
+import 'package:dio/dio.dart';
 
 class TruckRemoteDataSourceImpl implements TruckRemoteDataSource {
-  final ApiClient client;
+  final Dio dio;
 
-  TruckRemoteDataSourceImpl({required this.client});
+  TruckRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<TruckBaseResponse> getTrucks(
-    int page, {
-    String? search,
-    String? company,
-    bool? isAvailable,
-    String? carrierType,
-  }) async {
-    return await client.getTrucks(
-      page: page,
-      limit: 10,
-      search: search,
-      company: company,
-      isAvailable: isAvailable,
-      carrierType: carrierType,
-    );
+  Future<TruckBaseResponse> getTrucks(Map<String, dynamic> queryParams) async {
+    // Remove null values before sending
+    queryParams.removeWhere((_, v) => v == null);
+    final response = await dio.get('/carrier', queryParameters: queryParams);
+    return TruckBaseResponse.fromJson(response.data as Map<String, dynamic>);
   }
 }

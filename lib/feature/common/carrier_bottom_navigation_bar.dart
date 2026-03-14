@@ -20,9 +20,9 @@ class _CarrierBottomNavigationBarState
     const LandingPage(),
     const CarrierListingScreen(),
     MyLoadsScreen(),
-    TruckListingScreen(),
-    TruckListingScreen(),
-    TruckListingScreen(),
+    MyLoadsScreen(),
+    MyLoadsScreen(),
+    MyLoadsScreen(),
   ];
 
   @override
