@@ -11,6 +11,9 @@ abstract class TruckState extends Equatable {
 
 class TruckInitial extends TruckState {}
 
+class SearchTruck extends TruckState {}
+
+
 class TruckLoading extends TruckState {}
 
 class TruckSuccess extends TruckState {

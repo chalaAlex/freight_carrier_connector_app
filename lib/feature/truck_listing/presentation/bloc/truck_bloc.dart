@@ -11,6 +11,7 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
 
   TruckBloc(this.getTrucksUseCase) : super(TruckInitial()) {
     on<FetchInitialTrucks>(_onFetchInitial);
+    // on<SearchTruck>(_onSearchTrucks);
     on<RefreshTrucks>(_onRefresh);
     on<FetchNextPage>(_onFetchNextPage);
     on<ApplyTruckFilter>(_onApplyFilter);
@@ -81,6 +82,13 @@ class TruckBloc extends Bloc<TruckEvent, TruckState> {
   ) async {
     await _fetch(filter: const TruckFilter(page: 1), emit: emit);
   }
+
+// Future<void> __onSerachTrucks( 
+//   SearchTruck event,
+//   Emitter<_onSearchTrucks> emit,
+// ) { 
+
+// }
 
   Future<void> _onRefresh(RefreshTrucks event, Emitter<TruckState> emit) async {
     final filter = _currentFilter().copyWith(page: 1);

@@ -1,3 +1,6 @@
+import 'package:clean_architecture/cofig/routes_manager.dart';
+import 'package:clean_architecture/feature/freight/presentation/screen/truck_detail_screen.dart';
+import 'package:clean_architecture/feature/truck_listing/presentation/widgets/carrier_card_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
@@ -75,18 +78,13 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 40,),
+            SizedBox(height: 40),
             // _buildAppBar(cs),
             _buildSearchBar(cs),
             _buildFilterChips(cs),
             Expanded(child: _buildList(cs)),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: AppColors.white),
       ),
     );
   }
@@ -283,7 +281,7 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
       builder: (context, state) {
         if (state is TruckInitial || state is TruckLoading) {
           return Center(
-            child: CircularProgressIndicator(color: AppColors.primary),
+            child: CarrierCardLoadingWidget(),
           );
         }
 
@@ -414,117 +412,128 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
   }
 
   // ── Carrier card ──────────────────────────────────────────────────────────
-
   Widget _buildCard(TruckEntity truck, AppColorScheme cs) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: SizeManager.s16),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(SizeManager.r16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(SizeManager.r16),
-              bottomLeft: Radius.circular(SizeManager.r16),
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          Routes.truckDetailRoute,
+          arguments: truck.id,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: SizeManager.s16),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(SizeManager.r16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-            child: Container(
-              width: 110,
-              height: 110,
-              color: cs.border,
-              child: truck.images.isNotEmpty
-                  ? Image.network(
-                      truck.images.first,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(SizeManager.r16),
+                bottomLeft: Radius.circular(SizeManager.r16),
+              ),
+              child: Container(
+                width: 110,
+                height: 110,
+                color: cs.border,
+                child: truck.images.isNotEmpty
+                    ? Image.network(
+                        truck.images.first,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.local_shipping,
+                          size: 40,
+                          color: cs.textSecondary,
+                        ),
+                      )
+                    : Icon(
                         Icons.local_shipping,
                         size: 40,
                         color: cs.textSecondary,
                       ),
-                    )
-                  : Icon(
-                      Icons.local_shipping,
-                      size: 40,
-                      color: cs.textSecondary,
-                    ),
+              ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(SizeManager.s12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${truck.brand} ${truck.model}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: cs.textPrimary,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(SizeManager.s12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${truck.brand} ${truck.model}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: cs.textPrimary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      _availabilityBadge(truck.isAvailable, cs),
-                    ],
-                  ),
-                  const SizedBox(height: SizeManager.s4),
-                  Text(
-                    truck.plateNumber,
-                    style: TextStyle(fontSize: 13, color: cs.textSecondary),
-                  ),
-                  const SizedBox(height: SizeManager.s8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 14,
-                        color: cs.textSecondary,
-                      ),
-                      const SizedBox(width: SizeManager.s4),
-                      Expanded(
-                        child: Text(
-                          truck.location,
+                        _availabilityBadge(truck.isAvailable, cs),
+                      ],
+                    ),
+                    const SizedBox(height: SizeManager.s4),
+                    Text(
+                      truck.plateNumber,
+                      style: TextStyle(fontSize: 13, color: cs.textSecondary),
+                    ),
+                    const SizedBox(height: SizeManager.s8),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: cs.textSecondary,
+                        ),
+                        const SizedBox(width: SizeManager.s4),
+                        Expanded(
+                          child: Text(
+                            truck.location,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: cs.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: SizeManager.s8),
+                        Text(
+                          '\$${truck.pricePerKm.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        Text(
+                          '/km',
                           style: TextStyle(
                             fontSize: 12,
                             color: cs.textSecondary,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      const SizedBox(width: SizeManager.s8),
-                      Text(
-                        '\$${truck.pricePerKm.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      Text(
-                        '/km',
-                        style: TextStyle(fontSize: 12, color: cs.textSecondary),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -685,7 +694,6 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
     );
   }
 }
-
 // ── Shared bottom sheet scaffold ──────────────────────────────────────────
 
 class _SheetScaffold extends StatelessWidget {

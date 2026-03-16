@@ -6,7 +6,6 @@ import 'package:clean_architecture/feature/freight/presentation/screen/freight_h
 import 'package:clean_architecture/feature/freight/presentation/screen/post_freight_page.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/rate_driver_screen.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/truck_detail_screen.dart';
-import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/co_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/fo_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/login_screen.dart';

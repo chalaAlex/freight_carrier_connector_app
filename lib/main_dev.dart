@@ -17,6 +17,14 @@ import 'package:clean_architecture/feature/truck_listing/presentation/bloc/truck
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/region_bloc.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/feature_bloc.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/brand_bloc.dart';
+import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_bloc.dart';
+import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_event.dart';
+import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_bloc.dart';
+import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_event.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +60,22 @@ class MyApp extends StatelessWidget {
           create: (_) => sl<CargoTypeBloc>()..add(const FetchCargoTypesEvent()),
         ),
         BlocProvider(create: (_) => sl<UploadBloc>()),
+        BlocProvider(
+          create: (_) =>
+              sl<FeaturedCarrierBloc>()..add(const LoadFeaturedCarriers()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              sl<RecommendedCompanyBloc>()
+                ..add(const LoadRecommendedCompanies()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              sl<TopRatedCompanyBloc>()..add(const LoadTopRatedCompanies()),
+        ),
+        BlocProvider(
+          create: (_) => sl<MyLoadsBloc>()..add(const FetchMyLoads('OPEN')),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

@@ -18,7 +18,6 @@ import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_c
 import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_state.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
 import 'package:clean_architecture/feature/company/presentation/screen/company_profile.dart';
-import 'package:clean_architecture/core/di.dart' as di;
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -30,55 +29,36 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) =>
-              di.sl<FeaturedCarrierBloc>()..add(const LoadFeaturedCarriers()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              di.sl<RecommendedCompanyBloc>()
-                ..add(const LoadRecommendedCompanies()),
-        ),
-        BlocProvider(
-          create: (context) =>
-              di.sl<TopRatedCompanyBloc>()..add(const LoadTopRatedCompanies()),
-        ),
-      ],
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, themeState) {
-          final isDark =
-              themeState.themeMode == ThemeMode.dark ||
-              (themeState.themeMode == ThemeMode.system &&
-                  MediaQuery.of(context).platformBrightness == Brightness.dark);
-          final colorScheme = isDark
-              ? AppColorScheme.dark
-              : AppColorScheme.light;
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, themeState) {
+        final isDark =
+            themeState.themeMode == ThemeMode.dark ||
+            (themeState.themeMode == ThemeMode.system &&
+                MediaQuery.of(context).platformBrightness == Brightness.dark);
+        final colorScheme = isDark ? AppColorScheme.dark : AppColorScheme.light;
 
-          return Scaffold(
-            backgroundColor: colorScheme.background,
-            appBar: _buildAppBar(colorScheme),
-            body: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPromoBanner(),
-                  const SizedBox(height: 24),
-                  _buildFeaturedCarriers(colorScheme),
-                  const SizedBox(height: 24),
-                  _buildTopRatedCompanies(colorScheme),
-                  const SizedBox(height: 24),
-                  _buildRecommendedCompanies(colorScheme),
-                  const SizedBox(height: 24),
-                  _buildListFreightSection(colorScheme),
-                  const SizedBox(height: 24),
-                ],
-              ),
+        return Scaffold(
+          backgroundColor: colorScheme.background,
+          appBar: _buildAppBar(colorScheme),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPromoBanner(),
+                const SizedBox(height: 24),
+                _buildFeaturedCarriers(colorScheme),
+                const SizedBox(height: 24),
+                _buildTopRatedCompanies(colorScheme),
+                const SizedBox(height: 24),
+                _buildRecommendedCompanies(colorScheme),
+                const SizedBox(height: 24),
+                _buildListFreightSection(colorScheme),
+                const SizedBox(height: 24),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

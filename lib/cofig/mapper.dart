@@ -2,15 +2,20 @@ import 'package:clean_architecture/cofig/base_mapper.dart';
 import 'package:clean_architecture/feature/company/data/model/company_response.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
-import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
+import 'package:clean_architecture/feature/freight/data/model/freight_detail_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart'
     as detail;
+import 'package:clean_architecture/feature/freight/domain/entity/freight_detail_entity.dart';
+import 'package:clean_architecture/feature/landing/domain/entity/freight_detail_entiry.dart';
+import 'package:clean_architecture/feature/my_loads/data/model/my_loads_base_response_model.dart'
+    as freight_model;
 import 'package:clean_architecture/feature/freight/domain/entity/cargo_type_entity.dart';
-import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
 import 'package:clean_architecture/feature/freight/domain/entity/truck_detail_entity.dart'
     as detail_entity;
+import 'package:clean_architecture/feature/my_loads/domain/entity/my_loads_entity.dart'
+    as freight_entity;
 import 'package:clean_architecture/feature/landing/data/model/featured_carrier_response.dart';
 import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
 import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
@@ -146,70 +151,6 @@ class TruckDataMapper extends BaseMapper<TruckDto, TruckEntity> {
   }
 }
 
-extension FreightDtoMapper on FreightDto {
-  FreightEntity toEntity() {
-    return FreightEntity(
-      id: id,
-      status: status,
-      createdAt: createdAt != null ? DateTime.parse(createdAt!) : null,
-      cargo: cargo?.toEntity(),
-      route: route?.toEntity(),
-      schedule: schedule?.toEntity(),
-      truckRequirement: truckRequirement?.toEntity(),
-      pricing: pricing?.toEntity(),
-    );
-  }
-}
-
-extension CargoDtoMapper on CargoDto {
-  CargoEntity toEntity() {
-    return CargoEntity(
-      type: type,
-      description: description,
-      weightKg: weightKg,
-      quantity: quantity,
-    );
-  }
-}
-
-extension RouteDtoMapper on RouteDto {
-  RouteEntity toEntity() {
-    return RouteEntity(
-      pickup: pickup?.toEntity(),
-      dropoff: dropoff?.toEntity(),
-    );
-  }
-}
-
-extension LocationDtoMapper on LocationDto {
-  LocationEntity toEntity() {
-    return LocationEntity(city: city, address: address);
-  }
-}
-
-extension ScheduleDtoMapper on ScheduleDto {
-  ScheduleEntity toEntity() {
-    return ScheduleEntity(
-      pickupDate: pickupDate != null ? DateTime.parse(pickupDate!) : null,
-      deliveryDeadline: deliveryDeadline != null
-          ? DateTime.parse(deliveryDeadline!)
-          : null,
-    );
-  }
-}
-
-extension TruckRequirementDtoMapper on TruckRequirementDto {
-  TruckRequirementEntity toEntity() {
-    return TruckRequirementEntity(type: type, minCapacityKg: minCapacityKg);
-  }
-}
-
-extension PricingDtoMapper on PricingDto {
-  PricingEntity toEntity() {
-    return PricingEntity(type: type, amount: amount);
-  }
-}
-
 // Location
 extension RegionDtoMapper on RegionDto {
   RegionEntity toEntity() {
@@ -222,7 +163,7 @@ extension RegionBaseResponseMapper on LocationBaseResponse {
     return RegionBaseResponseEntity(
       statusCode: statusCode,
       message: message,
-      data: data?.map((e) => e.toEntity()).toList(),
+      data: data?.map((e) => RegionDtoMapper(e).toEntity()).toList(),
     );
   }
 }
@@ -234,7 +175,7 @@ extension CargoTypeBaseResponseMapper on CargoTypeBaseResponse {
       statusCode: statusCode,
       message: message,
       total: total,
-      data: data?.map((e) => e.toEntity()).toList(),
+      data: data?.map((e) => CargoTypeDtoMapper(e).toEntity()).toList(),
     );
   }
 }
@@ -468,9 +409,240 @@ extension BrandBaseResponseMapper on brand_model.BrandBaseResponse {
       statusCode: statusCode,
       message: message,
       total: total,
-      brands: data?.brands
-          ?.map((brand) => (brand).toEntity())
-          .toList(),
+      brands: data?.brands?.map((brand) => (brand).toEntity()).toList(),
     );
+  }
+}
+
+// Myloads mapper
+extension MyLoadsBaseResponseMapper on freight_model.MyLoadsBaseResponseModel {
+  freight_entity.MyLoadsResponseEntity toEntity() {
+    return freight_entity.MyLoadsResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      freights: freights?.map((freight) => freight.toEntity()).toList(),
+    );
+  }
+}
+
+extension MyLoadsMapper on freight_model.FreightModel {
+  freight_entity.MyLoadsEntity toEntity() {
+    return freight_entity.MyLoadsEntity(
+      id: id,
+      freightOwnerId: freightOwnerId,
+      cargo: cargo?.toEntity(),
+      route: route?.toEntity(),
+      schedule: schedule?.toEntity(),
+      truckRequirement: truckRequirement?.toEntity(),
+      pricing: pricing?.toEntity(),
+      status: status,
+      images: image,
+      bidCount: bidCount,
+      isAvailable: isAvailable,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension CargoMapper on freight_model.CargoModel {
+  freight_entity.CargoEntity toEntity() {
+    return freight_entity.CargoEntity(
+      type: type,
+      description: description,
+      weightKg: weightKg,
+      quantity: quantity,
+    );
+  }
+}
+
+extension RouteMapper on freight_model.RouteModel {
+  freight_entity.RouteEntity toEntity() {
+    return freight_entity.RouteEntity(
+      pickup: pickup?.toEntity(),
+      dropoff: dropoff?.toEntity(),
+    );
+  }
+}
+
+extension LocationMapper on freight_model.LocationModel {
+  freight_entity.LocationEntity toEntity() {
+    return freight_entity.LocationEntity(
+      region: region,
+      city: city,
+      address: address,
+    );
+  }
+}
+
+extension ScheduleMapper on freight_model.ScheduleModel {
+  freight_entity.ScheduleEntity toEntity() {
+    return freight_entity.ScheduleEntity(
+      pickupDate: pickupDate,
+      deliveryDeadline: deliveryDeadline,
+    );
+  }
+}
+
+extension TruckRequirementMapper on freight_model.TruckRequirementModel {
+  freight_entity.TruckRequirementEntity toEntity() {
+    return freight_entity.TruckRequirementEntity(
+      type: type,
+      minCapacityKg: minCapacityKg,
+    );
+  }
+}
+
+extension PricingMapper on freight_model.PricingModel {
+  freight_entity.PricingEntity toEntity() {
+    return freight_entity.PricingEntity(type: type, amount: amount);
+  }
+}
+
+// Mapper for freight detail_entity and freight_model
+extension FreightEntityMapper on FreightEntity {
+  Freight toModel() {
+    return Freight(
+      id: id,
+      freightOwnerId: freightOwnerId,
+      cargo: cargo.toModel(),
+      route: route.toModel(),
+      schedule: schedule.toModel(),
+      truckRequirement: truckRequirement.toModel(),
+      pricing: pricing.toModel(),
+      status: status,
+      image: image,
+      bidCount: bidCount,
+      isAvailable: isAvailable,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension CargoEntityMapper on CargoEntity {
+  Cargo toModel() {
+    return Cargo(
+      type: type,
+      description: description,
+      weightKg: weightKg,
+      quantity: quantity,
+    );
+  }
+}
+
+extension RouteEntityMapper on RouteEntity {
+  Route toModel() {
+    return Route(pickup: pickup.toModel(), dropoff: dropoff.toModel());
+  }
+}
+
+extension LocationEntityMapper on LocationEntity {
+  Location toModel() {
+    return Location(region: region, city: city, address: address);
+  }
+}
+
+extension ScheduleEntityMapper on ScheduleEntity {
+  Schedule toModel() {
+    return Schedule(pickupDate: pickupDate, deliveryDeadline: deliveryDeadline);
+  }
+}
+
+extension TruckRequirementEntityMapper on TruckRequirementEntity {
+  TruckRequirement toModel() {
+    return TruckRequirement(type: type, minCapacityKg: minCapacityKg);
+  }
+}
+
+extension PricingEntityMapper on PricingEntity {
+  Pricing toModel() {
+    return Pricing(type: type, amount: amount);
+  }
+}
+
+// FreightResponse → FreightDetailResponseEntity mapper
+extension FreightResponseMapper on FreightDetailBaseResponse {
+  FreightDetailResponseEntity toDetailEntity() {
+    return FreightDetailResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      freight: data?.freight?.toDetailEntity(),
+    );
+  }
+}
+
+extension FreightToDetailEntityMapper on Freight {
+  FreightDetailEntity toDetailEntity() {
+    return FreightDetailEntity(
+      id: id,
+      freightOwnerId: freightOwnerId,
+      cargo: cargo.toDetailEntity(),
+      route: route.toDetailEntity(),
+      schedule: schedule.toDetailEntity(),
+      truckRequirement: truckRequirement.toDetailEntity(),
+      pricing: pricing.toDetailEntity(),
+      status: status,
+      image: image,
+      bidCount: bidCount,
+      isAvailable: isAvailable,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension CargoToDetailEntityMapper on Cargo {
+  FreightDetailCargoEntity toDetailEntity() {
+    return FreightDetailCargoEntity(
+      type: type,
+      description: description,
+      weightKg: weightKg,
+      quantity: quantity,
+    );
+  }
+}
+
+extension RouteToDetailEntityMapper on Route {
+  FreightDetailRouteEntity toDetailEntity() {
+    return FreightDetailRouteEntity(
+      pickup: pickup.toDetailEntity(),
+      dropoff: dropoff.toDetailEntity(),
+    );
+  }
+}
+
+extension LocationToDetailEntityMapper on Location {
+  FreightDetailLocationEntity toDetailEntity() {
+    return FreightDetailLocationEntity(
+      region: region ?? '',
+      city: city ?? '',
+      address: address ?? '',
+    );
+  }
+}
+
+extension ScheduleToDetailEntityMapper on Schedule {
+  FreightDetailScheduleEntity toDetailEntity() {
+    return FreightDetailScheduleEntity(
+      pickupDate: pickupDate,
+      deliveryDeadline: deliveryDeadline,
+    );
+  }
+}
+
+extension TruckRequirementToDetailEntityMapper on TruckRequirement {
+  FreightDetailTruckRequirementEntity toDetailEntity() {
+    return FreightDetailTruckRequirementEntity(
+      type: type,
+      minCapacityKg: minCapacityKg,
+    );
+  }
+}
+
+extension PricingToDetailEntityMapper on Pricing {
+  FreightDetailPricingEntity toDetailEntity() {
+    return FreightDetailPricingEntity(type: type, amount: amount);
   }
 }

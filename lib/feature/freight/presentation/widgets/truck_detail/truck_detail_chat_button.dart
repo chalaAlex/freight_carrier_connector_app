@@ -36,7 +36,7 @@ class TruckDetailChatButton extends StatelessWidget {
               _showChatDialog(context, colorScheme);
             },
             icon: const Icon(Icons.chat_bubble_outline),
-            label: const Text('Chat with Driver'),
+            label: const Text('Send book request'),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: AppColors.white,

@@ -1,4 +1,5 @@
-import 'package:clean_architecture/feature/freight/domain/entity/freight_entity.dart';
+import 'package:clean_architecture/feature/freight/domain/entity/freight_detail_entity.dart';
+import 'package:clean_architecture/feature/my_loads/domain/entity/my_loads_entity.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class FreightState extends Equatable {
@@ -16,7 +17,7 @@ class FreightLoading extends FreightState {}
 
 /// Success state after creating freight
 class FreightCreateSuccess extends FreightState {
-  final FreightBaseResponseEntity response;
+  final MyLoadsResponseEntity response;
 
   const FreightCreateSuccess(this.response);
 
@@ -26,7 +27,7 @@ class FreightCreateSuccess extends FreightState {
 
 /// Success state after fetching freights
 class FreightFetchSuccess extends FreightState {
-  final FreightBaseResponseEntity response;
+  final MyLoadsResponseEntity response;
 
   const FreightFetchSuccess(this.response);
 
@@ -42,4 +43,14 @@ class FreightError extends FreightState {
 
   @override
   List<Object?> get props => [message];
+}
+
+/// Success state after fetching freight detail
+class FreightDetailSuccess extends FreightState {
+  final FreightDetailResponseEntity response;
+
+  const FreightDetailSuccess(this.response);
+
+  @override
+  List<Object?> get props => [response];
 }

@@ -10,6 +10,8 @@ abstract class TruckEvent extends Equatable {
 
 class FetchInitialTrucks extends TruckEvent {}
 
+class SearchTruck extends TruckEvent {}
+
 class RefreshTrucks extends TruckEvent {}
 
 class FetchNextPage extends TruckEvent {}

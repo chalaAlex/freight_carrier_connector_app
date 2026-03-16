@@ -1,7 +1,8 @@
 import 'package:clean_architecture/core/request/create_freight_request.dart';
 import 'package:clean_architecture/feature/company/data/model/company_response.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
-import 'package:clean_architecture/feature/freight/data/model/freight_response_model.dart';
+import 'package:clean_architecture/feature/freight/data/model/freight_detail_model.dart';
+import 'package:clean_architecture/feature/my_loads/data/model/my_loads_base_response_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart';
 import 'package:clean_architecture/feature/landing/data/model/featured_carrier_response.dart';
@@ -48,6 +49,14 @@ abstract class ApiClient {
     @Query("destinationLocation") String? destinationLocation,
   });
 
+  @GET("/carrier")
+  Future<TruckBaseResponse> getFreight({
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+    @Query("search") String? search,
+    @Query("status") String? status,
+  });
+
   @GET("/carrier/{id}")
   Future<TruckDetailBaseResponse> getTruckDetail(@Path("id") String id);
 
@@ -62,13 +71,23 @@ abstract class ApiClient {
   @GET("/cargoType")
   Future<CargoTypeBaseResponse> getCargoTypes();
 
+  @GET("/freights/my-freights")
+  Future<MyLoadsBaseResponseModel> getMyFreight({
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+    @Query("status") String? status,
+  });
+
   @GET("/carrier/:id")
   Future<TruckDetailBaseResponse> getTruck();
 
   @POST("/freights")
-  Future<FreightBaseResponse> createFreight(
+  Future<MyLoadsBaseResponseModel> createFreight(
     @Body() CreateFreightRequest request,
   );
+
+  @GET("/freights/{id}")
+  Future<FreightDetailBaseResponse> getFreightDetail(@Path("id") String id);
 
   @GET("/companies")
   Future<CompanyBaseResponse> getComoany();

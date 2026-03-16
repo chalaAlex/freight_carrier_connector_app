@@ -27,3 +27,13 @@ class FetchFreightsEvent extends FreightEvent {
   @override
   List<Object?> get props => [page];
 }
+
+/// Event to fetch a single freight detail
+class FetchFreightDetailEvent extends FreightEvent {
+  final String id;
+
+  const FetchFreightDetailEvent(this.id);
+
+  @override
+  List<Object?> get props => [id];
+}

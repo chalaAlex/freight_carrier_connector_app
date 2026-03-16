@@ -1,4 +1,3 @@
-import 'package:clean_architecture/feature/truck_listing/presentation/screens/truck_listing_screen.dart';
 import 'package:flutter/material.dart';
 
 class FreightBottomNavigationBar extends StatefulWidget {
