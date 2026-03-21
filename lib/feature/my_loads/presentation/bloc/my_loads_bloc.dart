@@ -16,7 +16,7 @@ class MyLoadsBloc extends Bloc<MyLoadsEvent, MyLoadsState> {
     final result = await getMyLoadsUseCase(event.status);
     result.fold(
       (failure) => emit(MyLoadsError(failure.message)),
-      (response) => emit(MyLoadsSuccess(response.freights ?? [])),
+      (response) => emit(MyLoadsSuccess(response.freights ?? [], event.status)),
     );
   }
 
@@ -28,7 +28,7 @@ class MyLoadsBloc extends Bloc<MyLoadsEvent, MyLoadsState> {
     final result = await getMyLoadsUseCase(event.status);
     result.fold(
       (failure) => emit(MyLoadsError(failure.message)),
-      (response) => emit(MyLoadsSuccess(response.freights ?? [])),
+      (response) => emit(MyLoadsSuccess(response.freights ?? [], event.status)),
     );
   }
 }

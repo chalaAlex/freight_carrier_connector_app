@@ -15,3 +15,8 @@ class GetMyLoadsUseCase
     return repository.getMyLoads(status);
   }
 }
+
+
+
+
+

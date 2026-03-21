@@ -25,6 +25,7 @@ import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_c
 import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_event.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_bloc.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_event.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +77,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => sl<MyLoadsBloc>()..add(const FetchMyLoads('OPEN')),
         ),
+        BlocProvider(create: (_) => sl<ShipmentRequestBloc>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

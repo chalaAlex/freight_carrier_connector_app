@@ -42,7 +42,7 @@ class TruckDetailContent extends StatelessWidget {
             ),
           ],
         ),
-        TruckDetailChatButton(owner: truck.truckOwner),
+        TruckDetailChatButton(truck: truck!),
       ],
     );
   }

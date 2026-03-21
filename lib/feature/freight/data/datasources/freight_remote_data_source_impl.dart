@@ -22,6 +22,11 @@ class FreightRemoteDataSourceImpl implements FreightRemoteDataSource {
   }
 
   @override
+  Future<MyLoadsBaseResponseModel> getFreights(int page, String? status) async {
+    return await client.getFreights(page: page, status: status);
+  }
+
+  @override
   Future<FreightDetailBaseResponse> getFreightDetail(String id) async {
     return await client.getFreightDetail(id);
   }

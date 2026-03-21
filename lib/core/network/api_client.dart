@@ -1,4 +1,6 @@
 import 'package:clean_architecture/core/request/create_freight_request.dart';
+import 'package:clean_architecture/core/request/shipment_request.dart';
+import 'package:clean_architecture/feature/shipment_request/data/model/shipment_request_response_model.dart';
 import 'package:clean_architecture/feature/company/data/model/company_response.dart';
 import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
 import 'package:clean_architecture/feature/freight/data/model/freight_detail_model.dart';
@@ -78,6 +80,13 @@ abstract class ApiClient {
     @Query("status") String? status,
   });
 
+  @GET("/freights")
+  Future<MyLoadsBaseResponseModel> getFreights({
+    @Query("page") int? page,
+    @Query("limit") int? limit,
+    @Query("status") String? status,
+  });
+
   @GET("/carrier/:id")
   Future<TruckDetailBaseResponse> getTruck();
 
@@ -85,6 +94,12 @@ abstract class ApiClient {
   Future<MyLoadsBaseResponseModel> createFreight(
     @Body() CreateFreightRequest request,
   );
+
+  @PATCH("/carrier/{id}/makeFavourite")
+  Future<TruckDetailBaseResponse> makeCarrierFavourite(@Path("id") String id);
+
+  @PATCH("/carrier/{id}/disableFavourite")
+  Future<TruckDetailBaseResponse> disableFavourite(@Path("id") String id);
 
   @GET("/freights/{id}")
   Future<FreightDetailBaseResponse> getFreightDetail(@Path("id") String id);
@@ -112,4 +127,9 @@ abstract class ApiClient {
 
   @GET("/brands")
   Future<BrandBaseResponse> getAllBrands();
+
+  @POST("/shipmentRequests")
+  Future<RequestResponse> createShipmentRequest(
+    @Body() CreateShipmentRequest request,
+  );
 }

@@ -291,7 +291,7 @@ class _TabContent extends StatelessWidget {
                 context.read<MyLoadsBloc>().add(FetchMyLoads(status)),
           );
         }
-        if (state is MyLoadsSuccess) {
+        if (state is MyLoadsSuccess && state.status == status) {
           final q = query.trim().toLowerCase();
           final all = state.freights.map(LoadViewModel.from).toList();
           final items = q.isEmpty

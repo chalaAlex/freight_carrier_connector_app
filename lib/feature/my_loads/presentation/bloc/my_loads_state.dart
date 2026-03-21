@@ -14,11 +14,12 @@ class MyLoadsLoading extends MyLoadsState {}
 
 class MyLoadsSuccess extends MyLoadsState {
   final List<MyLoadsEntity> freights;
+  final String status;
 
-  const MyLoadsSuccess(this.freights);
+  const MyLoadsSuccess(this.freights, this.status);
 
   @override
-  List<Object?> get props => [freights];
+  List<Object?> get props => [freights, status];
 }
 
 class MyLoadsError extends MyLoadsState {

@@ -29,6 +29,7 @@ import 'package:clean_architecture/feature/freight/domain/repositories/cargo_typ
 import 'package:clean_architecture/feature/freight/domain/repositories/upload_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/repositories/truck_detail_repository.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/create_freight_usecase.dart';
+import 'package:clean_architecture/feature/freight/domain/usecases/get_all_freights_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_freights_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_locations_usecase.dart';
 import 'package:clean_architecture/feature/freight/domain/usecases/get_cargo_types_usecase.dart';
@@ -96,6 +97,18 @@ import 'package:clean_architecture/feature/my_loads/data/repositories/my_loads_r
 import 'package:clean_architecture/feature/my_loads/domain/repositories/my_loads_repository.dart';
 import 'package:clean_architecture/feature/my_loads/domain/usecases/get_my_loads_usecase.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_bloc.dart';
+import 'package:clean_architecture/feature/carrier/data/datasource/favourite_remote_data_source.dart';
+import 'package:clean_architecture/feature/carrier/data/datasource/favourite_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/carrier/data/repository/favourite_repository_impl.dart';
+import 'package:clean_architecture/feature/carrier/domain/repository/favourite_repository.dart';
+import 'package:clean_architecture/feature/carrier/domain/usecase/toggle_favourite_usecase.dart';
+import 'package:clean_architecture/feature/carrier/presentation/bloc/favourite_bloc.dart';
+import 'package:clean_architecture/feature/shipment_request/data/datasources/shipment_request_remote_data_source.dart';
+import 'package:clean_architecture/feature/shipment_request/data/datasources/shipment_request_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/shipment_request/data/repositories/shipment_request_repository_impl.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/repositories/shipment_request_repository.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/usecases/create_shipment_request_usecase.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -176,6 +189,12 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<MyLoadsRemoteDataSource>(
     () => MyLoadsRemoteDataSourceImpl(apiClient: sl()),
   );
+  sl.registerFactory<ShipmentRequestRemoteDataSource>(
+    () => ShipmentRequestRemoteDataSourceImpl(apiClient: sl()),
+  );
+  sl.registerFactory<FavouriteRemoteDataSource>(
+    () => FavouriteRemoteDataSourceImpl(apiClient: sl()),
+  );
 
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
@@ -198,6 +217,12 @@ Future<void> init(Environment prod) async {
     () => CompanyRepositoryImpl(remoteDataSource: sl()),
   );
   sl.registerFactory<MyLoadsRepository>(() => MyLoadsRepositoryImpl(sl()));
+  sl.registerFactory<ShipmentRequestRepository>(
+    () => ShipmentRequestRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerFactory<FavouriteRepository>(
+    () => FavouriteRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
@@ -208,6 +233,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetBrandsUseCase(sl()));
   sl.registerFactory(() => CreateFreightUseCase(sl()));
   sl.registerFactory(() => GetFreightsUseCase(sl()));
+  sl.registerFactory(() => GetAllFreightsUseCase(sl()));
   sl.registerFactory(() => GetLocationsUseCase(sl()));
   sl.registerFactory(() => GetCargoTypesUseCase(sl()));
   sl.registerFactory(() => UploadFileUseCase(sl()));
@@ -218,6 +244,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetRecommendedCompaniesUseCase(sl()));
   sl.registerFactory(() => GetTopRatedCompaniesUseCase(sl()));
   sl.registerFactory(() => GetMyLoadsUseCase(sl()));
+  sl.registerFactory(() => CreateShipmentRequestUseCase(sl()));
+  sl.registerFactory(() => MakeCarrierFavouriteUseCase(sl()));
+  sl.registerFactory(() => DisableFavouriteUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -250,4 +279,13 @@ Future<void> init(Environment prod) async {
     () => TopRatedCompanyBloc(getTopRatedCompaniesUseCase: sl()),
   );
   sl.registerFactory(() => MyLoadsBloc(sl()));
+  sl.registerFactory(
+    () => FavouriteBloc(
+      makeCarrierFavouriteUseCase: sl(),
+      disableFavouriteUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => ShipmentRequestBloc(createShipmentRequestUseCase: sl()),
+  );
 }

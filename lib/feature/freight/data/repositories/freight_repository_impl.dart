@@ -44,6 +44,23 @@ class FreightRepositoryImpl implements FreightRepository {
   }
 
   @override
+  Future<Either<Failure, MyLoadsResponseEntity>> getFreights(
+    int page,
+    String? status,
+  ) async {
+    try {
+      final response = await remoteDataSource.getFreights(page, status);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return Right(response.toEntity());
+      } else {
+        return Left(Failure(response.statusCode!, response.message!));
+      }
+    } catch (error) {
+      return Left(ErrorHandler.handle(error).failure);
+    }
+  }
+
+  @override
   Future<Either<Failure, FreightDetailResponseEntity>> getFreightDetail(
     String id,
   ) async {

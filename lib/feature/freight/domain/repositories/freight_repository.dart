@@ -11,6 +11,11 @@ abstract class FreightRepository {
 
   Future<Either<Failure, MyLoadsResponseEntity>> getMyFreight(int page);
 
+  Future<Either<Failure, MyLoadsResponseEntity>> getFreights(
+    int page,
+    String? status,
+  );
+
   Future<Either<Failure, FreightDetailResponseEntity>> getFreightDetail(
     String id,
   );

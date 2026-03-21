@@ -36,6 +36,10 @@ import 'package:clean_architecture/feature/truck_listing/domain/entities/feature
     as feature_entity;
 import 'package:clean_architecture/feature/truck_listing/domain/entities/brand_entity.dart'
     as brand_entity;
+import 'package:clean_architecture/feature/shipment_request/data/model/shipment_request_response_model.dart'
+    as shipment_model;
+import 'package:clean_architecture/feature/shipment_request/domain/entity/shipment_request_entity.dart'
+    as shipment_entity;
 
 class UserMapper extends BaseMapper<UserResponse, UserModel> {
   @override
@@ -644,5 +648,84 @@ extension TruckRequirementToDetailEntityMapper on TruckRequirement {
 extension PricingToDetailEntityMapper on Pricing {
   FreightDetailPricingEntity toDetailEntity() {
     return FreightDetailPricingEntity(type: type, amount: amount);
+  }
+}
+
+// Shipment request mapper
+extension ShipmentRequestResponseMapper on shipment_model.RequestResponse {
+  shipment_entity.RequestResponseEntity toEntity() {
+    return shipment_entity.RequestResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      data: ShipmentRequestDataMapper(data).toEntity(),
+    );
+  }
+}
+
+extension ShipmentRequestDataMapper on shipment_model.RequestData {
+  shipment_entity.RequestDataEntity toEntity() {
+    return shipment_entity.RequestDataEntity(
+      shipmentRequest: ShipmentRequestMapper(shipmentRequest).toEntity(),
+    );
+  }
+}
+
+extension ShipmentRequestMapper on shipment_model.ShipmentRequestModel {
+  shipment_entity.ShipmentRequestEntity toEntity() {
+    return shipment_entity.ShipmentRequestEntity(
+      freightOwnerId: freightOwnerId,
+      carrierOwnerId: carrierOwnerId,
+      carrierId: carrierId,
+      freightIds: freightIds,
+      status: status,
+      freightSnapshots: freightSnapshots
+          .map((s) => FreightSnapshotMapper(s).toEntity())
+          .toList(),
+      proposedPrice: proposedPrice,
+      freightOwnerContact: FreightOwnerContactMapper(
+        freightOwnerContact,
+      ).toEntity(),
+      id: id,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      version: version,
+    );
+  }
+}
+
+extension FreightSnapshotMapper on shipment_model.FreightSnapshot {
+  shipment_entity.FreightSnapshotEntity toEntity() {
+    return shipment_entity.FreightSnapshotEntity(
+      freightId: freightId,
+      cargoType: cargoType,
+      weight: weight,
+      quantity: quantity,
+      pickupLocation: ShipmentLocationMapper(pickupLocation).toEntity(),
+      deliveryLocation: ShipmentLocationMapper(deliveryLocation).toEntity(),
+      pickupDate: pickupDate,
+      deliveryDate: deliveryDate,
+      specialRequirements: specialRequirements,
+    );
+  }
+}
+
+extension ShipmentLocationMapper on shipment_model.SnapshotLocation {
+  shipment_entity.LocationEntity toEntity() {
+    return shipment_entity.LocationEntity(
+      region: region,
+      city: city,
+      address: address,
+    );
+  }
+}
+
+extension FreightOwnerContactMapper on shipment_model.FreightOwnerContact {
+  shipment_entity.FreightOwnerContactEntity toEntity() {
+    return shipment_entity.FreightOwnerContactEntity(
+      name: name,
+      companyName: companyName,
+      email: email,
+      phone: phone,
+    );
   }
 }

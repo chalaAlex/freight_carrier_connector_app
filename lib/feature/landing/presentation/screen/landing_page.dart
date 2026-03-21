@@ -341,7 +341,6 @@ class _LandingPageState extends State<LandingPage> {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to truck detail page
           Navigator.push(
             context,
             MaterialPageRoute(

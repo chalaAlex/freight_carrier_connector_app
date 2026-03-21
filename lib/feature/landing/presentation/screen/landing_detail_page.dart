@@ -1,3 +1,4 @@
+import 'package:clean_architecture/feature/common/global_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
@@ -9,6 +10,9 @@ import 'package:clean_architecture/feature/landing/presentation/bloc/featured_ca
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_state.dart';
 import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/truck_detail_screen.dart';
+import 'package:clean_architecture/feature/carrier/presentation/bloc/favourite_bloc.dart';
+import 'package:clean_architecture/feature/carrier/presentation/bloc/favourite_event.dart';
+import 'package:clean_architecture/feature/carrier/presentation/bloc/favourite_state.dart';
 import 'package:clean_architecture/core/di.dart' as di;
 
 class LandingDetailPage extends StatefulWidget {
@@ -38,7 +42,7 @@ class _LandingDetailPageState extends State<LandingDetailPage> {
 
           return Scaffold(
             backgroundColor: colorScheme.background,
-            appBar: _buildAppBar(colorScheme),
+            appBar: GlobalAppBar(colorScheme: colorScheme, title: ''),
             body: BlocBuilder<FeaturedCarrierBloc, FeaturedCarrierState>(
               builder: (context, state) {
                 if (state is FeaturedCarrierLoading) {
@@ -58,9 +62,13 @@ class _LandingDetailPageState extends State<LandingDetailPage> {
                     padding: const EdgeInsets.all(16),
                     itemCount: state.carriers.length,
                     itemBuilder: (context, index) {
-                      return _buildTruckCardFromEntity(
-                        carrier: state.carriers[index],
-                        colorScheme: colorScheme,
+                      final carrier = state.carriers[index];
+                      return BlocProvider(
+                        create: (_) => di.sl<FavouriteBloc>(),
+                        child: _buildTruckCardFromEntity(
+                          carrier: carrier,
+                          colorScheme: colorScheme,
+                        ),
                       );
                     },
                   );
@@ -76,31 +84,31 @@ class _LandingDetailPageState extends State<LandingDetailPage> {
   }
 
   // App Bar
-  PreferredSizeWidget _buildAppBar(AppColorScheme colorScheme) {
-    return AppBar(
-      backgroundColor: colorScheme.surface,
-      elevation: 0,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: colorScheme.textPrimary),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        widget.title,
-        style: TextStyle(
-          color: colorScheme.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      actions: [
-        // TODO: Implement search functionality
-        IconButton(
-          icon: Icon(Icons.search, color: colorScheme.textPrimary),
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
+  // PreferredSizeWidget _buildAppBar(AppColorScheme colorScheme) {
+  //   return AppBar(
+  //     backgroundColor: colorScheme.surface,
+  //     elevation: 0,
+  //     leading: IconButton(
+  //       icon: Icon(Icons.arrow_back, color: colorScheme.textPrimary),
+  //       onPressed: () => Navigator.pop(context),
+  //     ),
+  //     title: Text(
+  //       widget.title,
+  //       style: TextStyle(
+  //         color: colorScheme.textPrimary,
+  //         fontSize: 18,
+  //         fontWeight: FontWeight.bold,
+  //       ),
+  //     ),
+  //     actions: [
+  //       // TODO: Implement search functionality
+  //       IconButton(
+  //         icon: Icon(Icons.search, color: colorScheme.textPrimary),
+  //         onPressed: () {},
+  //       ),
+  //     ],
+  //   );
+  // }
 
   // Truck Card from Entity
   Widget _buildTruckCardFromEntity({
@@ -178,16 +186,50 @@ class _LandingDetailPageState extends State<LandingDetailPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          // TODO: Implement favorite/unfavorite functionality
-                          icon: Icon(
-                            Icons.favorite_border,
-                            color: colorScheme.textSecondary,
-                            size: 20,
-                          ),
-                          onPressed: () {},
+                        BlocBuilder<FavouriteBloc, FavouriteState>(
+                          builder: (context, favState) {
+                            final isFav = favState is FavouriteSuccess
+                                ? favState.isFavourite
+                                : favState is FavouriteInitial
+                                ? favState.isFavourite
+                                : false;
+                            final isLoading = favState is FavouriteLoading;
+                            return IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: isLoading
+                                  ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.textSecondary,
+                                      ),
+                                    )
+                                  : Icon(
+                                      isFav
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: isFav
+                                          ? Colors.red
+                                          : colorScheme.textSecondary,
+                                      size: 20,
+                                    ),
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      if (isFav) {
+                                        context.read<FavouriteBloc>().add(
+                                          DisableFavourite(carrier.id),
+                                        );
+                                      } else {
+                                        context.read<FavouriteBloc>().add(
+                                          MakeFavourite(carrier.id),
+                                        );
+                                      }
+                                    },
+                            );
+                          },
                         ),
                       ],
                     ),
