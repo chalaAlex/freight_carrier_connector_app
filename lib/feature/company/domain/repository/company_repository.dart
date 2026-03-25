@@ -5,4 +5,7 @@ import 'package:dartz/dartz.dart';
 abstract class CompanyRepository {
   Future<Either<Failure, CompanyBaseResponseEntity>> getRecommendedCompanies();
   Future<Either<Failure, CompanyBaseResponseEntity>> getTopRatedCompanies();
+  Future<Either<Failure, CompanyDetailResponseEntity>> getCompanyDetail(
+    String id,
+  );
 }

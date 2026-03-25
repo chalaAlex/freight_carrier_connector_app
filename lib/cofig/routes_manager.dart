@@ -6,6 +6,11 @@ import 'package:clean_architecture/feature/freight/presentation/screen/freight_h
 import 'package:clean_architecture/feature/freight/presentation/screen/post_freight_page.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/rate_driver_screen.dart';
 import 'package:clean_architecture/feature/freight/presentation/screen/truck_detail_screen.dart';
+import 'package:clean_architecture/feature/rating_and_review/domain/entity/review_entity.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/screen/completed_shipments_screen.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/screen/submit_review_screen.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/entity/shipment_request_entity.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/screen/shipment_request_home_page.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/co_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/fo_signup_screen.dart';
 import 'package:clean_architecture/feature/signup/presentation/screens/signup/login_screen.dart';
@@ -26,6 +31,10 @@ class Routes {
   static const String viewAllReiviews = "/viewAllReiviews";
   static const String reviewDriver = "/reviewDriver";
   static const String companyProfile = "/companyProfile";
+  static const String completedShipments = "/completedShipments";
+  static const String submitReview = "/submitReview";
+  static const String shipmentRequestHome = "/shipmentRequestHome";
+  static const String createShipmentRequest = "/createShipmentRequest";
 }
 
 class RouteGenerator {
@@ -62,6 +71,7 @@ class RouteGenerator {
             ),
           );
         }
+
         return MaterialPageRoute(
           builder: (_) => TruckDetailScreen(truckId: truckId),
         );
@@ -83,8 +93,37 @@ class RouteGenerator {
       case Routes.reviewDriver:
         return MaterialPageRoute(builder: (_) => const RateDriverScreen());
 
-      // case Routes.companyProfile:
-      //   return MaterialPageRoute(builder: (_) => const CompanyProfile(company: null,));
+      case Routes.completedShipments:
+        return MaterialPageRoute(
+          builder: (_) => const CompletedShipmentsScreen(),
+        );
+
+      case Routes.shipmentRequestHome:
+        return MaterialPageRoute(
+          builder: (_) => const ShipmentRequestHomePage(),
+        );
+
+      case Routes.submitReview:
+        final request = routeSettings.arguments as SentRequestEntity?;
+        if (request == null) {
+          return MaterialPageRoute(
+            builder: (_) =>
+                const Scaffold(body: Center(child: Text('Request required'))),
+          );
+        }
+        final shipment = CompletedShipmentEntity(
+          id: request.id,
+          carrierId: request.carrier?.id ?? '',
+          carrierBrand: request.carrier?.brand,
+          carrierModel: request.carrier?.model,
+          plateNumber: request.carrier?.plateNumber,
+          status: request.status,
+          isReviewed: request.isReviewed,
+          createdAt: request.createdAt,
+        );
+        return MaterialPageRoute(
+          builder: (_) => SubmitReviewScreen(shipment: shipment),
+        );
 
       default:
         return MaterialPageRoute(

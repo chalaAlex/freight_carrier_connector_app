@@ -27,3 +27,10 @@ class ShipmentRequestError extends ShipmentRequestState {
   @override
   List<Object?> get props => [message];
 }
+
+class ShipmentRequestActionSuccess extends ShipmentRequestState {
+  final String message;
+  const ShipmentRequestActionSuccess(this.message);
+  @override
+  List<Object?> get props => [message];
+}

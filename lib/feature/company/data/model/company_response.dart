@@ -3,15 +3,11 @@ part 'company_response.g.dart';
 
 @JsonSerializable()
 class CompanyBaseResponse {
-  final int statusCode;
-  final int total;
-  final CompanyData data;
+  final int? statusCode;
+  final int? total;
+  final CompanyData? data;
 
-  CompanyBaseResponse({
-    required this.statusCode,
-    required this.total,
-    required this.data,
-  });
+  CompanyBaseResponse({this.statusCode, this.total, this.data});
 
   factory CompanyBaseResponse.fromJson(Map<String, dynamic> json) =>
       _$CompanyBaseResponseFromJson(json);
@@ -21,9 +17,9 @@ class CompanyBaseResponse {
 
 @JsonSerializable()
 class CompanyData {
-  final List<Company> companies;
+  final List<Company>? companies;
 
-  CompanyData({required this.companies});
+  CompanyData({this.companies});
 
   factory CompanyData.fromJson(Map<String, dynamic> json) =>
       _$CompanyDataFromJson(json);
@@ -107,4 +103,30 @@ class HeadOfficeAddress {
       _$HeadOfficeAddressFromJson(json);
 
   Map<String, dynamic> toJson() => _$HeadOfficeAddressToJson(this);
+}
+
+@JsonSerializable()
+class CompanyDetailResponse {
+  final int? statusCode;
+  final String? message;
+  final CompanyDetailData? data;
+
+  CompanyDetailResponse({this.statusCode, this.message, this.data});
+
+  factory CompanyDetailResponse.fromJson(Map<String, dynamic> json) =>
+      _$CompanyDetailResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CompanyDetailResponseToJson(this);
+}
+
+@JsonSerializable()
+class CompanyDetailData {
+  final Company? company;
+
+  CompanyDetailData({this.company});
+
+  factory CompanyDetailData.fromJson(Map<String, dynamic> json) =>
+      _$CompanyDetailDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CompanyDetailDataToJson(this);
 }

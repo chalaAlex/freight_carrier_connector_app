@@ -212,6 +212,10 @@ extension TruckDetailDtoMapper on detail.TruckDto {
     return detail_entity.TruckEntity(
       id: id,
       truckOwner: truckOwner?.toEntity(),
+      companyId: company?.id,
+      companyName: company?.legalEntityName,
+      companyRatingAverage: company?.ratingAverage,
+      companyRatingQuantity: company?.ratingQuantity,
       model: model,
       plateNumber: plateNumber,
       brand: brand,
@@ -223,6 +227,7 @@ extension TruckDetailDtoMapper on detail.TruckDto {
       image: image,
       aboutTruck: aboutTruck,
       isAvailable: isAvailable,
+      isItCompaniesCarrier: isItCompaniesCarrier,
       createdAt: createdAt != null ? DateTime.tryParse(createdAt!) : null,
       updatedAt: updatedAt != null ? DateTime.tryParse(updatedAt!) : null,
     );
@@ -283,7 +288,7 @@ extension CompanyBaseResponseMapper on CompanyBaseResponse {
     return CompanyBaseResponseEntity(
       statusCode: statusCode,
       total: total,
-      data: data.toEntity(),
+      data: data?.toEntity(),
     );
   }
 }
@@ -291,7 +296,7 @@ extension CompanyBaseResponseMapper on CompanyBaseResponse {
 extension CompanyDataMapper on CompanyData {
   CompanyDataEntity toEntity() {
     return CompanyDataEntity(
-      companies: companies.map((e) => e.toEntity()).toList(),
+      companies: companies?.map((e) => e.toEntity()).toList(),
     );
   }
 }
@@ -726,6 +731,17 @@ extension FreightOwnerContactMapper on shipment_model.FreightOwnerContact {
       companyName: companyName,
       email: email,
       phone: phone,
+    );
+  }
+}
+
+// Company detail mapper
+extension CompanyDetailResponseMapper on CompanyDetailResponse {
+  CompanyDetailResponseEntity toDetailEntity() {
+    return CompanyDetailResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      company: data?.company?.toEntity(),
     );
   }
 }

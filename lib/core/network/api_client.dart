@@ -116,8 +116,8 @@ abstract class ApiClient {
   @GET("/companies/getRecommendedCompanies")
   Future<CompanyBaseResponse> getRecommendedCompanies();
 
-  @GET("/companies/:id")
-  Future<CompanyBaseResponse> getCompany();
+  @GET("/companies/{id}")
+  Future<CompanyDetailResponse> getCompanyDetail(@Path("id") String id);
 
   @GET("/regions")
   Future<RegionsBaseResponse> getAllRegions();

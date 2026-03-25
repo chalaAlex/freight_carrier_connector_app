@@ -3,4 +3,5 @@ import 'package:clean_architecture/feature/company/data/model/company_response.d
 abstract class CompanyRemoteDataSource {
   Future<CompanyBaseResponse> getRecommendedCompanies();
   Future<CompanyBaseResponse> getTopRatedCompanies();
+  Future<CompanyDetailResponse> getCompanyDetail(String id);
 }

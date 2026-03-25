@@ -7,4 +7,11 @@ abstract class ShipmentRequestRepository {
   Future<Either<Failure, RequestResponseEntity>> createShipmentRequest(
     CreateShipmentRequest request,
   );
+
+  Future<Either<Failure, List<SentRequestEntity>>> getSentRequests(
+    String status,
+  );
+
+  Future<Either<Failure, void>> cancelRequest(String id);
+  Future<Either<Failure, void>> completeRequest(String id);
 }

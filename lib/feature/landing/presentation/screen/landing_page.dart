@@ -10,13 +10,10 @@ import 'package:clean_architecture/feature/landing/presentation/bloc/featured_ca
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_event.dart';
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_state.dart';
 import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_event.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_state.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_event.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_state.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_state.dart';
 import 'package:clean_architecture/feature/company/presentation/screen/company_profile.dart';
 
 class LandingPage extends StatefulWidget {
@@ -187,7 +184,11 @@ class _LandingPageState extends State<LandingPage> {
       children: [
         _buildSectionHeader('Top Rated Companies', colorScheme),
         const SizedBox(height: 12),
-        BlocBuilder<TopRatedCompanyBloc, TopRatedCompanyState>(
+        BlocBuilder<CompanyBloc, CompanyState>(
+          buildWhen: (prev, curr) =>
+              curr is TopRatedCompanyLoading ||
+              curr is TopRatedCompanyLoaded ||
+              curr is TopRatedCompanyError,
           builder: (context, state) {
             if (state is TopRatedCompanyLoading) {
               return _buildLoadingCarriers();
@@ -235,7 +236,11 @@ class _LandingPageState extends State<LandingPage> {
       children: [
         _buildSectionHeader('Recommended Companies', colorScheme),
         const SizedBox(height: 12),
-        BlocBuilder<RecommendedCompanyBloc, RecommendedCompanyState>(
+        BlocBuilder<CompanyBloc, CompanyState>(
+          buildWhen: (prev, curr) =>
+              curr is RecommendedCompanyLoading ||
+              curr is RecommendedCompanyLoaded ||
+              curr is RecommendedCompanyError,
           builder: (context, state) {
             if (state is RecommendedCompanyLoading) {
               return _buildLoadingCarriers();
@@ -591,7 +596,7 @@ class _LandingPageState extends State<LandingPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CompanyProfile(company: company),
+              builder: (context) => CompanyProfile(companyId: company.id),
             ),
           );
         },
@@ -867,16 +872,13 @@ class _LandingPageState extends State<LandingPage> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Retry all data loading
                 context.read<FeaturedCarrierBloc>().add(
                   const LoadFeaturedCarriers(),
                 );
-                context.read<RecommendedCompanyBloc>().add(
+                context.read<CompanyBloc>().add(
                   const LoadRecommendedCompanies(),
                 );
-                context.read<TopRatedCompanyBloc>().add(
-                  const LoadTopRatedCompanies(),
-                );
+                context.read<CompanyBloc>().add(const LoadTopRatedCompanies());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

@@ -35,14 +35,21 @@ class TruckDetailContent extends StatelessWidget {
                   TruckDetailAbout(aboutText: truck.aboutTruck ?? ''),
                   const SizedBox(height: SizeManager.s24),
                   // TruckDetailReviews(owner: truck.truckOwner),
-                  TruckDetailOwnerSection(owner: truck.truckOwner),
+                  TruckDetailOwnerSection(
+                    owner: truck.truckOwner,
+                    companyId: truck.companyId,
+                    companyName: truck.companyName,
+                    companyRatingAverage: truck.companyRatingAverage,
+                    companyRatingQuantity: truck.companyRatingQuantity,
+                    isItCompaniesCarrier: truck.isItCompaniesCarrier ?? false,
+                  ),
                   const SizedBox(height: 120),
                 ],
               ),
             ),
           ],
         ),
-        TruckDetailChatButton(truck: truck!),
+        TruckDetailChatButton(truck: truck),
       ],
     );
   }

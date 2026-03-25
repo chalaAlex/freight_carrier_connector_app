@@ -1,24 +1,20 @@
 import 'package:equatable/equatable.dart';
 
 class CompanyBaseResponseEntity extends Equatable {
-  final int statusCode;
-  final int total;
-  final CompanyDataEntity data;
+  final int? statusCode;
+  final int? total;
+  final CompanyDataEntity? data;
 
-  const CompanyBaseResponseEntity({
-    required this.statusCode,
-    required this.total,
-    required this.data,
-  });
+  const CompanyBaseResponseEntity({this.statusCode, this.total, this.data});
 
   @override
   List<Object?> get props => [statusCode, total, data];
 }
 
 class CompanyDataEntity extends Equatable {
-  final List<CompanyEntity> companies;
+  final List<CompanyEntity>? companies;
 
-  const CompanyDataEntity({required this.companies});
+  const CompanyDataEntity({this.companies});
 
   @override
   List<Object?> get props => [companies];
@@ -112,4 +108,19 @@ class HeadOfficeAddressEntity extends Equatable {
 
   @override
   List<Object?> get props => [city, regionState, country, id];
+}
+
+class CompanyDetailResponseEntity extends Equatable {
+  final int? statusCode;
+  final String? message;
+  final CompanyEntity? company;
+
+  const CompanyDetailResponseEntity({
+    this.statusCode,
+    this.message,
+    this.company,
+  });
+
+  @override
+  List<Object?> get props => [statusCode, message, company];
 }

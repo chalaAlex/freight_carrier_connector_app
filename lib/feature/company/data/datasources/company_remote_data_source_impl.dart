@@ -16,4 +16,9 @@ class CompanyRemoteDataSourceImpl implements CompanyRemoteDataSource {
   Future<CompanyBaseResponse> getTopRatedCompanies() async {
     return await client.getTopRatedCompanies();
   }
+
+  @override
+  Future<CompanyDetailResponse> getCompanyDetail(String id) async {
+    return await client.getCompanyDetail(id);
+  }
 }

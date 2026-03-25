@@ -8,9 +8,11 @@ part of 'company_response.dart';
 
 CompanyBaseResponse _$CompanyBaseResponseFromJson(Map<String, dynamic> json) =>
     CompanyBaseResponse(
-      statusCode: (json['statusCode'] as num).toInt(),
-      total: (json['total'] as num).toInt(),
-      data: CompanyData.fromJson(json['data'] as Map<String, dynamic>),
+      statusCode: (json['statusCode'] as num?)?.toInt(),
+      total: (json['total'] as num?)?.toInt(),
+      data: json['data'] == null
+          ? null
+          : CompanyData.fromJson(json['data'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CompanyBaseResponseToJson(
@@ -22,8 +24,8 @@ Map<String, dynamic> _$CompanyBaseResponseToJson(
 };
 
 CompanyData _$CompanyDataFromJson(Map<String, dynamic> json) => CompanyData(
-  companies: (json['companies'] as List<dynamic>)
-      .map((e) => Company.fromJson(e as Map<String, dynamic>))
+  companies: (json['companies'] as List<dynamic>?)
+      ?.map((e) => Company.fromJson(e as Map<String, dynamic>))
       .toList(),
 );
 
@@ -103,3 +105,31 @@ Map<String, dynamic> _$HeadOfficeAddressToJson(HeadOfficeAddress instance) =>
       'country': instance.country,
       '_id': instance.id,
     };
+
+CompanyDetailResponse _$CompanyDetailResponseFromJson(
+  Map<String, dynamic> json,
+) => CompanyDetailResponse(
+  statusCode: (json['statusCode'] as num?)?.toInt(),
+  message: json['message'] as String?,
+  data: json['data'] == null
+      ? null
+      : CompanyDetailData.fromJson(json['data'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$CompanyDetailResponseToJson(
+  CompanyDetailResponse instance,
+) => <String, dynamic>{
+  'statusCode': instance.statusCode,
+  'message': instance.message,
+  'data': instance.data,
+};
+
+CompanyDetailData _$CompanyDetailDataFromJson(Map<String, dynamic> json) =>
+    CompanyDetailData(
+      company: json['company'] == null
+          ? null
+          : Company.fromJson(json['company'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$CompanyDetailDataToJson(CompanyDetailData instance) =>
+    <String, dynamic>{'company': instance.company};

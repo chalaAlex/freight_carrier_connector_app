@@ -21,3 +21,17 @@ class SubmitShipmentRequest extends ShipmentRequestEvent {
   @override
   List<Object?> get props => [carrierId, freightIds, proposedPrice];
 }
+
+class CancelShipmentRequest extends ShipmentRequestEvent {
+  final String id;
+  const CancelShipmentRequest(this.id);
+  @override
+  List<Object?> get props => [id];
+}
+
+class CompleteShipmentRequest extends ShipmentRequestEvent {
+  final String id;
+  const CompleteShipmentRequest(this.id);
+  @override
+  List<Object?> get props => [id];
+}

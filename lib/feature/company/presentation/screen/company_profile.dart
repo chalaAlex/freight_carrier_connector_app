@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_state.dart';
 
 class CompanyProfile extends StatefulWidget {
-  final CompanyEntity company;
+  final String companyId;
 
-  const CompanyProfile({super.key, required this.company});
+  const CompanyProfile({super.key, required this.companyId});
 
   @override
   State<CompanyProfile> createState() => _CompanyProfileState();
 }
 
 class _CompanyProfileState extends State<CompanyProfile> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<CompanyBloc>().add(LoadCompanyDetail(widget.companyId));
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -29,44 +39,79 @@ class _CompanyProfileState extends State<CompanyProfile> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Carrier Profile',
+          'Company Profile',
           style: TextStyle(
             color: colorScheme.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.share, color: colorScheme.textPrimary),
-            onPressed: () {
-              // TODO: Implement share functionality
-            },
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeaderSection(colorScheme),
-            _buildCompanyInfoSection(colorScheme),
-            _buildStatsSection(colorScheme),
-            _buildAboutSection(colorScheme),
-            _buildCompanyInformationSection(colorScheme),
-            _buildFleetBreakdownSection(colorScheme),
-            _buildTrustComplianceSection(colorScheme),
-            _buildViewAllTrucksButton(colorScheme),
-            const SizedBox(height: SizeManager.s24),
-          ],
-        ),
+      body: BlocBuilder<CompanyBloc, CompanyState>(
+        builder: (context, state) {
+          if (state is CompanyDetailLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (state is CompanyDetailError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: colorScheme.error),
+                  const SizedBox(height: SizeManager.s12),
+                  Text(
+                    state.message,
+                    style: TextStyle(color: colorScheme.textSecondary),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: SizeManager.s16),
+                  TextButton(
+                    onPressed: () => context.read<CompanyBloc>().add(
+                      LoadCompanyDetail(widget.companyId),
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+          if (state is CompanyDetailLoaded) {
+            return _CompanyProfileBody(
+              company: state.company,
+              colorScheme: colorScheme,
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
+}
+
+class _CompanyProfileBody extends StatelessWidget {
+  final CompanyEntity company;
+  final AppColorScheme colorScheme;
+
+  const _CompanyProfileBody({required this.company, required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildHeaderSection(colorScheme),
+          _buildCompanyInfoSection(colorScheme),
+          _buildStatsSection(colorScheme),
+          _buildCompanyInformationSection(colorScheme),
+          const SizedBox(height: SizeManager.s24),
+        ],
       ),
     );
   }
 
   Widget _buildHeaderSection(AppColorScheme colorScheme) {
     final hasImage =
-        widget.company.bannerImage != null &&
-        widget.company.bannerImage!.isNotEmpty;
+        company.bannerImage != null && company.bannerImage!.isNotEmpty;
 
     return Container(
       height: 200,
@@ -79,32 +124,28 @@ class _CompanyProfileState extends State<CompanyProfile> {
       ),
       child: Stack(
         children: [
-          // Background Image
           if (hasImage)
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(SizeManager.r12),
               ),
               child: Image.network(
-                widget.company.bannerImage!,
+                company.bannerImage!,
                 height: 200,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.primary,
-                    child: Center(
-                      child: Icon(
-                        Icons.business,
-                        size: 80,
-                        color: Colors.white.withValues(alpha: 0.3),
-                      ),
+                errorBuilder: (_, __, ___) => Container(
+                  color: AppColors.primary,
+                  child: Center(
+                    child: Icon(
+                      Icons.business,
+                      size: 80,
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
-          // Gradient Overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -120,7 +161,6 @@ class _CompanyProfileState extends State<CompanyProfile> {
               ),
             ),
           ),
-          // Logo/Icon
           Positioned(
             bottom: 20,
             left: 20,
@@ -131,21 +171,18 @@ class _CompanyProfileState extends State<CompanyProfile> {
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 3),
               ),
-              child:
-                  widget.company.logo != null && widget.company.logo!.isNotEmpty
+              child: company.logo != null && company.logo!.isNotEmpty
                   ? ClipOval(
                       child: Image.network(
-                        widget.company.logo!,
+                        company.logo!,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(
-                            Icons.business,
-                            color: Colors.white,
-                            size: 40,
-                          );
-                        },
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.business,
+                          color: Colors.white,
+                          size: 40,
+                        ),
                       ),
                     )
                   : const Icon(Icons.business, color: Colors.white, size: 40),
@@ -163,7 +200,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.company.legalEntityName,
+            company.legalEntityName,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -183,11 +220,11 @@ class _CompanyProfileState extends State<CompanyProfile> {
                   borderRadius: BorderRadius.circular(SizeManager.r4),
                 ),
                 child: Text(
-                  widget.company.isVerified ? 'Verified Carrier' : 'Carrier',
+                  company.isVerified ? 'Verified Carrier' : 'Carrier',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: widget.company.isVerified
+                    color: company.isVerified
                         ? AppColors.success
                         : colorScheme.textSecondary,
                   ),
@@ -202,7 +239,7 @@ class _CompanyProfileState extends State<CompanyProfile> {
               const SizedBox(width: SizeManager.s4),
               Expanded(
                 child: Text(
-                  '${widget.company.headOfficeAddress.city}, ${widget.company.headOfficeAddress.regionState}, ${widget.company.headOfficeAddress.country}',
+                  '${company.headOfficeAddress.city}, ${company.headOfficeAddress.regionState}',
                   style: TextStyle(
                     fontSize: 14,
                     color: colorScheme.textSecondary,
@@ -223,121 +260,29 @@ class _CompanyProfileState extends State<CompanyProfile> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(SizeManager.r12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colorScheme.border),
       ),
       child: Row(
         children: [
-          _buildStatItem(
-            'TRIPS',
-            '${widget.company.completedShipments}',
-            'Completed',
-            colorScheme,
+          _StatItem(
+            label: 'TRIPS',
+            value: '${company.completedShipments}',
+            subtitle: 'Completed',
+            colorScheme: colorScheme,
           ),
-          _buildStatDivider(colorScheme),
-          _buildStatItem(
-            'FLEET',
-            '${widget.company.fleetSize}',
-            'Active',
-            colorScheme,
+          _StatDivider(colorScheme: colorScheme),
+          _StatItem(
+            label: 'FLEET',
+            value: '${company.fleetSize}',
+            subtitle: 'Active',
+            colorScheme: colorScheme,
           ),
-          _buildStatDivider(colorScheme),
-          _buildStatItem(
-            'RATING',
-            widget.company.ratingAverage.toStringAsFixed(1),
-            _buildStarRating(widget.company.ratingAverage),
-            colorScheme,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(
-    String label,
-    String value,
-    String subtitle,
-    AppColorScheme colorScheme,
-  ) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: colorScheme.textSecondary,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: SizeManager.s4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: SizeManager.s4),
-          Text(
-            subtitle,
-            style: TextStyle(fontSize: 12, color: colorScheme.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatDivider(AppColorScheme colorScheme) {
-    return Container(
-      height: 40,
-      width: 1,
-      color: colorScheme.border,
-      margin: const EdgeInsets.symmetric(horizontal: SizeManager.s8),
-    );
-  }
-
-  Widget _buildAboutSection(AppColorScheme colorScheme) {
-    return Container(
-      margin: const EdgeInsets.all(SizeManager.s16),
-      padding: const EdgeInsets.all(SizeManager.s16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(SizeManager.r12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'About the Company',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: SizeManager.s12),
-          Text(
-            'Horn of Africa Haulers is a premier Private Limited Company providing reliable freight and logistics solutions across East Africa. Based in Mekelle, we specialize in heavy-duty transport with a dedicated fleet and regional expertise.',
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: colorScheme.textSecondary,
-            ),
+          _StatDivider(colorScheme: colorScheme),
+          _StatItem(
+            label: 'RATING',
+            value: company.ratingAverage.toStringAsFixed(1),
+            subtitle: '(${company.ratingQuantity} reviews)',
+            colorScheme: colorScheme,
           ),
         ],
       ),
@@ -346,18 +291,12 @@ class _CompanyProfileState extends State<CompanyProfile> {
 
   Widget _buildCompanyInformationSection(AppColorScheme colorScheme) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: SizeManager.s16),
+      margin: const EdgeInsets.all(SizeManager.s16),
       padding: const EdgeInsets.all(SizeManager.s16),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(SizeManager.r12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colorScheme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,44 +310,114 @@ class _CompanyProfileState extends State<CompanyProfile> {
             ),
           ),
           const SizedBox(height: SizeManager.s16),
-          _buildInfoRow(
-            'Reg Number',
-            widget.company.companyRegistrationNumber,
-            colorScheme,
+          _InfoRow(
+            label: 'Type',
+            value: company.companyType,
+            colorScheme: colorScheme,
           ),
           const SizedBox(height: SizeManager.s12),
-          _buildInfoRow('Type', widget.company.companyType, colorScheme),
-          const SizedBox(height: SizeManager.s12),
-          _buildInfoRow(
-            'Email',
-            widget.company.email,
-            colorScheme,
+          _InfoRow(
+            label: 'Email',
+            value: company.email,
+            colorScheme: colorScheme,
             isLink: true,
           ),
           const SizedBox(height: SizeManager.s12),
-          _buildInfoRow(
-            'Phone',
-            widget.company.phone,
-            colorScheme,
+          _InfoRow(
+            label: 'Phone',
+            value: company.phone,
+            colorScheme: colorScheme,
             isLink: true,
           ),
           const SizedBox(height: SizeManager.s12),
-          _buildInfoRow(
-            'Experience',
-            '${widget.company.experience} years',
-            colorScheme,
+          _InfoRow(
+            label: 'Experience',
+            value: '${company.experience} years',
+            colorScheme: colorScheme,
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildInfoRow(
-    String label,
-    String value,
-    AppColorScheme colorScheme, {
-    bool isLink = false,
-  }) {
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final String subtitle;
+  final AppColorScheme colorScheme;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.subtitle,
+    required this.colorScheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: colorScheme.textSecondary,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: SizeManager.s4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: colorScheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: SizeManager.s4),
+          Text(
+            subtitle,
+            style: TextStyle(fontSize: 11, color: colorScheme.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatDivider extends StatelessWidget {
+  final AppColorScheme colorScheme;
+  const _StatDivider({required this.colorScheme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 40,
+      width: 1,
+      color: colorScheme.border,
+      margin: const EdgeInsets.symmetric(horizontal: SizeManager.s8),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final AppColorScheme colorScheme;
+  final bool isLink;
+
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.colorScheme,
+    this.isLink = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -431,278 +440,5 @@ class _CompanyProfileState extends State<CompanyProfile> {
         ),
       ],
     );
-  }
-
-  Widget _buildFleetBreakdownSection(AppColorScheme colorScheme) {
-    return Container(
-      margin: const EdgeInsets.all(SizeManager.s16),
-      padding: const EdgeInsets.all(SizeManager.s16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(SizeManager.r12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Fleet Breakdown',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.textPrimary,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // TODO: Implement view details
-                },
-                child: Text(
-                  'View Details',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: SizeManager.s16),
-          _buildFleetItem(
-            Icons.local_shipping,
-            'Dry Vans (53\')',
-            '28',
-            AppColors.warning,
-            colorScheme,
-          ),
-          const SizedBox(height: SizeManager.s12),
-          _buildFleetItem(
-            Icons.ac_unit,
-            'Reefers',
-            '12',
-            AppColors.primary,
-            colorScheme,
-          ),
-          const SizedBox(height: SizeManager.s12),
-          _buildFleetItem(
-            Icons.straighten,
-            'Flatbeds',
-            '5',
-            AppColors.success,
-            colorScheme,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFleetItem(
-    IconData icon,
-    String type,
-    String count,
-    Color iconColor,
-    AppColorScheme colorScheme,
-  ) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(SizeManager.s8),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(SizeManager.r6),
-          ),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
-        const SizedBox(width: SizeManager.s12),
-        Expanded(
-          child: Text(
-            type,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.textPrimary,
-            ),
-          ),
-        ),
-        Text(
-          count,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.textPrimary,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTrustComplianceSection(AppColorScheme colorScheme) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: SizeManager.s16),
-      padding: const EdgeInsets.all(SizeManager.s16),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(SizeManager.r12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Trust & Compliance',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: colorScheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildComplianceItem(
-                  Icons.verified_user,
-                  'INSURANCE',
-                  'Active',
-                  AppColors.success,
-                  colorScheme,
-                ),
-              ),
-              const SizedBox(width: SizeManager.s12),
-              Expanded(
-                child: _buildComplianceItem(
-                  Icons.verified,
-                  'DOTMC',
-                  'Verified',
-                  AppColors.primary,
-                  colorScheme,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: SizeManager.s12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildComplianceItem(
-                  Icons.security,
-                  'SAFETY',
-                  'Satisfactory',
-                  AppColors.success,
-                  colorScheme,
-                ),
-              ),
-              const SizedBox(width: SizeManager.s12),
-              Expanded(
-                child: _buildComplianceItem(
-                  Icons.schedule,
-                  'AUTHORITY',
-                  '7 Years',
-                  AppColors.primary,
-                  colorScheme,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildComplianceItem(
-    IconData icon,
-    String title,
-    String status,
-    Color statusColor,
-    AppColorScheme colorScheme,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(SizeManager.s12),
-      decoration: BoxDecoration(
-        color: colorScheme.background,
-        borderRadius: BorderRadius.circular(SizeManager.r6),
-        border: Border.all(color: colorScheme.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: statusColor, size: 16),
-              const SizedBox(width: SizeManager.s4),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.textSecondary,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: SizeManager.s4),
-          Text(
-            status,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: statusColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildViewAllTrucksButton(AppColorScheme colorScheme) {
-    return Container(
-      margin: const EdgeInsets.all(SizeManager.s16),
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () {
-          // TODO: Navigate to trucks listing
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.warning,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: SizeManager.s16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(SizeManager.r12),
-          ),
-          elevation: 0,
-        ),
-        child: Text(
-          'View All Trucks (${widget.company.fleetSize})',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  // Helper method to build star rating string
-  String _buildStarRating(double rating) {
-    int fullStars = rating.floor();
-    bool hasHalfStar = (rating - fullStars) >= 0.5;
-    int emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-
-    return '★' * fullStars + (hasHalfStar ? '⯨' : '') + '☆' * emptyStars;
   }
 }

@@ -19,13 +19,14 @@ import 'package:clean_architecture/feature/truck_listing/presentation/bloc/featu
 import 'package:clean_architecture/feature/truck_listing/presentation/bloc/brand_bloc.dart';
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_bloc.dart';
 import 'package:clean_architecture/feature/landing/presentation/bloc/featured_carrier_event.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_event.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_event.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_bloc.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_event.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_bloc.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_event.dart';
 import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_bloc.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/bloc/sent_requests_bloc.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/bloc/completed_shipments_bloc.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/bloc/review_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:flutter/material.dart';
@@ -66,18 +67,17 @@ class MyApp extends StatelessWidget {
               sl<FeaturedCarrierBloc>()..add(const LoadFeaturedCarriers()),
         ),
         BlocProvider(
-          create: (_) =>
-              sl<RecommendedCompanyBloc>()
-                ..add(const LoadRecommendedCompanies()),
-        ),
-        BlocProvider(
-          create: (_) =>
-              sl<TopRatedCompanyBloc>()..add(const LoadTopRatedCompanies()),
+          create: (_) => sl<CompanyBloc>()
+            ..add(const LoadRecommendedCompanies())
+            ..add(const LoadTopRatedCompanies()),
         ),
         BlocProvider(
           create: (_) => sl<MyLoadsBloc>()..add(const FetchMyLoads('OPEN')),
         ),
         BlocProvider(create: (_) => sl<ShipmentRequestBloc>()),
+        BlocProvider(create: (_) => sl<SentRequestsBloc>()),
+        BlocProvider(create: (_) => sl<CompletedShipmentsBloc>()),
+        BlocProvider(create: (_) => sl<ReviewBloc>()),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {

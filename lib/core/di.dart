@@ -53,8 +53,8 @@ import 'package:clean_architecture/feature/company/data/repositories/company_rep
 import 'package:clean_architecture/feature/company/domain/repository/company_repository.dart';
 import 'package:clean_architecture/feature/company/domain/usecase/get_recommended_companies_usecase.dart';
 import 'package:clean_architecture/feature/company/domain/usecase/get_top_rated_companies_usecase.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/recommended_company_bloc.dart';
-import 'package:clean_architecture/feature/company/presentation/bloc/top_rated_company_bloc.dart';
+import 'package:clean_architecture/feature/company/domain/usecase/get_company_detail_usecase.dart';
+import 'package:clean_architecture/feature/company/presentation/bloc/company_bloc.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/login_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/signup/data/datasources/sign_up_remote_data_source.dart';
@@ -108,7 +108,19 @@ import 'package:clean_architecture/feature/shipment_request/data/datasources/shi
 import 'package:clean_architecture/feature/shipment_request/data/repositories/shipment_request_repository_impl.dart';
 import 'package:clean_architecture/feature/shipment_request/domain/repositories/shipment_request_repository.dart';
 import 'package:clean_architecture/feature/shipment_request/domain/usecases/create_shipment_request_usecase.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/usecases/get_sent_requests_usecase.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/usecases/cancel_request_usecase.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/usecases/complete_request_usecase.dart';
 import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_bloc.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/bloc/sent_requests_bloc.dart';
+import 'package:clean_architecture/feature/rating_and_review/data/datasources/review_remote_data_source.dart';
+import 'package:clean_architecture/feature/rating_and_review/data/datasources/review_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/rating_and_review/data/repositories/review_repository_impl.dart';
+import 'package:clean_architecture/feature/rating_and_review/domain/repositories/review_repository.dart';
+import 'package:clean_architecture/feature/rating_and_review/domain/usecases/get_completed_shipments_usecase.dart';
+import 'package:clean_architecture/feature/rating_and_review/domain/usecases/submit_review_usecase.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/bloc/completed_shipments_bloc.dart';
+import 'package:clean_architecture/feature/rating_and_review/presentation/bloc/review_bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -190,12 +202,14 @@ Future<void> init(Environment prod) async {
     () => MyLoadsRemoteDataSourceImpl(apiClient: sl()),
   );
   sl.registerFactory<ShipmentRequestRemoteDataSource>(
-    () => ShipmentRequestRemoteDataSourceImpl(apiClient: sl()),
+    () => ShipmentRequestRemoteDataSourceImpl(apiClient: sl(), dio: sl()),
   );
   sl.registerFactory<FavouriteRemoteDataSource>(
     () => FavouriteRemoteDataSourceImpl(apiClient: sl()),
   );
-
+  sl.registerFactory<ReviewRemoteDataSource>(
+    () => ReviewRemoteDataSourceImpl(dio: sl()),
+  );
   // ------------------ Repositories ------------------ //
   sl.registerFactory<SignUpRepository>(() => SignUpRepositoryImpl(sl()));
   sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl(), sl()));
@@ -223,6 +237,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<FavouriteRepository>(
     () => FavouriteRepositoryImpl(remoteDataSource: sl()),
   );
+  sl.registerFactory<ReviewRepository>(
+    () => ReviewRepositoryImpl(remoteDataSource: sl()),
+  );
 
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
@@ -243,10 +260,16 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(() => GetFeaturedCarriersUseCase(sl()));
   sl.registerFactory(() => GetRecommendedCompaniesUseCase(sl()));
   sl.registerFactory(() => GetTopRatedCompaniesUseCase(sl()));
+  sl.registerFactory(() => GetCompanyDetailUseCase(sl()));
   sl.registerFactory(() => GetMyLoadsUseCase(sl()));
   sl.registerFactory(() => CreateShipmentRequestUseCase(sl()));
+  sl.registerFactory(() => GetSentRequestsUseCase(sl()));
+  sl.registerFactory(() => CancelRequestUseCase(sl()));
+  sl.registerFactory(() => CompleteRequestUseCase(sl()));
   sl.registerFactory(() => MakeCarrierFavouriteUseCase(sl()));
   sl.registerFactory(() => DisableFavouriteUseCase(sl()));
+  sl.registerFactory(() => GetCompletedShipmentsUseCase(sl()));
+  sl.registerFactory(() => SubmitReviewUseCase(sl()));
 
   // ------------------ Blocs ------------------ //
   sl.registerFactory(() => SignUpBloc(sl()));
@@ -273,10 +296,11 @@ Future<void> init(Environment prod) async {
     () => FeaturedCarrierBloc(getFeaturedCarriersUseCase: sl()),
   );
   sl.registerFactory(
-    () => RecommendedCompanyBloc(getRecommendedCompaniesUseCase: sl()),
-  );
-  sl.registerFactory(
-    () => TopRatedCompanyBloc(getTopRatedCompaniesUseCase: sl()),
+    () => CompanyBloc(
+      getRecommendedCompaniesUseCase: sl(),
+      getTopRatedCompaniesUseCase: sl(),
+      getCompanyDetailUseCase: sl(),
+    ),
   );
   sl.registerFactory(() => MyLoadsBloc(sl()));
   sl.registerFactory(
@@ -286,6 +310,15 @@ Future<void> init(Environment prod) async {
     ),
   );
   sl.registerFactory(
-    () => ShipmentRequestBloc(createShipmentRequestUseCase: sl()),
+    () => ShipmentRequestBloc(
+      createShipmentRequestUseCase: sl(),
+      cancelRequestUseCase: sl(),
+      completeRequestUseCase: sl(),
+    ),
   );
+  sl.registerFactory(() => SentRequestsBloc(getSentRequestsUseCase: sl()));
+  sl.registerFactory(
+    () => CompletedShipmentsBloc(getCompletedShipmentsUseCase: sl()),
+  );
+  sl.registerFactory(() => ReviewBloc(submitReviewUseCase: sl()));
 }

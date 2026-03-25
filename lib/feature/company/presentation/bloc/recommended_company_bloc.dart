@@ -24,7 +24,7 @@ class RecommendedCompanyBloc
     result.fold(
       (failure) => emit(RecommendedCompanyError(message: failure.message)),
       (response) =>
-          emit(RecommendedCompanyLoaded(companies: response.data.companies)),
+          emit(RecommendedCompanyLoaded(companies: response.data!.companies!)),
     );
   }
 }

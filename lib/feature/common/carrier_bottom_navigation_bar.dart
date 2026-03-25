@@ -1,5 +1,6 @@
 import 'package:clean_architecture/feature/landing/presentation/screen/landing_page.dart';
 import 'package:clean_architecture/feature/my_loads/presentation/screen/my_loads_screen.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/screen/shipment_request_home_page.dart';
 import 'package:clean_architecture/feature/truck_listing/presentation/screens/carrier_listing_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +20,7 @@ class _CarrierBottomNavigationBarState
     const LandingPage(),
     const CarrierListingScreen(),
     MyLoadsScreen(),
-    MyLoadsScreen(),
+    ShipmentRequestHomePage(),
     MyLoadsScreen(),
     MyLoadsScreen(),
   ];

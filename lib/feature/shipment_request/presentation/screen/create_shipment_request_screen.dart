@@ -8,6 +8,8 @@ import 'package:clean_architecture/feature/my_loads/presentation/bloc/my_loads_s
 import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_bloc.dart';
 import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_event.dart';
 import 'package:clean_architecture/feature/shipment_request/presentation/bloc/shipment_request_state.dart';
+import 'package:clean_architecture/feature/shipment_request/domain/entity/shipment_request_entity.dart';
+import 'package:clean_architecture/feature/shipment_request/presentation/screen/shipment_request_confirmation.dart';
 import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -70,13 +72,16 @@ class _CreateShipmentRequestScreenState
     return BlocListener<ShipmentRequestBloc, ShipmentRequestState>(
       listener: (context, state) {
         if (state is ShipmentRequestSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Booking request sent successfully'),
-              backgroundColor: AppColors.success,
+          final request = state.response.data?.shipmentRequest;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ShipmentRequestConfirmationScreen(
+                shipmentRequest: request ?? const ShipmentRequestEntity(),
+                carrierName: '${truck.brand} ${truck.model}',
+              ),
             ),
           );
-          Navigator.pop(context);
         } else if (state is ShipmentRequestError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -124,9 +129,7 @@ class _CreateShipmentRequestScreenState
               children: [
                 _SectionLabel(label: 'SELECT YOUR FREIGHT', cs: cs),
                 GestureDetector(
-                  onTap: () {
-                    
-                  },
+                  onTap: () {},
                   child: Text(
                     'ADD NEW',
                     style: TextStyle(

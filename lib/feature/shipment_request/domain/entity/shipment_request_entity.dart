@@ -130,3 +130,68 @@ class FreightOwnerContactEntity extends Equatable {
   @override
   List<Object?> get props => [name, companyName, email, phone];
 }
+
+// ── Sent requests list entity ─────────────────────────────────────────────
+
+class SentRequestEntity extends Equatable {
+  final String id;
+  final String status;
+  final bool isReviewed;
+  final double? proposedPrice;
+  final DateTime createdAt;
+  final SentCarrierEntity? carrier;
+  final List<SentSnapshotEntity> freightSnapshots;
+
+  const SentRequestEntity({
+    required this.id,
+    required this.status,
+    required this.isReviewed,
+    this.proposedPrice,
+    required this.createdAt,
+    this.carrier,
+    required this.freightSnapshots,
+  });
+
+  @override
+  List<Object?> get props => [
+    id,
+    status,
+    isReviewed,
+    proposedPrice,
+    createdAt,
+    carrier,
+    freightSnapshots,
+  ];
+}
+
+class SentCarrierEntity extends Equatable {
+  final String id;
+  final String? brand;
+  final String? model;
+  final String? plateNumber;
+
+  const SentCarrierEntity({
+    required this.id,
+    this.brand,
+    this.model,
+    this.plateNumber,
+  });
+
+  @override
+  List<Object?> get props => [id, brand, model, plateNumber];
+}
+
+class SentSnapshotEntity extends Equatable {
+  final String? cargoType;
+  final String? pickupCity;
+  final String? deliveryCity;
+
+  const SentSnapshotEntity({
+    this.cargoType,
+    this.pickupCity,
+    this.deliveryCity,
+  });
+
+  @override
+  List<Object?> get props => [cargoType, pickupCity, deliveryCity];
+}

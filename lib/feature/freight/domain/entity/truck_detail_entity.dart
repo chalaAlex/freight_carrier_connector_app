@@ -23,6 +23,10 @@ class TruckDataEntity extends Equatable {
 class TruckEntity extends Equatable {
   final String? id;
   final TruckOwnerEntity? truckOwner;
+  final String? companyId;
+  final String? companyName;
+  final num? companyRatingAverage;
+  final num? companyRatingQuantity;
   final String? model;
   final String? plateNumber;
   final String? brand;
@@ -34,12 +38,17 @@ class TruckEntity extends Equatable {
   final List<String>? image;
   final String? aboutTruck;
   final bool? isAvailable;
+  final bool? isItCompaniesCarrier;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   const TruckEntity({
     this.id,
     this.truckOwner,
+    this.companyId,
+    this.companyName,
+    this.companyRatingAverage,
+    this.companyRatingQuantity,
     this.model,
     this.plateNumber,
     this.brand,
@@ -51,6 +60,7 @@ class TruckEntity extends Equatable {
     this.image,
     this.aboutTruck,
     this.isAvailable,
+    this.isItCompaniesCarrier,
     this.createdAt,
     this.updatedAt,
   });
@@ -59,6 +69,10 @@ class TruckEntity extends Equatable {
   List<Object?> get props => [
     id,
     truckOwner,
+    companyId,
+    companyName,
+    companyRatingAverage,
+    companyRatingQuantity,
     model,
     plateNumber,
     brand,
@@ -70,6 +84,7 @@ class TruckEntity extends Equatable {
     image,
     aboutTruck,
     isAvailable,
+    isItCompaniesCarrier,
     createdAt,
     updatedAt,
   ];

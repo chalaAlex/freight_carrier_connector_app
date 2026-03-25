@@ -24,7 +24,7 @@ class TopRatedCompanyBloc
     result.fold(
       (failure) => emit(TopRatedCompanyError(message: failure.message)),
       (response) =>
-          emit(TopRatedCompanyLoaded(companies: response.data.companies)),
+          emit(TopRatedCompanyLoaded(companies: response.data!.companies!)),
     );
   }
 }

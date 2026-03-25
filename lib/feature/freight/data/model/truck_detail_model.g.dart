@@ -39,6 +39,7 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   truckOwner: json['truckOwner'] == null
       ? null
       : TruckOwnerDto.fromJson(json['truckOwner'] as Map<String, dynamic>),
+  company: _companyFromJson(json['company']),
   model: json['model'] as String?,
   plateNumber: json['plateNumber'] as String?,
   brand: json['brand'] as String?,
@@ -50,6 +51,7 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
   image: (json['image'] as List<dynamic>?)?.map((e) => e as String).toList(),
   aboutTruck: json['aboutTruck'] as String?,
   isAvailable: json['isAvailable'] as bool?,
+  isItCompaniesCarrier: json['isItCompaniesCarrier'] as bool?,
   createdAt: json['createdAt'] as String?,
   updatedAt: json['updatedAt'] as String?,
 );
@@ -57,6 +59,7 @@ TruckDto _$TruckDtoFromJson(Map<String, dynamic> json) => TruckDto(
 Map<String, dynamic> _$TruckDtoToJson(TruckDto instance) => <String, dynamic>{
   '_id': instance.id,
   'truckOwner': instance.truckOwner,
+  'company': instance.company,
   'model': instance.model,
   'plateNumber': instance.plateNumber,
   'brand': instance.brand,
@@ -68,9 +71,26 @@ Map<String, dynamic> _$TruckDtoToJson(TruckDto instance) => <String, dynamic>{
   'image': instance.image,
   'aboutTruck': instance.aboutTruck,
   'isAvailable': instance.isAvailable,
+  'isItCompaniesCarrier': instance.isItCompaniesCarrier,
   'createdAt': instance.createdAt,
   'updatedAt': instance.updatedAt,
 };
+
+TruckCompanyDto _$TruckCompanyDtoFromJson(Map<String, dynamic> json) =>
+    TruckCompanyDto(
+      id: json['_id'] as String?,
+      legalEntityName: json['legalEntityName'] as String?,
+      ratingAverage: json['ratingAverage'] as num?,
+      ratingQuantity: json['ratingQuantity'] as num?,
+    );
+
+Map<String, dynamic> _$TruckCompanyDtoToJson(TruckCompanyDto instance) =>
+    <String, dynamic>{
+      '_id': instance.id,
+      'legalEntityName': instance.legalEntityName,
+      'ratingAverage': instance.ratingAverage,
+      'ratingQuantity': instance.ratingQuantity,
+    };
 
 TruckOwnerDto _$TruckOwnerDtoFromJson(Map<String, dynamic> json) =>
     TruckOwnerDto(
