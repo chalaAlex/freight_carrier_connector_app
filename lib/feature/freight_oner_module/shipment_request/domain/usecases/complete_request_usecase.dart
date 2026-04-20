@@ -1,0 +1,11 @@
+import 'package:clean_architecture/core/error/failure.dart';
+import 'package:clean_architecture/feature/freight_oner_module/shipment_request/domain/repositories/shipment_request_repository.dart';
+import 'package:dartz/dartz.dart';
+
+class CompleteRequestUseCase {
+  final ShipmentRequestRepository repository;
+  CompleteRequestUseCase(this.repository);
+
+  Future<Either<Failure, void>> call(String id) =>
+      repository.completeRequest(id);
+}

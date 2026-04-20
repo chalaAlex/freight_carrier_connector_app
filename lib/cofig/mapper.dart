@@ -1,45 +1,63 @@
 import 'package:clean_architecture/cofig/base_mapper.dart';
-import 'package:clean_architecture/feature/company/data/model/company_response.dart';
-import 'package:clean_architecture/feature/company/domain/entity/company_entity.dart';
-import 'package:clean_architecture/feature/freight/data/model/cargo_type_model.dart';
-import 'package:clean_architecture/feature/freight/data/model/freight_detail_model.dart';
-import 'package:clean_architecture/feature/freight/data/model/location_model.dart';
-import 'package:clean_architecture/feature/freight/data/model/truck_detail_model.dart'
+import 'package:clean_architecture/feature/carrier_owner_module/freights/data/model/freights_response_model.dart'
+    as carrier_freights_model;
+import 'package:clean_architecture/feature/carrier_owner_module/freights/domain/entity/freights_entity.dart'
+    as carrier_freights_entity;
+import 'package:clean_architecture/feature/carrier_owner_module/carriers/data/model/my_carriers_model.dart'
+    as my_carriers_model;
+import 'package:clean_architecture/feature/carrier_owner_module/carriers/domain/entity/my_carrier_entity.dart'
+    as my_carrier_entity;
+import 'package:clean_architecture/feature/carrier_owner_module/bids/data/model/bid_model.dart'
+    as bid_model;
+import 'package:clean_architecture/feature/carrier_owner_module/bids/domain/entity/bid_entity.dart'
+    as bid_entity;
+import 'package:clean_architecture/feature/freight_oner_module/company/data/model/company_response.dart';
+import 'package:clean_architecture/feature/freight_oner_module/company/domain/entity/company_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/data/model/cargo_type_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/data/model/freight_detail_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/data/model/location_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/data/model/truck_detail_model.dart'
     as detail;
-import 'package:clean_architecture/feature/freight/domain/entity/freight_detail_entity.dart';
-import 'package:clean_architecture/feature/landing/domain/entity/freight_detail_entiry.dart';
-import 'package:clean_architecture/feature/my_loads/data/model/my_loads_base_response_model.dart'
+import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/freight_detail_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/landing/domain/entity/freight_detail_entiry.dart';
+import 'package:clean_architecture/feature/freight_oner_module/my_loads/data/model/my_loads_base_response_model.dart'
     as freight_model;
-import 'package:clean_architecture/feature/freight/domain/entity/cargo_type_entity.dart';
-import 'package:clean_architecture/feature/freight/domain/entity/location_entity.dart';
-import 'package:clean_architecture/feature/freight/domain/entity/truck_detail_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/cargo_type_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/location_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/truck_detail_entity.dart'
     as detail_entity;
-import 'package:clean_architecture/feature/my_loads/domain/entity/my_loads_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/my_loads/domain/entity/my_loads_entity.dart'
     as freight_entity;
-import 'package:clean_architecture/feature/landing/data/model/featured_carrier_response.dart';
-import 'package:clean_architecture/feature/landing/domain/entity/featured_carrier_entity.dart';
-import 'package:clean_architecture/feature/signup/data/models/login_model.dart';
-import 'package:clean_architecture/feature/signup/data/models/sign_up_model.dart';
-import 'package:clean_architecture/feature/signup/domain/entities/login_entity.dart';
-import 'package:clean_architecture/feature/signup/domain/entities/sign_up_entity.dart';
-import 'package:clean_architecture/feature/truck_listing/data/models/truck_model.dart';
-import 'package:clean_architecture/feature/truck_listing/data/models/regions_model.dart'
+import 'package:clean_architecture/feature/freight_oner_module/landing/data/model/featured_carrier_response.dart';
+import 'package:clean_architecture/feature/freight_oner_module/landing/domain/entity/featured_carrier_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/data/models/login_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/data/models/sign_up_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/domain/entities/login_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/domain/entities/sign_up_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/truck_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/regions_model.dart'
     as regions_model;
-import 'package:clean_architecture/feature/truck_listing/data/models/feature_response.dart'
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/feature_response.dart'
     as feature_model;
-import 'package:clean_architecture/feature/truck_listing/data/models/brand_response.dart'
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/brand_response.dart'
     as brand_model;
-import 'package:clean_architecture/feature/truck_listing/domain/entities/truck_entity.dart';
-import 'package:clean_architecture/feature/truck_listing/domain/entities/regions_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/entities/truck_entity.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/entities/regions_entity.dart'
     as regions_entity;
-import 'package:clean_architecture/feature/truck_listing/domain/entities/feature_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/entities/feature_entity.dart'
     as feature_entity;
-import 'package:clean_architecture/feature/truck_listing/domain/entities/brand_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/entities/brand_entity.dart'
     as brand_entity;
-import 'package:clean_architecture/feature/shipment_request/data/model/shipment_request_response_model.dart'
+import 'package:clean_architecture/feature/freight_oner_module/shipment_request/data/model/shipment_request_response_model.dart'
     as shipment_model;
-import 'package:clean_architecture/feature/shipment_request/domain/entity/shipment_request_entity.dart'
+import 'package:clean_architecture/feature/freight_oner_module/shipment_request/domain/entity/shipment_request_entity.dart'
     as shipment_entity;
+
+// GetBid mapper
+import 'package:clean_architecture/feature/carrier_owner_module/bids/data/model/get_bid_response.dart'
+    as get_bid_model;
+import 'package:clean_architecture/feature/carrier_owner_module/bids/domain/entity/get_bid_entity.dart'
+    as get_bid_entity;
 
 class UserMapper extends BaseMapper<UserResponse, UserModel> {
   @override
@@ -742,6 +760,200 @@ extension CompanyDetailResponseMapper on CompanyDetailResponse {
       statusCode: statusCode,
       message: message,
       company: data?.company?.toEntity(),
+    );
+  }
+}
+
+// Carrier owner module — Freights mapper
+extension CarrierFreightsResponseModelMapper
+    on carrier_freights_model.FreightsResponseModel {
+  carrier_freights_entity.FreightsResponseEntity toEntity() {
+    return carrier_freights_entity.FreightsResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      total: total,
+      freights: freights?.map((f) => f.toEntity()).toList(),
+    );
+  }
+}
+
+extension CarrierFreightItemModelMapper
+    on carrier_freights_model.FreightItemModel {
+  carrier_freights_entity.FreightEntity toEntity() {
+    return carrier_freights_entity.FreightEntity(
+      id: id,
+      freightOwnerId: freightOwnerId,
+      cargo: cargo?.toEntity(),
+      route: route?.toEntity(),
+      schedule: schedule?.toEntity(),
+      truckRequirement: truckRequirement?.toEntity(),
+      pricing: pricing?.toEntity(),
+      status: status,
+      images: image,
+      bidCount: bidCount,
+      isAvailable: isAvailable,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension CarrierFreightCargoModelMapper
+    on carrier_freights_model.FreightCargoModel {
+  carrier_freights_entity.FreightCargoEntity toEntity() =>
+      carrier_freights_entity.FreightCargoEntity(
+        type: type,
+        description: description,
+        weightKg: weightKg,
+        quantity: quantity,
+      );
+}
+
+extension CarrierFreightRouteModelMapper
+    on carrier_freights_model.FreightRouteModel {
+  carrier_freights_entity.FreightRouteEntity toEntity() =>
+      carrier_freights_entity.FreightRouteEntity(
+        pickup: pickup?.toEntity(),
+        dropoff: dropoff?.toEntity(),
+      );
+}
+
+extension CarrierFreightLocationModelMapper
+    on carrier_freights_model.FreightLocationModel {
+  carrier_freights_entity.FreightLocationEntity toEntity() =>
+      carrier_freights_entity.FreightLocationEntity(
+        region: region,
+        city: city,
+        address: address,
+      );
+}
+
+extension CarrierFreightScheduleModelMapper
+    on carrier_freights_model.FreightScheduleModel {
+  carrier_freights_entity.FreightScheduleEntity toEntity() =>
+      carrier_freights_entity.FreightScheduleEntity(
+        pickupDate: pickupDate,
+        deliveryDeadline: deliveryDeadline,
+      );
+}
+
+extension CarrierFreightTruckRequirementModelMapper
+    on carrier_freights_model.FreightTruckRequirementModel {
+  carrier_freights_entity.FreightTruckRequirementEntity toEntity() =>
+      carrier_freights_entity.FreightTruckRequirementEntity(
+        type: type,
+        minCapacityKg: minCapacityKg,
+      );
+}
+
+extension CarrierFreightPricingModelMapper
+    on carrier_freights_model.FreightPricingModel {
+  carrier_freights_entity.FreightPricingEntity toEntity() =>
+      carrier_freights_entity.FreightPricingEntity(type: type, amount: amount);
+}
+
+// Carrier owner module — Bid mapper
+extension CreateBidResponseMapper on bid_model.CreateBidResponseModel {
+  bid_entity.CreateBidResponseEntity toEntity() {
+    return bid_entity.CreateBidResponseEntity(
+      statusCode: statusCode ?? 0,
+      message: message ?? '',
+      bid: data?.bid?.toEntity(),
+    );
+  }
+}
+
+extension BidModelMapper on bid_model.BidModel {
+  bid_entity.BidEntity toEntity() {
+    return bid_entity.BidEntity(
+      id: id ?? '',
+      freightOwnerId: freightOwnerId ?? '',
+      carrierOwnerId: carrierOwnerId ?? '',
+      carrierId: carrierId ?? '',
+      freightId: freightId ?? '',
+      bidAmount: bidAmount ?? 0,
+      message: message ?? '',
+      status: status ?? 'PENDING',
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+// Carrier owner module — My Carriers mapper
+extension MyCarriersResponseModelMapper
+    on my_carriers_model.MyCarriersResponseModel {
+  my_carrier_entity.MyCarriersResponseEntity toEntity() {
+    return my_carrier_entity.MyCarriersResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      carriers: data?.carriers?.map((c) => c.toEntity()).toList(),
+    );
+  }
+}
+
+extension MyCarrierModelMapper on my_carriers_model.MyCarrierModel {
+  my_carrier_entity.MyCarrierEntity toEntity() {
+    return my_carrier_entity.MyCarrierEntity(
+      id: id ?? '',
+      model: model,
+      plateNumber: plateNumber,
+      brand: brand,
+      loadCapacity: loadCapacity,
+      features: features,
+      startLocation: operatingCorrider?.startLocation,
+      destinationLocation: operatingCorrider?.destinationLocation,
+      images: image,
+      aboutTruck: aboutTruck,
+      isAvailable: isAvailable,
+      isVerified: isVerified,
+      documents: documents == null
+          ? null
+          : my_carrier_entity.CarrierDocumentsEntity(
+              vehicleRegistration: documents!.vehicleRegistration,
+              tradeLicense: documents!.tradeLicense,
+              ownerDigitalId: documents!.ownerDigitalId,
+            ),
+    );
+  }
+}
+
+extension GetBidResponseMapper on get_bid_model.GetBidResponse {
+  get_bid_entity.GetBidResponseEntity toEntity() {
+    return get_bid_entity.GetBidResponseEntity(
+      statusCode: statusCode,
+      message: message,
+      bid: data?.bidding?.toEntity(),
+    );
+  }
+}
+
+extension GetBidModelMapper on get_bid_model.GetBidModel {
+  get_bid_entity.GetBidDetailEntity toEntity() {
+    return get_bid_entity.GetBidDetailEntity(
+      id: id,
+      freightOwner: freightOwnerId?.toEntity(),
+      carrierOwnerId: carrierOwnerId,
+      carrierId: carrierId,
+      freightId: freightId,
+      bidAmount: bidAmount,
+      message: message,
+      status: status,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+}
+
+extension GetBidFreightOwnerMapper on get_bid_model.GetBidFreightOwner {
+  get_bid_entity.GetBidFreightOwnerEntity toEntity() {
+    return get_bid_entity.GetBidFreightOwnerEntity(
+      id: id,
+      firstName: firstName,
+      lastName: lastName,
+      profileImage: profileImage,
+      ratingAverage: ratingAverage,
+      ratingQuantity: ratingQuantity,
     );
   }
 }
