@@ -43,4 +43,32 @@ class StringManager {
   static const String emailRequired = 'Please enter your email';
   static const String unknownRole = 'Unknown user role';
   static const String loginFailed = 'Login failed';
+
+  // Truck Listing Screen
+  static const String truckListingTitle = 'FreightConnect';
+  static const String searchHint = 'Search trucks...';
+  static const String filterAll = 'All Trucks';
+  static const String filterAvailable = 'Available';
+  static const String filterRefrigerated = 'Refrigerated';
+  static const String filterFlatbed = 'Flatbed';
+  static const String filterDryVan = 'Dry Van';
+  static const String noResultsFound = 'No trucks found';
+  static const String tryDifferentFilters = 'Try adjusting your filters';
+  static const String clearFilters = 'Clear Filters';
+  static const String postFreight = 'Post Freight';
+  static const String available = 'Available';
+  static const String busy = 'Busy';
+  static const String pricePerKm = 'per Km';
+  static const String pricePerHour = 'per hour';
+  static const String capacity = 'Capacity';
+  static const String tons = 'tons';
+  static const String requestTruck = 'Request Truck';
+  static const String notifyWhenFree = 'Notify When Free';
+  static const String viewDetails = 'View Details';
+  static const String noTrucksAvailable = 'No trucks available';
+  static const String checkBackLater = 'Check back later or post your freight';
+  static const String networkError = 'Unable to connect. Please check your connection and try again.';
+  static const String unexpectedError = 'Something went wrong. Please try again.';
+  static const String genericError = 'An error occurred. Please try again.';
+  static const String retry = 'Retry';
 }

@@ -8,3 +8,9 @@ extension NullableMapper<DTO, ENTITY> on BaseMapper<DTO, ENTITY> {
     return mapToEntity(dto);
   }
 }
+
+extension StringToDouble on String {
+  double toDouble() {
+    return double.tryParse(this) ?? 0.0;
+  }
+}
