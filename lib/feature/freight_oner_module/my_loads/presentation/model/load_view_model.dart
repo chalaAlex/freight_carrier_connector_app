@@ -2,7 +2,7 @@ import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/feature/freight_oner_module/my_loads/domain/entity/my_loads_entity.dart';
 import 'package:flutter/material.dart';
 
-enum LoadStatus { open, bidding, booked, completed, cancelled }
+enum LoadStatus { open, bidding, booked, inTransit, completed, cancelled }
 
 class LoadViewModel {
   final String freightId;
@@ -38,10 +38,10 @@ class LoadViewModel {
       freightId: rawId,
       pickupCity: _cityLabel(freight.route?.pickup),
       dropoffCity: _cityLabel(freight.route?.dropoff),
-      truckType: freight.truckRequirement?.type ?? '—',
+      truckType: freight.truckRequirement?.type?.join(', ') ?? '—',
       priceLabel: _priceLabel(status),
       priceValue: freight.pricing?.amount != null
-          ? '\$${freight.pricing!.amount!.toStringAsFixed(0)}'
+          ? '${freight.pricing!.amount!.toStringAsFixed(0)}'
           : '—',
       statusLabel: _statusLabel(status),
       statusColor: _statusColor(status),
@@ -65,6 +65,8 @@ class LoadViewModel {
         return LoadStatus.bidding;
       case 'BOOKED':
         return LoadStatus.booked;
+      case 'IN_TRANSIT':
+        return LoadStatus.inTransit;
       case 'COMPLETED':
         return LoadStatus.completed;
       case 'CANCELLED':
@@ -82,6 +84,8 @@ class LoadViewModel {
         return AppColors.primary;
       case LoadStatus.booked:
         return const Color(0xFF2196F3);
+      case LoadStatus.inTransit:
+        return const Color(0xFF9C27B0);
       case LoadStatus.completed:
         return AppColors.success;
       case LoadStatus.cancelled:
@@ -97,6 +101,8 @@ class LoadViewModel {
         return 'BIDDING';
       case LoadStatus.booked:
         return 'BOOKED';
+      case LoadStatus.inTransit:
+        return 'IN TRANSIT';
       case LoadStatus.completed:
         return 'COMPLETED';
       case LoadStatus.cancelled:
@@ -108,6 +114,7 @@ class LoadViewModel {
     switch (s) {
       case LoadStatus.bidding:
         return 'BEST QUOTE';
+      case LoadStatus.inTransit:
       case LoadStatus.completed:
       case LoadStatus.booked:
         return 'TOTAL PRICE';
@@ -133,6 +140,8 @@ class LoadViewModel {
         return Icons.gavel_outlined;
       case LoadStatus.booked:
         return Icons.bookmark_outline;
+      case LoadStatus.inTransit:
+        return Icons.local_shipping_outlined;
       case LoadStatus.completed:
         return Icons.check_circle_outline;
       case LoadStatus.cancelled:

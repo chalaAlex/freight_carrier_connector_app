@@ -37,26 +37,32 @@ Map<String, dynamic> _$FeaturedCarrierDataToJson(
 
 CarrierTruck _$CarrierTruckFromJson(Map<String, dynamic> json) => CarrierTruck(
   id: json['_id'] as String,
-  truckOwner: json['truckOwner'] as String,
-  driver: (json['driver'] as List<dynamic>).map((e) => e as String).toList(),
-  company: json['company'] as String,
-  model: json['model'] as String,
-  plateNumber: json['plateNumber'] as String,
-  brand: json['brand'] as String,
-  loadCapacity: (json['loadCapacity'] as num).toInt(),
-  features: (json['features'] as List<dynamic>)
-      .map((e) => e as String)
+  truckOwner: CarrierTruck._truckOwnerFromJson(json['truckOwner']),
+  driver: (json['driver'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  company: CarrierTruck._companyFromJson(json['company']),
+  model: json['model'] as String?,
+  plateNumber: json['plateNumber'] as String?,
+  brand: json['brand'] as String?,
+  loadCapacity: (json['loadCapacity'] as num?)?.toInt(),
+  features: (json['features'] as List<dynamic>?)
+      ?.map((e) => e as String)
       .toList(),
-  operatingCorrider: TruckLocation.fromJson(
-    json['operatingCorrider'] as Map<String, dynamic>,
-  ),
-  image: (json['image'] as List<dynamic>).map((e) => e as String).toList(),
-  aboutTruck: json['aboutTruck'] as String,
-  isAvailable: json['isAvailable'] as bool,
-  isFeatured: json['isFeatured'] as bool,
-  isVerified: json['isVerified'] as bool,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
+  operatingCorrider: json['operatingCorrider'] == null
+      ? null
+      : TruckLocation.fromJson(
+          json['operatingCorrider'] as Map<String, dynamic>,
+        ),
+  image: (json['image'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  aboutTruck: json['aboutTruck'] as String?,
+  isAvailable: json['isAvailable'] as bool?,
+  isFeatured: json['isFeatured'] as bool?,
+  isVerified: json['isVerified'] as bool?,
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
 );
 
 Map<String, dynamic> _$CarrierTruckToJson(CarrierTruck instance) =>
@@ -76,15 +82,15 @@ Map<String, dynamic> _$CarrierTruckToJson(CarrierTruck instance) =>
       'isAvailable': instance.isAvailable,
       'isFeatured': instance.isFeatured,
       'isVerified': instance.isVerified,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
 TruckLocation _$TruckLocationFromJson(Map<String, dynamic> json) =>
     TruckLocation(
-      startLocation: json['startLocation'] as String,
-      destinationLocation: json['destinationLocation'] as String,
-      id: json['_id'] as String,
+      startLocation: json['startLocation'] as String?,
+      destinationLocation: json['destinationLocation'] as String?,
+      id: json['_id'] as String?,
     );
 
 Map<String, dynamic> _$TruckLocationToJson(TruckLocation instance) =>

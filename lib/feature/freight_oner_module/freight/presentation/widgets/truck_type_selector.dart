@@ -5,22 +5,38 @@ import 'package:clean_architecture/core/colors/color_scheme.dart';
 
 class TruckTypeSelector extends StatelessWidget {
   final AppColorScheme colorScheme;
-  final String selectedType;
-  final ValueChanged<String> onTypeSelected;
+  final List<String> selectedTypes;
+  final ValueChanged<List<String>> onTypesSelected;
+  final bool isReadOnly;
 
   const TruckTypeSelector({
     super.key,
     required this.colorScheme,
-    required this.selectedType,
-    required this.onTypeSelected,
+    required this.selectedTypes,
+    required this.onTypesSelected,
+    this.isReadOnly = false,
   });
 
   static const List<Map<String, dynamic>> truckTypes = [
-    {'label': 'Box', 'value': 'BOX', 'icon': Icons.local_shipping},
-    {'label': 'Flatbed', 'value': 'FLATBED', 'icon': Icons.agriculture},
-    {'label': 'Refrigerated', 'value': 'REFRIGERATED', 'icon': Icons.ac_unit},
-    {'label': 'Tanker', 'value': 'TANKER', 'icon': Icons.water_drop},
-    {'label': 'Lowbed', 'value': 'LOWBED', 'icon': Icons.construction},
+    {'label': 'Box Truck', 'value': 'Box Truck', 'icon': Icons.local_shipping},
+    {'label': 'Container', 'value': 'Container', 'icon': Icons.inventory_2},
+    {'label': 'Flatbed', 'value': 'Flatbed', 'icon': Icons.agriculture},
+    {'label': 'Refrigerated', 'value': 'Refrigerated', 'icon': Icons.ac_unit},
+    {'label': 'Tanker', 'value': 'Tanker', 'icon': Icons.water_drop},
+    {'label': 'Dump Truck', 'value': 'Dump Truck', 'icon': Icons.construction},
+    {'label': 'Lowboy', 'value': 'Lowboy', 'icon': Icons.engineering},
+    {
+      'label': 'Car Carrier',
+      'value': 'Car Carrier',
+      'icon': Icons.directions_car,
+    },
+    {
+      'label': 'Livestock Carrier',
+      'value': 'Livestock Carrier',
+      'icon': Icons.pets,
+    },
+    {'label': 'Bulk Carrier', 'value': 'Bulk Carrier', 'icon': Icons.grain},
+    {'label': 'Specialized', 'value': 'Specialized', 'icon': Icons.star},
   ];
 
   @override
@@ -29,13 +45,26 @@ class TruckTypeSelector extends StatelessWidget {
       spacing: SizeManager.s8,
       runSpacing: SizeManager.s8,
       children: truckTypes.map((type) {
+        final value = type['value'] as String;
+        final isSelected = selectedTypes.contains(value);
         return _TruckTypeChip(
           colorScheme: colorScheme,
           label: type['label'] as String,
-          value: type['value'] as String,
+          value: value,
           icon: type['icon'] as IconData,
-          isSelected: selectedType == type['value'],
-          onTap: () => onTypeSelected(type['value'] as String),
+          isSelected: isSelected,
+          isReadOnly: isReadOnly,
+          onTap: isReadOnly
+              ? null
+              : () {
+                  final updated = List<String>.from(selectedTypes);
+                  if (isSelected) {
+                    updated.remove(value);
+                  } else {
+                    updated.add(value);
+                  }
+                  onTypesSelected(updated);
+                },
         );
       }).toList(),
     );
@@ -48,7 +77,8 @@ class _TruckTypeChip extends StatelessWidget {
   final String value;
   final IconData icon;
   final bool isSelected;
-  final VoidCallback onTap;
+  final bool isReadOnly;
+  final VoidCallback? onTap;
 
   const _TruckTypeChip({
     required this.colorScheme,
@@ -56,6 +86,7 @@ class _TruckTypeChip extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.isSelected,
+    required this.isReadOnly,
     required this.onTap,
   });
 
@@ -63,17 +94,21 @@ class _TruckTypeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(
           horizontal: SizeManager.s12,
           vertical: SizeManager.s8,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : colorScheme.background,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected
+              ? (isReadOnly ? Colors.blue : AppColors.primary)
+              : colorScheme.surface,
+          borderRadius: BorderRadius.circular(SizeManager.r20),
           border: Border.all(
-            color: isSelected ? AppColors.primary : colorScheme.border,
-            width: isSelected ? 2 : 1,
+            color: isSelected
+                ? (isReadOnly ? Colors.blue : AppColors.primary)
+                : colorScheme.border,
           ),
         ),
         child: Row(
@@ -93,6 +128,10 @@ class _TruckTypeChip extends StatelessWidget {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
             ),
+            if (isReadOnly && isSelected) ...[
+              const SizedBox(width: 4),
+              Icon(Icons.lock_outline, size: 12, color: AppColors.white),
+            ],
           ],
         ),
       ),

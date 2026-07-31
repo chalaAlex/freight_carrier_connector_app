@@ -97,6 +97,7 @@ class TruckOwnerEntity extends Equatable {
   final String? phone;
   final num? ratingQuantity;
   final num? ratingAverage;
+  final DateTime? createdAt;
 
   const TruckOwnerEntity({
     this.id,
@@ -105,6 +106,7 @@ class TruckOwnerEntity extends Equatable {
     this.phone,
     this.ratingQuantity,
     this.ratingAverage,
+    this.createdAt,
   });
 
   @override
@@ -115,5 +117,6 @@ class TruckOwnerEntity extends Equatable {
     phone,
     ratingQuantity,
     ratingAverage,
+    createdAt,
   ];
 }

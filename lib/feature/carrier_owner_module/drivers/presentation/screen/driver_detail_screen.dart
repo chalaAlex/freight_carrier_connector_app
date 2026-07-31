@@ -1,6 +1,7 @@
 import 'package:clean_architecture/cofig/routes_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/di.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/domain/entity/my_carrier_entity.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/domain/usecase/get_my_carriers_usecase.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/drivers/domain/entity/driver_entity.dart';
@@ -120,7 +121,7 @@ class _DriverDetailView extends StatelessWidget {
         body: BlocBuilder<DriverBloc, DriverState>(
           builder: (context, state) {
             if (state is DriverLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const DetailPageShimmer();
             }
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),

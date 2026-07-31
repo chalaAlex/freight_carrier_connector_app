@@ -48,9 +48,9 @@ class _LandingPageState extends State<LandingPage> {
                 const SizedBox(height: 24),
                 _buildFeaturedCarriers(colorScheme),
                 const SizedBox(height: 24),
-                _buildTopRatedCompanies(colorScheme),
+                // _buildTopRatedCompanies(colorScheme),
                 const SizedBox(height: 24),
-                _buildRecommendedCompanies(colorScheme),
+                // _buildRecommendedCompanies(colorScheme),
                 const SizedBox(height: 24),
                 _buildListFreightSection(colorScheme),
                 const SizedBox(height: 24),
@@ -80,14 +80,14 @@ class _LandingPageState extends State<LandingPage> {
             return Stack(
               alignment: Alignment.center,
               children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.notifications_outlined,
-                    color: colorScheme.textPrimary,
-                  ),
-                  onPressed: () =>
-                      Navigator.pushNamed(context, Routes.notificationRoute),
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     Icons.notifications_outlined,
+                //     color: colorScheme.textPrimary,
+                //   ),
+                //   onPressed: () =>
+                //       Navigator.pushNamed(context, Routes.notificationRoute),
+                // ),
                 if (unreadCount > 0)
                   Positioned(
                     top: 8,
@@ -203,111 +203,8 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  // Top Rated Companies Section
-  Widget _buildTopRatedCompanies(AppColorScheme colorScheme) {
-    return Column(
-      children: [
-        _buildSectionHeader('Top Rated Companies', colorScheme),
-        const SizedBox(height: 12),
-        BlocBuilder<CompanyBloc, CompanyState>(
-          buildWhen: (prev, curr) =>
-              curr is TopRatedCompanyLoading ||
-              curr is TopRatedCompanyLoaded ||
-              curr is TopRatedCompanyError,
-          builder: (context, state) {
-            if (state is TopRatedCompanyLoading) {
-              return _buildLoadingCarriers();
-            }
-
-            if (state is TopRatedCompanyError) {
-              return _buildErrorState(state.message, colorScheme);
-            }
-
-            if (state is TopRatedCompanyLoaded) {
-              if (state.companies.isEmpty) {
-                return _buildEmptyState(
-                  'No top rated companies available',
-                  colorScheme,
-                );
-              }
-
-              return SizedBox(
-                height: 280,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: state.companies.length,
-                  itemBuilder: (context, index) {
-                    final company = state.companies[index];
-                    return _buildCompanyCard(
-                      company: company,
-                      colorScheme: colorScheme,
-                    );
-                  },
-                ),
-              );
-            }
-
-            return _buildEmptyState('No data available', colorScheme);
-          },
-        ),
-      ],
-    );
-  }
-
-  // Recommended Companies Section
-  Widget _buildRecommendedCompanies(AppColorScheme colorScheme) {
-    return Column(
-      children: [
-        _buildSectionHeader('Recommended Companies', colorScheme),
-        const SizedBox(height: 12),
-        BlocBuilder<CompanyBloc, CompanyState>(
-          buildWhen: (prev, curr) =>
-              curr is RecommendedCompanyLoading ||
-              curr is RecommendedCompanyLoaded ||
-              curr is RecommendedCompanyError,
-          builder: (context, state) {
-            if (state is RecommendedCompanyLoading) {
-              return _buildLoadingCarriers();
-            }
-
-            if (state is RecommendedCompanyError) {
-              return _buildErrorState(state.message, colorScheme);
-            }
-
-            if (state is RecommendedCompanyLoaded) {
-              if (state.companies.isEmpty) {
-                return _buildEmptyState(
-                  'No recommended companies available',
-                  colorScheme,
-                );
-              }
-
-              // final recommendedCompanies = state.companies.take(3).toList();
-
-              return SizedBox(
-                height: 280,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: state.companies.length,
-                  itemBuilder: (context, index) {
-                    final company = state.companies[index];
-                    return _buildCompanyCard(
-                      company: company,
-                      colorScheme: colorScheme,
-                    );
-                  },
-                ),
-              );
-            }
-            return _buildEmptyState('No data available', colorScheme);
-          },
-        ),
-      ],
-    );
-  }
-
+  
+ 
   // Section Header
   Widget _buildSectionHeader(String title, AppColorScheme colorScheme) {
     return Padding(
@@ -466,22 +363,22 @@ class _LandingPageState extends State<LandingPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            '\$$basePrice',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            '\$$maxPrice',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colorScheme.textSecondary,
-                              decoration: TextDecoration.lineThrough,
-                            ),
-                          ),
+                          // Text(
+                          //   '$basePrice',
+                          //   style: TextStyle(
+                          //     fontSize: 16,
+                          //     fontWeight: FontWeight.bold,
+                          //     color: colorScheme.textPrimary,
+                          //   ),
+                          // ),
+                          // Text(
+                          //   '$maxPrice',
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     color: colorScheme.textSecondary,
+                          //     decoration: TextDecoration.lineThrough,
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],

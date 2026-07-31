@@ -28,7 +28,6 @@ class _CarrierBottomNavigationBarState
     MyLoadsScreen(),
     ShipmentRequestHomePage(),
     const InboxScreen(),
-    // BlocProvider(create: (_) => sl<WalletBloc>(), child: const WalletScreen()),
   ];
 
   void _onTabTapped(int index) {
@@ -46,7 +45,7 @@ class _CarrierBottomNavigationBarState
         appBar: AppBar(
           backgroundColor: context.appColors.surface,
           elevation: 0,
-          title: const Text('Smart Truck'),
+          // title: const Text('Smart Truck'),
           actions: const [],
         ),
         bottomNavigationBar: BottomAppBar(
@@ -80,28 +79,28 @@ class _CarrierBottomNavigationBarState
                 ),
                 tooltip: 'Trucks',
               ),
-              IconButton(
-                onPressed: () => _onTabTapped(2),
-                icon: Icon(
-                  Icons.local_shipping_outlined,
-                  size: 28,
-                  color: _currentIndex == 2
-                      ? context.appColors.primary
-                      : context.appColors.textSecondary,
-                ),
-                tooltip: 'My Carriers',
-              ),
-              IconButton(
-                onPressed: () => _onTabTapped(3),
-                icon: Icon(
-                  Icons.inventory_2_outlined,
-                  size: 28,
-                  color: _currentIndex == 3
-                      ? context.appColors.primary
-                      : context.appColors.textSecondary,
-                ),
-                tooltip: 'My Loads',
-              ),
+              // IconButton(
+              //   onPressed: () => _onTabTapped(2),
+              //   icon: Icon(
+              //     Icons.local_shipping_outlined,
+              //     size: 28,
+              //     color: _currentIndex == 2
+              //         ? context.appColors.primary
+              //         : context.appColors.textSecondary,
+              //   ),
+              //   tooltip: 'My Carriers',
+              // ),
+              // IconButton(
+              //   onPressed: () => _onTabTapped(3),
+              //   icon: Icon(
+              //     Icons.inventory_2_outlined,
+              //     size: 28,
+              //     color: _currentIndex == 3
+              //         ? context.appColors.primary
+              //         : context.appColors.textSecondary,
+              //   ),
+              //   tooltip: 'My Loads',
+              // ),
               IconButton(
                 onPressed: () => _onTabTapped(4),
                 icon: Icon(
@@ -112,17 +111,6 @@ class _CarrierBottomNavigationBarState
                       : context.appColors.textSecondary,
                 ),
                 tooltip: 'Requests',
-              ),
-              IconButton(
-                onPressed: () => _onTabTapped(5),
-                icon: Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: 28,
-                  color: _currentIndex == 5
-                      ? context.appColors.primary
-                      : context.appColors.textSecondary,
-                ),
-                tooltip: 'Wallet',
               ),
             ],
           ),

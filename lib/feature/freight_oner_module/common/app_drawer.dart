@@ -111,14 +111,22 @@ class AppDrawer extends StatelessWidget {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _DrawerTile(
-                    icon: Icons.notifications_outlined,
-                    label: 'Notifications',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.pushNamed(context, Routes.notificationRoute);
-                    },
-                  ),
+                  // _DrawerTile(
+                  //   icon: Icons.notifications_outlined,
+                  //   label: 'Notifications',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     Navigator.pushNamed(context, Routes.notificationRoute);
+                  //   },
+                  // ),
+                  // _DrawerTile(
+                  //   icon: Icons.receipt_long_outlined,
+                  //   label: 'Transaction History',
+                  //   onTap: () {
+                  //     Navigator.pop(context);
+                  //     Navigator.pushNamed(context, Routes.paymentHistory);
+                  //   },
+                  // ),
                   // _DrawerTile(
                   //   icon: Icons.help_outline,
                   //   label: 'Help & Support',
@@ -141,8 +149,7 @@ class AppDrawer extends StatelessWidget {
                         label: isDark ? 'Light Mode' : 'Dark Mode',
                         trailing: Switch(
                           value: isDark,
-                          onChanged: (_) =>
-                              context.read<ThemeCubit>().toggle(),
+                          onChanged: (_) => context.read<ThemeCubit>().toggle(),
                           activeColor: cs.primary,
                         ),
                         onTap: () => context.read<ThemeCubit>().toggle(),

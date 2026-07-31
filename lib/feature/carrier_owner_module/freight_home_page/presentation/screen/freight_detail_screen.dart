@@ -5,7 +5,9 @@ import 'package:clean_architecture/feature/carrier_owner_module/bids/presentatio
 import 'package:clean_architecture/feature/carrier_owner_module/freights/domain/entity/freights_entity.dart';
 import 'package:clean_architecture/feature/chat/domain/usecases/get_or_create_room_usecase.dart';
 import 'package:clean_architecture/feature/chat/presentation/screens/chat_room_screen.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FreightDetailScreen extends StatelessWidget {
   final FreightEntity freight;
@@ -377,7 +379,11 @@ class _ScheduleAndVehicleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final truck = freight.truckRequirement;
-    final truckType = truck?.type?.toUpperCase().replaceAll('_', ' ') ?? '—';
+    final truckType =
+        truck?.type
+            ?.map((t) => t.toUpperCase().replaceAll('_', ' '))
+            .join(', ') ??
+        '—';
     final minCapacity = truck?.minCapacityKg != null
         ? '${truck!.minCapacityKg!.toStringAsFixed(0)} kg'
         : '—';
@@ -755,14 +761,18 @@ class _BottomActionBarState extends State<_BottomActionBar> {
       (failure) => ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(failure.message))),
-      (room) => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ChatRoomScreen(
-            roomId: room.id,
-            otherParticipantName: 'Freight Owner',
+      (room) {
+        final uid = context.read<LoginBloc>().state.user?.data?.id;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatRoomScreen(
+              roomId: room.id,
+              otherParticipantName: 'Freight Owner',
+              currentUserId: uid,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:clean_architecture/feature/freight_oner_module/rating_and_review/domain/entity/review_entity.dart';
 import 'package:clean_architecture/feature/freight_oner_module/rating_and_review/presentation/bloc/completed_shipments_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/rating_and_review/presentation/screen/submit_review_screen.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,7 +27,7 @@ class _CompletedShipmentsScreenState extends State<CompletedShipmentsScreen> {
       body: BlocBuilder<CompletedShipmentsBloc, CompletedShipmentsState>(
         builder: (context, state) {
           if (state is CompletedShipmentsLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const ListRowShimmer(itemCount: 6);
           }
           if (state is CompletedShipmentsError) {
             return Center(

@@ -30,4 +30,14 @@ class LoginRepositoryImpl implements LoginRepository {
       return Left(ErrorHandler.handle(error).failure);
     }
   }
+
+  @override
+  Future<Either<Failure, void>> forgotPassword(String email) async {
+    try {
+      await loginRemoteDataSource.forgotPassword(email);
+      return const Right(null);
+    } catch (error) {
+      return Left(ErrorHandler.handle(error).failure);
+    }
+  }
 }

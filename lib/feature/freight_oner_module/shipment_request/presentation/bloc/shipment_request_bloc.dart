@@ -32,6 +32,7 @@ class ShipmentRequestBloc
         carrierId: event.carrierId,
         freightIds: event.freightIds,
         proposedPrice: event.proposedPrice,
+        message: event.message,
       ),
     );
     result.fold(

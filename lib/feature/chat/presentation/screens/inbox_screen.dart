@@ -5,6 +5,8 @@ import 'package:clean_architecture/feature/chat/presentation/bloc/inbox/inbox_bl
 import 'package:clean_architecture/feature/chat/presentation/bloc/inbox/inbox_event.dart';
 import 'package:clean_architecture/feature/chat/presentation/bloc/inbox/inbox_state.dart';
 import 'package:clean_architecture/feature/chat/presentation/screens/chat_room_screen.dart';
+import 'package:clean_architecture/feature/chat/presentation/widgets/inbox_shimmer.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
 
 class InboxScreen extends StatelessWidget {
   const InboxScreen({super.key});
@@ -12,11 +14,11 @@ class InboxScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Messages')),
+      // appBar: AppBar(title: const Text('Messages')),
       body: BlocBuilder<InboxBloc, InboxState>(
         builder: (context, state) {
           if (state is InboxLoading || state is InboxInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return const InboxShimmer();
           }
           if (state is InboxError) {
             return Center(
@@ -105,14 +107,18 @@ class _RoomTile extends StatelessWidget {
           ],
         ],
       ),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ChatRoomScreen(
-            roomId: room.id,
-            otherParticipantName: room.otherParticipantName,
+      onTap: () {
+        final uid = context.read<LoginBloc>().state.user?.data?.id;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatRoomScreen(
+              roomId: room.id,
+              otherParticipantName: room.otherParticipantName,
+              currentUserId: uid,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

@@ -3,4 +3,5 @@ import 'package:clean_architecture/core/request/login_request.dart';
 
 abstract class LoginRemoteDataSource {
   Future<LoginBaseResponse> login(LoginRequest loginRequest);
+  Future<void> forgotPassword(String email);
 }

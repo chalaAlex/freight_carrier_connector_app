@@ -89,6 +89,11 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     LoadMessages event,
     Emitter<ChatRoomState> emit,
   ) async {
+    // Capture existing messages before emitting loading state
+    final existing = state is ChatRoomLoaded
+        ? (state as ChatRoomLoaded).messages
+        : <MessageEntity>[];
+
     if (event.page == 1) emit(ChatRoomLoading());
 
     final result = await getMessagesUseCase(
@@ -98,12 +103,9 @@ class ChatRoomBloc extends Bloc<ChatRoomEvent, ChatRoomState> {
     result.fold((failure) => emit(ChatRoomError(failure.message)), (
       newMessages,
     ) {
-      final current = state is ChatRoomLoaded
-          ? (state as ChatRoomLoaded).messages
-          : <MessageEntity>[];
       final combined = event.page == 1
           ? newMessages
-          : [...newMessages, ...current];
+          : [...newMessages, ...existing];
       emit(
         ChatRoomLoaded(messages: combined, hasMore: newMessages.length == 20),
       );

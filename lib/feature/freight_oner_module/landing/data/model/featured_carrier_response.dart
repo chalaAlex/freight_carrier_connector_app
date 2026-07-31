@@ -38,48 +38,64 @@ class CarrierTruck {
   @JsonKey(name: "_id")
   final String id;
 
-  final String truckOwner;
-  final List<String> driver;
-  final String company;
+  @JsonKey(fromJson: _truckOwnerFromJson)
+  final String? truckOwner;
+  final List<String>? driver;
+  @JsonKey(fromJson: _companyFromJson)
+  final String? company;
 
-  final String model;
-  final String plateNumber;
-  final String brand;
-  final int loadCapacity;
+  final String? model;
+  final String? plateNumber;
+  final String? brand;
+  final int? loadCapacity;
 
-  final List<String> features;
-  final TruckLocation operatingCorrider;
+  final List<String>? features;
+  final TruckLocation? operatingCorrider;
 
-  final List<String> image;
+  final List<String>? image;
 
-  final String aboutTruck;
+  final String? aboutTruck;
 
-  final bool isAvailable;
-  final bool isFeatured;
-  final bool isVerified;
+  final bool? isAvailable;
+  final bool? isFeatured;
+  final bool? isVerified;
 
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   CarrierTruck({
     required this.id,
-    required this.truckOwner,
-    required this.driver,
-    required this.company,
-    required this.model,
-    required this.plateNumber,
-    required this.brand,
-    required this.loadCapacity,
-    required this.features,
-    required this.operatingCorrider,
-    required this.image,
-    required this.aboutTruck,
-    required this.isAvailable,
-    required this.isFeatured,
-    required this.isVerified,
-    required this.createdAt,
-    required this.updatedAt,
+    this.truckOwner,
+    this.driver,
+    this.company,
+    this.model,
+    this.plateNumber,
+    this.brand,
+    this.loadCapacity,
+    this.features,
+    this.operatingCorrider,
+    this.image,
+    this.aboutTruck,
+    this.isAvailable,
+    this.isFeatured,
+    this.isVerified,
+    this.createdAt,
+    this.updatedAt,
   });
+
+  static String? _truckOwnerFromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is String) return json;
+    if (json is Map) return json['_id'] as String?;
+    return null;
+  }
+
+  static String? _companyFromJson(dynamic json) {
+    if (json == null) return null;
+    if (json is String) return json;
+    if (json is Map) return json['_id'] as String?;
+    return null;
+  }
 
   factory CarrierTruck.fromJson(Map<String, dynamic> json) =>
       _$CarrierTruckFromJson(json);
@@ -89,17 +105,13 @@ class CarrierTruck {
 
 @JsonSerializable()
 class TruckLocation {
-  final String startLocation;
-  final String destinationLocation;
+  final String? startLocation;
+  final String? destinationLocation;
 
   @JsonKey(name: "_id")
-  final String id;
+  final String? id;
 
-  TruckLocation({
-    required this.startLocation,
-    required this.destinationLocation,
-    required this.id,
-  });
+  TruckLocation({this.startLocation, this.destinationLocation, this.id});
 
   factory TruckLocation.fromJson(Map<String, dynamic> json) =>
       _$TruckLocationFromJson(json);

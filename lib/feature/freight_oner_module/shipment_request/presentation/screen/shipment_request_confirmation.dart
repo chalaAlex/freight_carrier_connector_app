@@ -97,7 +97,7 @@ class ShipmentRequestConfirmationScreen extends StatelessWidget {
                       const SizedBox(height: SizeManager.s12),
                       _SummaryRow(
                         label: 'Offered Price',
-                        value: '\$${price.toStringAsFixed(2)}',
+                        value: '${price.toStringAsFixed(2)}',
                         cs: cs,
                         valueColor: AppColors.primary,
                         valueBold: true,

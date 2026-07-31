@@ -170,7 +170,7 @@ void main() {
       final model = ChatRoomModel.fromJson(json);
       expect(model.id, 'room123');
       expect(model.otherParticipantId, 'user456');
-      expect(model.otherParticipantName, 'John Doe');
+      expect(model.otherParticipantName, 'Abebe Kebede');
       expect(model.otherParticipantPhoto, 'https://example.com/photo.jpg');
       expect(model.lastMessagePreview, 'Hello!');
       expect(model.unreadCount, 3);

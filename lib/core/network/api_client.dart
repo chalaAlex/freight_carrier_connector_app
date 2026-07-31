@@ -1,3 +1,5 @@
+import 'package:clean_architecture/core/network/ai_suggestion_response.dart';
+import 'package:clean_architecture/core/network/generic_response.dart';
 import 'package:clean_architecture/core/request/create_freight_request.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/data/model/create_carrier_request.dart';
 import 'package:clean_architecture/core/request/shipment_request.dart';
@@ -17,6 +19,7 @@ import 'package:clean_architecture/feature/freight_oner_module/signup/data/model
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/brand_response.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/feature_response.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/regions_model.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/cities_model.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/models/truck_model.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
@@ -41,6 +44,16 @@ abstract class ApiClient {
   Future<LoginBaseResponse> login(
     @Field("email") String email,
     @Field("password") String password,
+  );
+
+  @POST("/users/forgotPassword")
+  Future<GenericResponse> forgotPassword(@Field("email") String email);
+
+  @PATCH("/users/resetPassword/{token}")
+  Future<GenericResponse> resetPassword(
+    @Path("token") String token,
+    @Field("password") String password,
+    @Field("passwordConfirm") String passwordConfirm,
   );
 
   @GET("/carrier")
@@ -134,6 +147,9 @@ abstract class ApiClient {
   @GET("/regions")
   Future<RegionsBaseResponse> getAllRegions();
 
+  @GET("/cities")
+  Future<CitiesBaseResponse> getAllCities();
+
   @GET("/features")
   Future<FeatureBaseResponse> getAllFeatures();
 
@@ -216,4 +232,16 @@ abstract class ApiClient {
 
   @DELETE("/driver/{id}")
   Future<void> deleteDriver(@Path("id") String id);
+
+  // -------------------- AI Endpoints --------------------
+
+  @POST("/ai/improve-freight-description")
+  Future<AiSuggestionResponse> improveFreightDescription(
+    @Body() Map<String, dynamic> body,
+  );
+
+  @POST("/ai/improve-carrier-description")
+  Future<AiSuggestionResponse> improveCarrierDescription(
+    @Body() Map<String, dynamic> body,
+  );
 }

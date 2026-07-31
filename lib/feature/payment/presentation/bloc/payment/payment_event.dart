@@ -6,12 +6,33 @@ abstract class PaymentEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class ResetPaymentEvent extends PaymentEvent {}
+
 class InitiatePaymentEvent extends PaymentEvent {
   final String bookingType;
   final String sourceId;
-  const InitiatePaymentEvent({required this.bookingType, required this.sourceId});
+  final String gateway;
+  const InitiatePaymentEvent({
+    required this.bookingType,
+    required this.sourceId,
+    required this.gateway,
+  });
   @override
-  List<Object?> get props => [bookingType, sourceId];
+  List<Object?> get props => [bookingType, sourceId, gateway];
+}
+
+class ConfirmPaymentEvent extends PaymentEvent {
+  final String outTradeNo;
+  const ConfirmPaymentEvent(this.outTradeNo);
+  @override
+  List<Object?> get props => [outTradeNo];
+}
+
+class GetPaymentByFreightEvent extends PaymentEvent {
+  final String freightId;
+  const GetPaymentByFreightEvent(this.freightId);
+  @override
+  List<Object?> get props => [freightId];
 }
 
 class GetPaymentStatusEvent extends PaymentEvent {

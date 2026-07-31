@@ -1,16 +1,20 @@
 import 'package:clean_architecture/cofig/context_extensions.dart';
+import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/di.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/freight_detail_entity.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/freight/freight_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/freight/freight_event.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/freight/freight_state.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/truck_detail/truck_detail_loading.dart';
+import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_bloc.dart';
+import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_event.dart';
+import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class FreightDetailPage extends StatefulWidget {
   final String freightId;
-
   const FreightDetailPage({super.key, required this.freightId});
 
   @override
@@ -27,43 +31,154 @@ class _FreightDetailPageState extends State<FreightDetailPage> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    return Scaffold(
-      backgroundColor: colors.background,
-      appBar: AppBar(
-        backgroundColor: colors.background,
-        elevation: 0,
-        leading: BackButton(color: colors.textPrimary),
-        title: Text('Freight Details', style: context.text.titleLarge),
-      ),
-      body: BlocBuilder<FreightBloc, FreightState>(
-        builder: (context, state) {
-          if (state is FreightLoading) {
-            return const Center(child: TruckDetailLoadingWidget());
-          }
-          if (state is FreightError) {
-            return Center(
-              child: Text(state.message, style: TextStyle(color: colors.error)),
-            );
-          }
-          if (state is FreightDetailSuccess) {
-            final freight = state.response.freight;
-            if (freight == null) {
-              return Center(
-                child: Text('No data found', style: context.text.bodyMedium),
-              );
-            }
-            return _FreightDetailContent(freight: freight);
-          }
-          return const SizedBox.shrink();
-        },
+    return BlocBuilder<FreightBloc, FreightState>(
+      builder: (context, freightState) {
+        final freight = freightState is FreightDetailSuccess
+            ? freightState.response.freight
+            : null;
+        final isInTransit = freight?.status.toUpperCase() == 'IN_TRANSIT';
+
+        return Scaffold(
+          backgroundColor: colors.background,
+          appBar: AppBar(
+            backgroundColor: colors.background,
+            elevation: 0,
+            leading: BackButton(color: colors.textPrimary),
+            title: Text('Freight Details', style: context.text.titleLarge),
+            actions: [
+              PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: colors.textPrimary),
+                onSelected: (value) {
+                  if (value == 'complete' && freight != null) {
+                    _confirmComplete(context, freight.id);
+                  }
+                },
+                itemBuilder: (_) => isInTransit
+                    ? [
+                        const PopupMenuItem(
+                          value: 'complete',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                color: AppColors.success,
+                                size: 20,
+                              ),
+                              SizedBox(width: 10),
+                              Text('Mark as Completed'),
+                            ],
+                          ),
+                        ),
+                      ]
+                    : [
+                        const PopupMenuItem(
+                          enabled: false,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: AppColors.grey,
+                                size: 20,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'No actions available',
+                                style: TextStyle(color: AppColors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+              ),
+            ],
+          ),
+          body: Builder(
+            builder: (_) {
+              if (freightState is FreightLoading) {
+                return const Center(child: TruckDetailLoadingWidget());
+              }
+              if (freightState is FreightError) {
+                return Center(
+                  child: Text(
+                    freightState.message,
+                    style: TextStyle(color: colors.error),
+                  ),
+                );
+              }
+              if (freightState is FreightDetailSuccess) {
+                if (freight == null) {
+                  return Center(
+                    child: Text(
+                      'No data found',
+                      style: context.text.bodyMedium,
+                    ),
+                  );
+                }
+                return _FreightDetailContent(freight: freight);
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  void _confirmComplete(BuildContext context, String freightId) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Mark as Completed'),
+        content: const Text(
+          'This will confirm delivery and automatically release the payment to the carrier\'s wallet. Continue?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _releasePaymentForFreight(context, freightId);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+            child: const Text('Confirm', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
+  }
+
+  void _releasePaymentForFreight(BuildContext context, String freightId) {
+    final paymentBloc = sl<PaymentBloc>();
+    paymentBloc.stream.listen((state) {
+      if (!mounted) return;
+      if (state is PaymentByFreightLoaded) {
+        paymentBloc.add(ReleasePaymentEvent(state.payment.id!));
+      } else if (state is PaymentReleased) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Payment released. Freight marked as completed.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        context.read<FreightBloc>().add(FetchFreightDetailEvent(freightId));
+      } else if (state is PaymentError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.message),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    });
+    paymentBloc.add(GetPaymentByFreightEvent(freightId));
   }
 }
 
 class _FreightDetailContent extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _FreightDetailContent({required this.freight});
 
   String _formatDate(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
@@ -99,12 +214,12 @@ class _FreightDetailContent extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: _RequestButton(freightId: freight.id),
-        ),
+        // Positioned(
+        //   bottom: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: _RequestButton(freightId: freight.id),
+        // ),
       ],
     );
   }
@@ -112,12 +227,31 @@ class _FreightDetailContent extends StatelessWidget {
 
 class _HeroImage extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _HeroImage({required this.freight});
+
+  Color _statusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'OPEN':
+        return const Color(0xFFFF6B00);
+      case 'BIDDING':
+        return AppColors.primary;
+      case 'BOOKED':
+        return const Color(0xFF2196F3);
+      case 'IN_TRANSIT':
+        return const Color(0xFF9C27B0);
+      case 'COMPLETED':
+        return AppColors.success;
+      case 'CANCELLED':
+        return AppColors.error;
+      default:
+        return AppColors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final statusColor = _statusColor(freight.status);
     return Stack(
       children: [
         SizedBox(
@@ -163,13 +297,13 @@ class _HeroImage extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: colors.success,
+              color: statusColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              freight.status.toUpperCase(),
+              freight.status.toUpperCase().replaceAll('_', ' '),
               style: context.text.labelLarge?.copyWith(
-                color: colors.onPrimary,
+                color: Colors.white,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -183,7 +317,6 @@ class _HeroImage extends StatelessWidget {
 class _RouteCard extends StatelessWidget {
   final FreightDetailEntity freight;
   final String Function(DateTime) formatDate;
-
   const _RouteCard({required this.freight, required this.formatDate});
 
   @override
@@ -191,7 +324,6 @@ class _RouteCard extends StatelessWidget {
     final colors = context.appColors;
     final pickup = freight.route.pickup;
     final dropoff = freight.route.dropoff;
-
     return _Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +366,6 @@ class _RouteStop extends StatelessWidget {
   final String location;
   final String date;
   final String datePrefix;
-
   const _RouteStop({
     required this.label,
     required this.labelColor,
@@ -275,7 +406,6 @@ class _RouteStop extends StatelessWidget {
 
 class _CargoSpecsCard extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _CargoSpecsCard({required this.freight});
 
   @override
@@ -292,7 +422,7 @@ class _CargoSpecsCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _LabelValue(label: 'Type', value: cargo.type),
+              _LabelValue(label: 'Type', value: cargo.type!),
               const SizedBox(width: 32),
               _LabelValue(label: 'Quantity', value: '${cargo.quantity} units'),
             ],
@@ -307,7 +437,6 @@ class _CargoSpecsCard extends StatelessWidget {
 
 class _CargoDescriptionCard extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _CargoDescriptionCard({required this.freight});
 
   @override
@@ -335,7 +464,6 @@ class _CargoDescriptionCard extends StatelessWidget {
 
 class _TruckRequirementsCard extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _TruckRequirementsCard({required this.freight});
 
   String _formatNumber(int n) => n.toString().replaceAllMapped(
@@ -357,11 +485,16 @@ class _TruckRequirementsCard extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _LabelValue(label: 'Truck Type', value: truck.type),
+              _LabelValue(
+                label: 'Truck Type',
+                value: truck.type?.join(', ') ?? 'N/A',
+              ),
               const SizedBox(width: 32),
               _LabelValue(
                 label: 'Min Capacity',
-                value: '${_formatNumber(truck.minCapacityKg)} kg',
+                value: truck.minCapacityKg != null
+                    ? '${_formatNumber(truck.minCapacityKg!)} kg'
+                    : 'N/A',
               ),
             ],
           ),
@@ -373,7 +506,6 @@ class _TruckRequirementsCard extends StatelessWidget {
 
 class _PayoutCard extends StatelessWidget {
   final FreightDetailEntity freight;
-
   const _PayoutCard({required this.freight});
 
   @override
@@ -394,14 +526,14 @@ class _PayoutCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Estimated Payout',
+                'Payout',
                 style: context.text.labelMedium?.copyWith(
                   color: colors.onPrimary.withValues(alpha: 0.75),
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                '\$${pricing.amount}',
+                pricing.amount != null ? '${pricing.amount}' : 'Negotiable',
                 style: context.text.headlineMedium?.copyWith(
                   color: colors.onPrimary,
                   fontWeight: FontWeight.w800,
@@ -430,55 +562,53 @@ class _PayoutCard extends StatelessWidget {
   }
 }
 
-class _RequestButton extends StatelessWidget {
-  final String freightId;
+// class _RequestButton extends StatelessWidget {
+//   final String freightId;
+//   const _RequestButton({required this.freightId});
 
-  const _RequestButton({required this.freightId});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.appColors;
-    return Container(
-      color: colors.background,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton(
-          onPressed: () {
-            // TODO: navigate to bid/request flow with freightId
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Request This Load',
-                style: context.text.titleMedium?.copyWith(
-                  color: colors.onPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Icons.arrow_forward, color: colors.onPrimary, size: 18),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     final colors = context.appColors;
+//     return Container(
+//       color: colors.background,
+//       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+//       child: SizedBox(
+//         width: double.infinity,
+//         height: 52,
+//         child: ElevatedButton(
+//           onPressed: () {
+//             // TODO: navigate to bid/request flow with freightId
+//           },
+//           style: ElevatedButton.styleFrom(
+//             backgroundColor: colors.primary,
+//             shape: RoundedRectangleBorder(
+//               borderRadius: BorderRadius.circular(14),
+//             ),
+//           ),
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Text(
+//                 'Request This Load',
+//                 style: context.text.titleMedium?.copyWith(
+//                   color: colors.onPrimary,
+//                   fontWeight: FontWeight.w700,
+//                 ),
+//               ),
+//               const SizedBox(width: 8),
+//               Icon(Icons.arrow_forward, color: colors.onPrimary, size: 18),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // ── Shared helpers ──────────────────────────────────────────────────────────
 
 class _Card extends StatelessWidget {
   final Widget child;
-
   const _Card({required this.child});
 
   @override
@@ -498,7 +628,6 @@ class _Card extends StatelessWidget {
 class _SectionHeader extends StatelessWidget {
   final IconData icon;
   final String title;
-
   const _SectionHeader({required this.icon, required this.title});
 
   @override
@@ -520,7 +649,6 @@ class _SectionHeader extends StatelessWidget {
 class _LabelValue extends StatelessWidget {
   final String label;
   final String value;
-
   const _LabelValue({required this.label, required this.value});
 
   @override

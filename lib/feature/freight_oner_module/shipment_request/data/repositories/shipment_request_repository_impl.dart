@@ -21,6 +21,7 @@ class ShipmentRequestRepositoryImpl implements ShipmentRequestRepository {
       final result = await remoteDataSource.createShipmentRequest(request);
       return Right(ShipmentRequestResponseMapper(result).toEntity());
     } catch (e) {
+      print(">>>>>>>>>>>$e");
       return Left(ErrorHandler.handle(e).failure);
     }
   }

@@ -1,5 +1,6 @@
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/payment/domain/entity/payment_entity.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/wallet/wallet_bloc.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/wallet/wallet_event.dart';
@@ -12,7 +13,8 @@ class WalletTransactionsScreen extends StatefulWidget {
   const WalletTransactionsScreen({super.key});
 
   @override
-  State<WalletTransactionsScreen> createState() => _WalletTransactionsScreenState();
+  State<WalletTransactionsScreen> createState() =>
+      _WalletTransactionsScreenState();
 }
 
 class _WalletTransactionsScreenState extends State<WalletTransactionsScreen> {
@@ -36,12 +38,19 @@ class _WalletTransactionsScreenState extends State<WalletTransactionsScreen> {
           icon: Icon(Icons.arrow_back, color: cs.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Transaction History', style: TextStyle(color: cs.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          'Transaction History',
+          style: TextStyle(
+            color: cs.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ),
       body: BlocBuilder<WalletBloc, WalletState>(
         builder: (context, state) {
           if (state is WalletLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const ListRowShimmer(itemCount: 8, showTrailing: true);
           }
           if (state is WalletTransactionsLoaded) {
             final txns = state.data.transactions ?? [];
@@ -50,9 +59,16 @@ class _WalletTransactionsScreenState extends State<WalletTransactionsScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.receipt_long_outlined, size: 56, color: cs.textSecondary.withValues(alpha: 0.4)),
+                    Icon(
+                      Icons.receipt_long_outlined,
+                      size: 56,
+                      color: cs.textSecondary.withValues(alpha: 0.4),
+                    ),
                     const SizedBox(height: 16),
-                    Text('No transactions yet', style: TextStyle(color: cs.textSecondary, fontSize: 16)),
+                    Text(
+                      'No transactions yet',
+                      style: TextStyle(color: cs.textSecondary, fontSize: 16),
+                    ),
                   ],
                 ),
               );
@@ -71,10 +87,15 @@ class _WalletTransactionsScreenState extends State<WalletTransactionsScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 48, color: AppColors.error),
                   const SizedBox(height: 16),
-                  Text(state.message, style: TextStyle(color: cs.textSecondary)),
+                  Text(
+                    state.message,
+                    style: TextStyle(color: cs.textSecondary),
+                  ),
                   const SizedBox(height: 16),
                   TextButton(
-                    onPressed: () => context.read<WalletBloc>().add(const GetWalletTransactionsEvent()),
+                    onPressed: () => context.read<WalletBloc>().add(
+                      const GetWalletTransactionsEvent(),
+                    ),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -104,13 +125,23 @@ class _TransactionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            width: 44, height: 44,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 14),
@@ -118,14 +149,29 @@ class _TransactionCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_labelForType(tx.type), style: TextStyle(color: cs.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+                Text(
+                  _labelForType(tx.type),
+                  style: TextStyle(
+                    color: cs.textPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
                 if (tx.description != null) ...[
                   const SizedBox(height: 2),
-                  Text(tx.description!, style: TextStyle(color: cs.textSecondary, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  Text(
+                    tx.description!,
+                    style: TextStyle(color: cs.textSecondary, fontSize: 12),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
                 if (tx.createdAt != null) ...[
                   const SizedBox(height: 4),
-                  Text(DateFormat('MMM d, y · HH:mm').format(tx.createdAt!), style: TextStyle(color: cs.textSecondary, fontSize: 11)),
+                  Text(
+                    DateFormat('MMM d, y · HH:mm').format(tx.createdAt!),
+                    style: TextStyle(color: cs.textSecondary, fontSize: 11),
+                  ),
                 ],
               ],
             ),
@@ -133,7 +179,11 @@ class _TransactionCard extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             '${isCredit ? "+" : "-"}ETB ${tx.amount?.toStringAsFixed(2) ?? "0.00"}',
-            style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
           ),
         ],
       ),
@@ -142,21 +192,31 @@ class _TransactionCard extends StatelessWidget {
 
   IconData _iconForType(String? type) {
     switch (type) {
-      case 'HOLD': return Icons.lock_outline;
-      case 'RELEASE': return Icons.check_circle_outline;
-      case 'DEBIT': return Icons.arrow_upward;
-      case 'CREDIT': return Icons.arrow_downward;
-      default: return Icons.swap_horiz;
+      case 'HOLD':
+        return Icons.lock_outline;
+      case 'RELEASE':
+        return Icons.check_circle_outline;
+      case 'DEBIT':
+        return Icons.arrow_upward;
+      case 'CREDIT':
+        return Icons.arrow_downward;
+      default:
+        return Icons.swap_horiz;
     }
   }
 
   String _labelForType(String? type) {
     switch (type) {
-      case 'HOLD': return 'Escrow Hold';
-      case 'RELEASE': return 'Payment Released';
-      case 'DEBIT': return 'Withdrawal';
-      case 'CREDIT': return 'Credit';
-      default: return type ?? '—';
+      case 'HOLD':
+        return 'Escrow Hold';
+      case 'RELEASE':
+        return 'Payment Released';
+      case 'DEBIT':
+        return 'Withdrawal';
+      case 'CREDIT':
+        return 'Credit';
+      default:
+        return type ?? '—';
     }
   }
 }

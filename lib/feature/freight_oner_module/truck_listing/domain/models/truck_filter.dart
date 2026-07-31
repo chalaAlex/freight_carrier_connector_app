@@ -15,6 +15,9 @@ class TruckFilter extends Equatable {
   /// Filter by region name, e.g. "Oromia"
   final String? region;
 
+  /// Filter by city name, e.g. "Addis Ababa"
+  final String? city;
+
   /// Filter by verification status
   final bool? isVerified;
 
@@ -35,6 +38,7 @@ class TruckFilter extends Equatable {
     this.features,
     this.brand,
     this.region,
+    this.city,
     this.isVerified,
     this.loadCapacityGte,
     this.isAvailable,
@@ -45,13 +49,19 @@ class TruckFilter extends Equatable {
   /// Converts this filter into a map of query parameters,
   /// omitting any null/empty values.
   Map<String, dynamic> toQueryParams() {
-    final params = <String, dynamic>{'page': page, 'limit': 10, };
+    final params = <String, dynamic>{
+      'page': page,
+      'limit': 10,
+      'isVerified': true,
+      'isAvailable': true,
+    };
 
     // 'isVerified': true
     if (search != null && search!.isNotEmpty) params['search'] = search;
     if (features != null && features!.isNotEmpty) params['features'] = features;
     if (brand != null && brand!.isNotEmpty) params['brand'] = brand;
     if (region != null && region!.isNotEmpty) params['region'] = region;
+    if (city != null && city!.isNotEmpty) params['city'] = city;
     if (isVerified != null) params['isVerified'] = isVerified;
     if (loadCapacityGte != null) params['capacity_gte'] = loadCapacityGte;
     if (isAvailable != null) params['isAvailable'] = isAvailable;
@@ -67,6 +77,7 @@ class TruckFilter extends Equatable {
       features != null ||
       brand != null ||
       region != null ||
+      city != null ||
       isVerified != null ||
       loadCapacityGte != null ||
       isAvailable != null ||
@@ -77,6 +88,7 @@ class TruckFilter extends Equatable {
     String? features,
     String? brand,
     String? region,
+    String? city,
     bool? isVerified,
     double? loadCapacityGte,
     bool? isAvailable,
@@ -87,6 +99,7 @@ class TruckFilter extends Equatable {
     bool clearFeature = false,
     bool clearBrand = false,
     bool clearRegion = false,
+    bool clearCity = false,
     bool clearIsVerified = false,
     bool clearLoadCapacity = false,
     bool clearIsAvailable = false,
@@ -97,6 +110,7 @@ class TruckFilter extends Equatable {
       features: clearFeature ? null : (features ?? this.features),
       brand: clearBrand ? null : (brand ?? this.brand),
       region: clearRegion ? null : (region ?? this.region),
+      city: clearCity ? null : (city ?? this.city),
       isVerified: clearIsVerified ? null : (isVerified ?? this.isVerified),
       loadCapacityGte: clearLoadCapacity
           ? null
@@ -116,6 +130,7 @@ class TruckFilter extends Equatable {
     features,
     brand,
     region,
+    city,
     isVerified,
     loadCapacityGte,
     isAvailable,

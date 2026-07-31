@@ -1,6 +1,9 @@
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/routes_manager.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
+import 'package:clean_architecture/core/di.dart';
+import 'package:clean_architecture/core/network/api_client.dart';
+import 'package:clean_architecture/core/widgets/ai_suggestion_sheet.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/presentation/bloc/carrier_registration_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -146,6 +149,7 @@ class _RegisterCarrierStep1ScreenState
               maxLines: 4,
               maxLength: 150,
               validator: _requiredValidator,
+              aiButton: _buildAiButton(),
             ),
             const SizedBox(height: SizeManager.s16),
             _buildFeaturesSection(),
@@ -183,17 +187,23 @@ class _RegisterCarrierStep1ScreenState
     int maxLines = 1,
     int? maxLength,
     String? Function(String?)? validator,
+    Widget? aiButton,
   }) {
     final cs = context.appColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: context.text.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: cs.textPrimary,
-          ),
+        Row(
+          children: [
+            Text(
+              label,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.textPrimary,
+              ),
+            ),
+            if (aiButton != null) ...[const Spacer(), aiButton],
+          ],
         ),
         const SizedBox(height: SizeManager.s8),
         TextFormField(
@@ -298,5 +308,76 @@ class _RegisterCarrierStep1ScreenState
   String? _requiredValidator(String? value) {
     if (value == null || value.trim().isEmpty) return 'Required';
     return null;
+  }
+
+  Widget _buildAiButton() {
+    final cs = context.appColors;
+    return GestureDetector(
+      onTap: _improveCarrierDescription,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SizeManager.s10,
+          vertical: SizeManager.s4,
+        ),
+        decoration: BoxDecoration(
+          color: cs.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(SizeManager.r20),
+          border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.auto_awesome, size: 13, color: cs.primary),
+            const SizedBox(width: 4),
+            Text(
+              'Improve with AI',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: cs.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _improveCarrierDescription() async {
+    final suggestion = await showAiSuggestionSheet(
+      context: context,
+      fetchSuggestion: () async {
+        final response = await sl<ApiClient>().improveCarrierDescription({
+          'brand': _brandController.text.trim().isEmpty
+              ? null
+              : _brandController.text.trim(),
+          'model': _modelController.text.trim().isEmpty
+              ? null
+              : _modelController.text.trim(),
+          'plateNumber': _plateController.text.trim().isEmpty
+              ? null
+              : _plateController.text.trim(),
+          'loadCapacity': _loadCapacityController.text.trim().isEmpty
+              ? null
+              : double.tryParse(_loadCapacityController.text.trim()),
+          'features': _selectedFeatures.isEmpty
+              ? null
+              : _selectedFeatures.toList(),
+          'startLocation': _startLocationController.text.trim().isEmpty
+              ? null
+              : _startLocationController.text.trim(),
+          'destinationLocation': _destinationController.text.trim().isEmpty
+              ? null
+              : _destinationController.text.trim(),
+          'currentDescription': _aboutTruckController.text.trim().isEmpty
+              ? null
+              : _aboutTruckController.text.trim(),
+        });
+        return response.data.suggestion;
+      },
+    );
+    if (suggestion != null) {
+      setState(() => _aboutTruckController.text = suggestion);
+    }
   }
 }

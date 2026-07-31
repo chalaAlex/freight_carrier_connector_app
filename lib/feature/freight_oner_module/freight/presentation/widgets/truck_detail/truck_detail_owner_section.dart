@@ -82,7 +82,11 @@ class _OwnerCard extends StatelessWidget {
           ),
           const SizedBox(height: SizeManager.s16),
           InkWell(
-            onTap: () => Navigator.pushNamed(context, Routes.carrierUserDetail),
+            onTap: () => Navigator.pushNamed(
+              context,
+              Routes.carrierUserDetail,
+              arguments: owner,
+            ),
             borderRadius: BorderRadius.circular(SizeManager.r12),
             child: Container(
               padding: const EdgeInsets.all(SizeManager.s12),

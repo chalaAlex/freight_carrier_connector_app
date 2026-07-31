@@ -261,6 +261,7 @@ extension TruckOwnerDtoMapper on detail.TruckOwnerDto {
       phone: phone,
       ratingQuantity: ratingQuantity,
       ratingAverage: ratingAverage,
+      createdAt: createdAt != null ? DateTime.tryParse(createdAt!) : null,
     );
   }
 }
@@ -270,22 +271,28 @@ extension CarrierTruckMapper on CarrierTruck {
   CarrierTruckEntity toEntity() {
     return CarrierTruckEntity(
       id: id,
-      truckOwner: truckOwner,
-      driver: driver,
-      company: company,
-      model: model,
-      plateNumber: plateNumber,
-      brand: brand,
-      loadCapacity: loadCapacity,
-      features: features,
-      operatingCorrider: operatingCorrider.toEntity(),
-      image: image,
-      aboutTruck: aboutTruck,
-      isAvailable: isAvailable,
-      isFeatured: isFeatured,
-      isVerified: isVerified,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      truckOwner: truckOwner ?? '',
+      driver: driver ?? [],
+      company: company ?? '',
+      model: model ?? '',
+      plateNumber: plateNumber ?? '',
+      brand: brand ?? '',
+      loadCapacity: loadCapacity ?? 0,
+      features: features ?? [],
+      operatingCorrider:
+          operatingCorrider?.toEntity() ??
+          const OperatingCorriderEntity(
+            id: '',
+            startLocation: '',
+            destinationLocation: '',
+          ),
+      image: image ?? [],
+      aboutTruck: aboutTruck ?? '',
+      isAvailable: isAvailable ?? false,
+      isFeatured: isFeatured ?? false,
+      isVerified: isVerified ?? false,
+      createdAt: createdAt ?? DateTime.now(),
+      updatedAt: updatedAt ?? DateTime.now(),
     );
   }
 }
@@ -293,9 +300,9 @@ extension CarrierTruckMapper on CarrierTruck {
 extension TruckLocationMapper on TruckLocation {
   OperatingCorriderEntity toEntity() {
     return OperatingCorriderEntity(
-      id: id,
-      startLocation: startLocation,
-      destinationLocation: destinationLocation,
+      id: id ?? '',
+      startLocation: startLocation ?? '',
+      destinationLocation: destinationLocation ?? '',
     );
   }
 }

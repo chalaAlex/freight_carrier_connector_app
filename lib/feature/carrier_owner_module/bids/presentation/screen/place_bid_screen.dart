@@ -221,8 +221,9 @@ class _PlaceBidViewState extends State<_PlaceBidView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 4),
                       child: Text(
-                        'Listed price: ${_fmt(freight.pricing!.amount!)} ETB'
-                        ' (${freight.pricing!.type ?? ''})',
+                        freight.pricing!.amount != null
+                            ? 'Listed price: ${_fmt(freight.pricing!.amount!)} ETB (${freight.pricing!.type ?? ''})'
+                            : 'Pricing: ${freight.pricing!.type ?? 'Negotiable'}',
                         style: context.text.labelMedium?.copyWith(
                           color: context.appColors.textSecondary,
                         ),
@@ -828,7 +829,7 @@ class _FreightSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                freight.truckRequirement?.type ?? '—',
+                freight.truckRequirement?.type?.join(', ') ?? '—',
                 style: context.text.bodySmall?.copyWith(
                   color: context.appColors.textSecondary,
                 ),

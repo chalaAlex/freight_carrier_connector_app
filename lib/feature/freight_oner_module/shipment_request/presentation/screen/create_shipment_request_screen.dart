@@ -27,6 +27,7 @@ class CreateShipmentRequestScreen extends StatefulWidget {
 class _CreateShipmentRequestScreenState
     extends State<CreateShipmentRequestScreen> {
   final _priceController = TextEditingController();
+  final _messageController = TextEditingController();
   final List<String> _selectedFreightIds = [];
   List<MyLoadsEntity> _selectedFreights = [];
 
@@ -35,9 +36,34 @@ class _CreateShipmentRequestScreenState
     return isDark ? AppColorScheme.dark : AppColorScheme.light;
   }
 
+  // Check if any selected freight has negotiable pricing
+  bool get _hasNegotiablePricing {
+    return _selectedFreights.any(
+      (f) => f.pricing?.type?.toUpperCase() == 'NEGOTIABLE',
+    );
+  }
+
+  // Calculate total price from selected freights (only non-negotiable)
+  double? get _calculatedTotalPrice {
+    double total = 0.0;
+    bool hasNonNegotiable = false;
+
+    for (final freight in _selectedFreights) {
+      if (freight.pricing?.type?.toUpperCase() != 'NEGOTIABLE') {
+        if (freight.pricing?.amount != null) {
+          total += freight.pricing!.amount!;
+          hasNonNegotiable = true;
+        }
+      }
+    }
+
+    return hasNonNegotiable ? total : null;
+  }
+
   @override
   void dispose() {
     _priceController.dispose();
+    _messageController.dispose();
     super.dispose();
   }
 
@@ -150,11 +176,16 @@ class _CreateShipmentRequestScreenState
             const SizedBox(height: SizeManager.s24),
             _SectionLabel(label: 'OFFER DETAILS', cs: cs),
             const SizedBox(height: SizeManager.s12),
-            _OfferDetailsRow(controller: _priceController, cs: cs),
+            _OfferDetailsSection(
+              priceController: _priceController,
+              cs: cs,
+              hasNegotiablePricing: _hasNegotiablePricing,
+              calculatedTotalPrice: _calculatedTotalPrice,
+            ),
             const SizedBox(height: SizeManager.s24),
             _SectionLabel(label: 'MESSAGE TO CARRIER', cs: cs),
             const SizedBox(height: SizeManager.s8),
-            _MessageField(cs: cs),
+            _MessageField(controller: _messageController, cs: cs),
             const SizedBox(height: SizeManager.s24),
             _TermsText(cs: cs),
             const SizedBox(height: 100),
@@ -170,12 +201,25 @@ class _CreateShipmentRequestScreenState
                 enabled: _selectedFreightIds.isNotEmpty && !isLoading,
                 isLoading: isLoading,
                 onTap: () {
-                  final price = int.tryParse(_priceController.text.trim());
+                  // Determine the price to send
+                  double? priceToSend;
+
+                  if (_hasNegotiablePricing) {
+                    // If any freight is negotiable, use the user-entered price
+                    priceToSend = double.tryParse(_priceController.text.trim());
+                  } else {
+                    // Otherwise, use the calculated total from freight prices
+                    priceToSend = _calculatedTotalPrice?.toDouble();
+                  }
+
                   context.read<ShipmentRequestBloc>().add(
                     SubmitShipmentRequest(
                       carrierId: truck.id,
                       freightIds: List.from(_selectedFreightIds),
-                      proposedPrice: price,
+                      proposedPrice: priceToSend,
+                      message: _messageController.text.trim().isEmpty
+                          ? null
+                          : _messageController.text.trim(),
                     ),
                   );
                 },
@@ -376,60 +420,143 @@ class _FreightSelector extends StatelessWidget {
   }
 }
 
-// ── Offer details row ─────────────────────────────────────────────────────
+// ── Offer details section ─────────────────────────────────────────────────
 
-class _OfferDetailsRow extends StatelessWidget {
-  final TextEditingController controller;
+class _OfferDetailsSection extends StatelessWidget {
+  final TextEditingController priceController;
   final AppColorScheme cs;
+  final bool hasNegotiablePricing;
+  final double? calculatedTotalPrice;
 
-  const _OfferDetailsRow({required this.controller, required this.cs});
+  const _OfferDetailsSection({
+    required this.priceController,
+    required this.cs,
+    required this.hasNegotiablePricing,
+    required this.calculatedTotalPrice,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Offered Price (\$)',
-                style: TextStyle(fontSize: 12, color: cs.textSecondary),
-              ),
-              const SizedBox(height: SizeManager.s4),
-              _InputBox(
-                controller: controller,
-                hint: '2,500',
-                keyboardType: TextInputType.number,
-                cs: cs,
-              ),
-            ],
+    if (hasNegotiablePricing) {
+      // Show price input for negotiable pricing
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Offered Price (ETB) *',
+            style: TextStyle(fontSize: 12, color: cs.textSecondary),
           ),
-        ),
-        const SizedBox(width: SizeManager.s12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Pickup Date',
-                style: TextStyle(fontSize: 12, color: cs.textSecondary),
-              ),
-              const SizedBox(height: SizeManager.s4),
-              _InputBox(
-                controller: null,
-                hint: 'mm/dd/yyyy',
-                keyboardType: TextInputType.datetime,
-                cs: cs,
-                suffixIcon: Icons.calendar_today_outlined,
-              ),
-            ],
+          const SizedBox(height: SizeManager.s4),
+          _InputBox(
+            controller: priceController,
+            hint: 'Enter your offer',
+            keyboardType: TextInputType.number,
+            cs: cs,
           ),
+          const SizedBox(height: SizeManager.s8),
+          Container(
+            padding: const EdgeInsets.all(SizeManager.s12),
+            decoration: BoxDecoration(
+              color: AppColors.warning.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(SizeManager.r10),
+              border: Border.all(
+                color: AppColors.warning.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, size: 16, color: AppColors.warning),
+                const SizedBox(width: SizeManager.s8),
+                Expanded(
+                  child: Text(
+                    'One or more selected freights have negotiable pricing. Please enter your offer.',
+                    style: TextStyle(fontSize: 12, color: cs.textPrimary),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else if (calculatedTotalPrice != null) {
+      // Show calculated total price (read-only)
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Total Price',
+            style: TextStyle(fontSize: 12, color: cs.textSecondary),
+          ),
+          const SizedBox(height: SizeManager.s8),
+          Container(
+            padding: const EdgeInsets.all(SizeManager.s16),
+            decoration: BoxDecoration(
+              color: cs.surface,
+              borderRadius: BorderRadius.circular(SizeManager.r10),
+              border: Border.all(color: cs.border),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'ETB ${calculatedTotalPrice!.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: cs.textPrimary,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: SizeManager.s8,
+                    vertical: SizeManager.s4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(SizeManager.r6),
+                  ),
+                  child: Text(
+                    'FIXED',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: SizeManager.s8),
+          Text(
+            'Price is automatically calculated from selected freight(s)',
+            style: TextStyle(
+              fontSize: 11,
+              color: cs.textSecondary,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      );
+    } else {
+      // No price available
+      return Container(
+        padding: const EdgeInsets.all(SizeManager.s12),
+        decoration: BoxDecoration(
+          color: cs.surface,
+          borderRadius: BorderRadius.circular(SizeManager.r10),
+          border: Border.all(color: cs.border),
         ),
-      ],
-    );
+        child: Text(
+          'Select freight to see pricing details',
+          style: TextStyle(fontSize: 13, color: cs.textSecondary),
+        ),
+      );
+    }
   }
 }
+
+// ── Input box (used by _OfferDetailsSection) ─────────────────────────────
 
 class _InputBox extends StatelessWidget {
   final TextEditingController? controller;
@@ -478,8 +605,10 @@ class _InputBox extends StatelessWidget {
 // ── Message field ─────────────────────────────────────────────────────────
 
 class _MessageField extends StatelessWidget {
+  final TextEditingController controller;
   final AppColorScheme cs;
-  const _MessageField({required this.cs});
+
+  const _MessageField({required this.controller, required this.cs});
 
   @override
   Widget build(BuildContext context) {
@@ -490,6 +619,7 @@ class _MessageField extends StatelessWidget {
         border: Border.all(color: cs.border),
       ),
       child: TextField(
+        controller: controller,
         maxLines: 4,
         style: TextStyle(fontSize: 14, color: cs.textPrimary),
         decoration: InputDecoration(

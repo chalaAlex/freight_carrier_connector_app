@@ -78,7 +78,7 @@ class ShipmentRequestModel {
 class FreightSnapshot {
   final String freightId;
   final String cargoType;
-  final double weight;
+  final double? weight; // Made nullable to handle null from API
   final int quantity;
   final SnapshotLocation pickupLocation;
   final SnapshotLocation deliveryLocation;
@@ -89,7 +89,7 @@ class FreightSnapshot {
   FreightSnapshot({
     required this.freightId,
     required this.cargoType,
-    required this.weight,
+    this.weight, // Removed 'required' since it's nullable
     required this.quantity,
     required this.pickupLocation,
     required this.deliveryLocation,

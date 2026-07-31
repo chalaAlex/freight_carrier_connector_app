@@ -13,7 +13,8 @@ CreateShipmentRequest _$CreateShipmentRequestFromJson(
   freightIds: (json['freightIds'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
-  proposedPrice: (json['proposedPrice'] as num?)?.toInt(),
+  proposedPrice: (json['proposedPrice'] as num?)?.toDouble(),
+  message: json['message'] as String?,
 );
 
 Map<String, dynamic> _$CreateShipmentRequestToJson(
@@ -22,4 +23,5 @@ Map<String, dynamic> _$CreateShipmentRequestToJson(
   'carrierId': instance.carrierId,
   'freightIds': instance.freightIds,
   'proposedPrice': instance.proposedPrice,
+  'message': instance.message,
 };

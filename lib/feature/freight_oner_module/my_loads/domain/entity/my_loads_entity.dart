@@ -50,20 +50,20 @@ class MyLoadsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        freightOwnerId,
-        cargo,
-        route,
-        schedule,
-        truckRequirement,
-        pricing,
-        status,
-        images,
-        bidCount,
-        isAvailable,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    freightOwnerId,
+    cargo,
+    route,
+    schedule,
+    truckRequirement,
+    pricing,
+    status,
+    images,
+    bidCount,
+    isAvailable,
+    createdAt,
+    updatedAt,
+  ];
 }
 
 class CargoEntity extends Equatable {
@@ -72,7 +72,12 @@ class CargoEntity extends Equatable {
   final double? weightKg;
   final int? quantity;
 
-  const CargoEntity({this.type, this.description, this.weightKg, this.quantity});
+  const CargoEntity({
+    this.type,
+    this.description,
+    this.weightKg,
+    this.quantity,
+  });
 
   @override
   List<Object?> get props => [type, description, weightKg, quantity];
@@ -110,7 +115,7 @@ class ScheduleEntity extends Equatable {
 }
 
 class TruckRequirementEntity extends Equatable {
-  final String? type;
+  final List<String>? type;
   final double? minCapacityKg;
 
   const TruckRequirementEntity({this.type, this.minCapacityKg});

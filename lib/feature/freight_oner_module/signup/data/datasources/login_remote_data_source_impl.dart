@@ -12,4 +12,9 @@ class LoginRemoteDataSourceImpl implements LoginRemoteDataSource {
   Future<LoginBaseResponse> login(LoginRequest loginRequest) async {
     return await client.login(loginRequest.email, loginRequest.password);
   }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    await client.forgotPassword(email);
+  }
 }

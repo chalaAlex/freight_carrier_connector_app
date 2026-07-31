@@ -61,21 +61,21 @@ class TruckDetailPriceSection extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    truck.pricePerKm?.toStringAsFixed(2) ?? "0.00",
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  Text(
-                    '/km',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: colorScheme.textSecondary,
-                    ),
-                  ),
+                  // Text(
+                  //   truck.pricePerKm?.toStringAsFixed(2) ?? "0.00",
+                  //   style: const TextStyle(
+                  //     fontSize: 24,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: AppColors.primary,
+                  //   ),
+                  // ),
+                  // Text(
+                  //   '/km',
+                  //   style: TextStyle(
+                  //     fontSize: 14,
+                  //     color: colorScheme.textSecondary,
+                  //   ),
+                  // ),
                 ],
               ),
             ],

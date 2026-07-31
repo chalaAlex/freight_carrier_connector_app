@@ -100,6 +100,7 @@ TruckOwnerDto _$TruckOwnerDtoFromJson(Map<String, dynamic> json) =>
       phone: json['phone'] as String?,
       ratingQuantity: json['ratingQuantity'] as num?,
       ratingAverage: json['ratingAverage'] as num?,
+      createdAt: json['createdAt'] as String?,
     );
 
 Map<String, dynamic> _$TruckOwnerDtoToJson(TruckOwnerDto instance) =>
@@ -110,4 +111,5 @@ Map<String, dynamic> _$TruckOwnerDtoToJson(TruckOwnerDto instance) =>
       'phone': instance.phone,
       'ratingQuantity': instance.ratingQuantity,
       'ratingAverage': instance.ratingAverage,
+      'createdAt': instance.createdAt,
     };

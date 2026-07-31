@@ -35,58 +35,47 @@ class FreightEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        freightOwnerId,
-        cargo,
-        route,
-        schedule,
-        truckRequirement,
-        pricing,
-        status,
-        image,
-        bidCount,
-        isAvailable,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    freightOwnerId,
+    cargo,
+    route,
+    schedule,
+    truckRequirement,
+    pricing,
+    status,
+    image,
+    bidCount,
+    isAvailable,
+    createdAt,
+    updatedAt,
+  ];
 }
 
 class CargoEntity extends Equatable {
-  final String type;
-  final String description;
-  final int weightKg;
-  final int quantity;
+  final String? type;
+  final String? description;
+  final double? weightKg;
+  final int? quantity;
 
   const CargoEntity({
-    required this.type,
-    required this.description,
-    required this.weightKg,
-    required this.quantity,
+    this.type,
+    this.description,
+    this.weightKg,
+    this.quantity,
   });
 
   @override
-  List<Object?> get props => [
-        type,
-        description,
-        weightKg,
-        quantity,
-      ];
+  List<Object?> get props => [type, description, weightKg, quantity];
 }
 
 class RouteEntity extends Equatable {
   final LocationEntity pickup;
   final LocationEntity dropoff;
 
-  const RouteEntity({
-    required this.pickup,
-    required this.dropoff,
-  });
+  const RouteEntity({required this.pickup, required this.dropoff});
 
   @override
-  List<Object?> get props => [
-        pickup,
-        dropoff,
-      ];
+  List<Object?> get props => [pickup, dropoff];
 }
 
 class LocationEntity extends Equatable {
@@ -101,11 +90,7 @@ class LocationEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        region,
-        city,
-        address,
-      ];
+  List<Object?> get props => [region, city, address];
 }
 
 class ScheduleEntity extends Equatable {
@@ -118,40 +103,25 @@ class ScheduleEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        pickupDate,
-        deliveryDeadline,
-      ];
+  List<Object?> get props => [pickupDate, deliveryDeadline];
 }
 
 class TruckRequirementEntity extends Equatable {
-  final String type;
-  final int minCapacityKg;
+  final List<String>? type;
+  final int? minCapacityKg;
 
-  const TruckRequirementEntity({
-    required this.type,
-    required this.minCapacityKg,
-  });
+  const TruckRequirementEntity({this.type, this.minCapacityKg});
 
   @override
-  List<Object?> get props => [
-        type,
-        minCapacityKg,
-      ];
+  List<Object?> get props => [type, minCapacityKg];
 }
 
 class PricingEntity extends Equatable {
   final String type;
-  final int amount;
+  final int? amount;
 
-  const PricingEntity({
-    required this.type,
-    required this.amount,
-  });
+  const PricingEntity({required this.type, this.amount});
 
   @override
-  List<Object?> get props => [
-        type,
-        amount,
-      ];
+  List<Object?> get props => [type, amount];
 }

@@ -6,7 +6,14 @@ abstract class PaymentRepository {
   Future<Either<Failure, InitiatePaymentEntity>> initiatePayment({
     required String bookingType,
     required String sourceId,
+    required String gateway,
   });
+
+  Future<Either<Failure, PaymentEntity>> confirmPayment({
+    required String outTradeNo,
+  });
+
+  Future<Either<Failure, PaymentEntity>> getPaymentByFreight(String freightId);
 
   Future<Either<Failure, PaymentEntity>> getPaymentStatus(String paymentId);
 
@@ -16,7 +23,10 @@ abstract class PaymentRepository {
 
   Future<Either<Failure, WalletEntity>> getWallet();
 
-  Future<Either<Failure, WalletTransactionsResponseEntity>> getWalletTransactions({int page, int limit});
+  Future<Either<Failure, WalletTransactionsResponseEntity>>
+  getWalletTransactions({int page, int limit});
 
-  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal(double amount);
+  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal(
+    double amount,
+  );
 }

@@ -1,10 +1,10 @@
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/payment/domain/entity/payment_entity.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_bloc.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_event.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_state.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -88,7 +88,7 @@ class _PaymentStatusScreenState extends State<PaymentStatusScreen> {
         },
         builder: (context, state) {
           if (state is PaymentLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const DetailPageShimmer();
           }
           if (state is PaymentStatusLoaded) {
             return _PaymentStatusBody(payment: state.payment, cs: cs);
@@ -204,56 +204,6 @@ class _PaymentStatusBody extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          // Dev-only: simulate Telebirr payment confirmation
-          if (status == 'PENDING')
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'DEV MODE',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Telebirr is mocked. Tap below to simulate a successful payment callback.',
-                    style: TextStyle(fontSize: 12, color: Colors.orange),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _simulatePayment(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Simulate Telebirr Payment',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           // Actions for HELD status
           if (status == 'HELD') ...[
             SizedBox(
@@ -363,36 +313,6 @@ class _PaymentStatusBody extends StatelessWidget {
     );
   }
 
-  /// DEV ONLY — simulates a Telebirr webhook callback so we can test the
-  /// PENDING → HELD transition without a real Telebirr integration.
-  Future<void> _simulatePayment(BuildContext context) async {
-    final outTradeNo = payment.outTradeNo;
-    if (outTradeNo == null) return;
-
-    try {
-      final dio = Dio(BaseOptions(baseUrl: 'http://10.0.2.2:8000/api/v1'));
-      await dio.post('/payments/mock-confirm/$outTradeNo');
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Simulated payment sent — refreshing status...'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        context.read<PaymentBloc>().add(GetPaymentStatusEvent(payment.id!));
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Simulation failed: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    }
-  }
-
   _StatusInfo _statusInfo(String status) {
     switch (status) {
       case 'HELD':
@@ -428,7 +348,7 @@ class _PaymentStatusBody extends StatelessWidget {
           Icons.hourglass_empty,
           AppColors.grey,
           'Pending',
-          'Waiting for Telebirr confirmation.',
+          'Waiting for payment confirmation.',
         );
     }
   }

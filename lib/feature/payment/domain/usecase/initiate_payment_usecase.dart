@@ -7,15 +7,27 @@ import 'package:dartz/dartz.dart';
 class InitiatePaymentParams {
   final String bookingType;
   final String sourceId;
-  const InitiatePaymentParams({required this.bookingType, required this.sourceId});
+  final String gateway;
+  const InitiatePaymentParams({
+    required this.bookingType,
+    required this.sourceId,
+    required this.gateway,
+  });
 }
 
-class InitiatePaymentUseCase implements UseCase<InitiatePaymentEntity, InitiatePaymentParams> {
+class InitiatePaymentUseCase
+    implements UseCase<InitiatePaymentEntity, InitiatePaymentParams> {
   final PaymentRepository repository;
   InitiatePaymentUseCase(this.repository);
 
   @override
-  Future<Either<Failure, InitiatePaymentEntity>> call(InitiatePaymentParams params) {
-    return repository.initiatePayment(bookingType: params.bookingType, sourceId: params.sourceId);
+  Future<Either<Failure, InitiatePaymentEntity>> call(
+    InitiatePaymentParams params,
+  ) {
+    return repository.initiatePayment(
+      bookingType: params.bookingType,
+      sourceId: params.sourceId,
+      gateway: params.gateway,
+    );
   }
 }

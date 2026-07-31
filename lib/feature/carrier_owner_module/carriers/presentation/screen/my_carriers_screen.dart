@@ -4,6 +4,7 @@ import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/di.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/domain/entity/my_carrier_entity.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/presentation/bloc/my_carriers_bloc.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/carriers/presentation/bloc/my_carriers_state.dart';
@@ -96,7 +97,7 @@ class _MyCarriersViewState extends State<_MyCarriersView>
       body: BlocBuilder<MyCarriersBloc, MyCarriersState>(
         builder: (context, state) {
           if (state is MyCarriersLoading || state is MyCarriersInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return const CarrierCardListShimmer();
           }
           if (state is MyCarriersError) {
             return Center(

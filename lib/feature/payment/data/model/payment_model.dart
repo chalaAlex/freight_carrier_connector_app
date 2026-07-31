@@ -11,16 +11,28 @@ class PaymentModel {
   final double? totalAmount;
   final double? platformFee;
   final double? carrierAmount;
+  final String? gateway;
   final String? status;
   final DateTime? paidAt;
   final DateTime? releasedAt;
   final DateTime? releaseAt;
 
   PaymentModel({
-    this.id, this.outTradeNo, this.bookingType, this.sourceId,
-    this.freightId, this.freightOwnerId, this.carrierOwnerId,
-    this.totalAmount, this.platformFee, this.carrierAmount,
-    this.status, this.paidAt, this.releasedAt, this.releaseAt,
+    this.id,
+    this.outTradeNo,
+    this.bookingType,
+    this.sourceId,
+    this.freightId,
+    this.freightOwnerId,
+    this.carrierOwnerId,
+    this.totalAmount,
+    this.platformFee,
+    this.carrierAmount,
+    this.gateway,
+    this.status,
+    this.paidAt,
+    this.releasedAt,
+    this.releaseAt,
   });
 
   factory PaymentModel.fromJson(Map<String, dynamic> json) {
@@ -35,27 +47,42 @@ class PaymentModel {
       totalAmount: (json['totalAmount'] as num?)?.toDouble(),
       platformFee: (json['platformFee'] as num?)?.toDouble(),
       carrierAmount: (json['carrierAmount'] as num?)?.toDouble(),
+      gateway: json['gateway'] as String?,
       status: json['status'] as String?,
       paidAt: json['paidAt'] != null ? DateTime.tryParse(json['paidAt']) : null,
-      releasedAt: json['releasedAt'] != null ? DateTime.tryParse(json['releasedAt']) : null,
-      releaseAt: json['releaseAt'] != null ? DateTime.tryParse(json['releaseAt']) : null,
+      releasedAt: json['releasedAt'] != null
+          ? DateTime.tryParse(json['releasedAt'])
+          : null,
+      releaseAt: json['releaseAt'] != null
+          ? DateTime.tryParse(json['releaseAt'])
+          : null,
     );
   }
 
   PaymentEntity toEntity() => PaymentEntity(
-    id: id, outTradeNo: outTradeNo, bookingType: bookingType,
-    sourceId: sourceId, freightId: freightId, freightOwnerId: freightOwnerId,
-    carrierOwnerId: carrierOwnerId, totalAmount: totalAmount,
-    platformFee: platformFee, carrierAmount: carrierAmount,
-    status: status, paidAt: paidAt, releasedAt: releasedAt, releaseAt: releaseAt,
+    id: id,
+    outTradeNo: outTradeNo,
+    bookingType: bookingType,
+    sourceId: sourceId,
+    freightId: freightId,
+    freightOwnerId: freightOwnerId,
+    carrierOwnerId: carrierOwnerId,
+    totalAmount: totalAmount,
+    platformFee: platformFee,
+    carrierAmount: carrierAmount,
+    gateway: gateway,
+    status: status,
+    paidAt: paidAt,
+    releasedAt: releasedAt,
+    releaseAt: releaseAt,
   );
 }
 
+// Response wrapper for initiate — now just returns the payment (no toPayUrl)
 class InitiatePaymentResponseModel {
   final PaymentModel? payment;
-  final String? toPayUrl;
 
-  InitiatePaymentResponseModel({this.payment, this.toPayUrl});
+  InitiatePaymentResponseModel({this.payment});
 
   factory InitiatePaymentResponseModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>?;
@@ -63,14 +90,11 @@ class InitiatePaymentResponseModel {
       payment: data?['payment'] != null
           ? PaymentModel.fromJson(data!['payment'] as Map<String, dynamic>)
           : null,
-      toPayUrl: data?['toPayUrl'] as String?,
     );
   }
 
-  InitiatePaymentEntity toEntity() => InitiatePaymentEntity(
-    payment: payment?.toEntity(),
-    toPayUrl: toPayUrl,
-  );
+  InitiatePaymentEntity toEntity() =>
+      InitiatePaymentEntity(payment: payment?.toEntity());
 }
 
 class PaymentResponseModel {
@@ -110,7 +134,10 @@ class WalletModel {
   }
 
   WalletEntity toEntity() => WalletEntity(
-    id: id, balance: balance, pendingBalance: pendingBalance, currency: currency,
+    id: id,
+    balance: balance,
+    pendingBalance: pendingBalance,
+    currency: currency,
   );
 }
 
@@ -123,7 +150,15 @@ class WalletTransactionModel {
   final String? description;
   final DateTime? createdAt;
 
-  WalletTransactionModel({this.id, this.walletId, this.paymentId, this.type, this.amount, this.description, this.createdAt});
+  WalletTransactionModel({
+    this.id,
+    this.walletId,
+    this.paymentId,
+    this.type,
+    this.amount,
+    this.description,
+    this.createdAt,
+  });
 
   factory WalletTransactionModel.fromJson(Map<String, dynamic> json) {
     return WalletTransactionModel(
@@ -133,13 +168,20 @@ class WalletTransactionModel {
       type: json['type'] as String?,
       amount: (json['amount'] as num?)?.toDouble(),
       description: json['description'] as String?,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
     );
   }
 
   WalletTransactionEntity toEntity() => WalletTransactionEntity(
-    id: id, walletId: walletId, paymentId: paymentId,
-    type: type, amount: amount, description: description, createdAt: createdAt,
+    id: id,
+    walletId: walletId,
+    paymentId: paymentId,
+    type: type,
+    amount: amount,
+    description: description,
+    createdAt: createdAt,
   );
 }
 
@@ -149,21 +191,33 @@ class WalletTransactionsResponseModel {
   final int? page;
   final int? limit;
 
-  WalletTransactionsResponseModel({this.transactions, this.total, this.page, this.limit});
+  WalletTransactionsResponseModel({
+    this.transactions,
+    this.total,
+    this.page,
+    this.limit,
+  });
 
   factory WalletTransactionsResponseModel.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>?;
     final rawList = data?['transactions'] as List<dynamic>?;
     return WalletTransactionsResponseModel(
-      transactions: rawList?.map((e) => WalletTransactionModel.fromJson(e as Map<String, dynamic>)).toList(),
+      transactions: rawList
+          ?.map(
+            (e) => WalletTransactionModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
       total: data?['total'] as int?,
       page: data?['page'] as int?,
       limit: data?['limit'] as int?,
     );
   }
 
-  WalletTransactionsResponseEntity toEntity() => WalletTransactionsResponseEntity(
-    transactions: transactions?.map((t) => t.toEntity()).toList(),
-    total: total, page: page, limit: limit,
-  );
+  WalletTransactionsResponseEntity toEntity() =>
+      WalletTransactionsResponseEntity(
+        transactions: transactions?.map((t) => t.toEntity()).toList(),
+        total: total,
+        page: page,
+        limit: limit,
+      );
 }

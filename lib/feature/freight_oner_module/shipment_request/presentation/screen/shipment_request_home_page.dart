@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 const _tabStatuses = [
   'PENDING',
   'ACCEPTED',
+  'IN_TRANSIT',
   'REJECTED',
   'CANCELLED',
   'COMPLETED',
@@ -73,12 +74,12 @@ class _ShipmentRequestHomePageState extends State<ShipmentRequestHomePage>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.pushNamed(context, Routes.createShipmentRequest),
-        backgroundColor: AppColors.primary,
-        child: const Icon(Icons.add, color: AppColors.white, size: 28),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () =>
+      //       Navigator.pushNamed(context, Routes.createShipmentRequest),
+      //   backgroundColor: AppColors.primary,
+      //   child: const Icon(Icons.add, color: AppColors.white, size: 28),
+      // ),
     );
   }
 }
@@ -100,22 +101,22 @@ class _Header extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                SizeManager.s16,
-                SizeManager.s12,
-                SizeManager.s16,
-                0,
-              ),
-              child: Text(
-                'My Requests',
-                style: TextStyle(
-                  color: cs.textPrimary,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(
+            //     SizeManager.s16,
+            //     SizeManager.s12,
+            //     SizeManager.s16,
+            //     0,
+            //   ),
+            //   child: Text(
+            //     'My Requests',
+            //     style: TextStyle(
+            //       color: cs.textPrimary,
+            //       fontSize: 22,
+            //       fontWeight: FontWeight.bold,
+            //     ),
+            //   ),
+            // ),
             TabBar(
               controller: tabController,
               isScrollable: true,
@@ -332,6 +333,8 @@ class _RequestCard extends StatelessWidget {
         return const Color(0xFFF59E0B);
       case 'ACCEPTED':
         return const Color(0xFF10B981);
+      case 'IN_TRANSIT':
+        return const Color(0xFF8B5CF6);
       case 'REJECTED':
         return const Color(0xFFEF4444);
       case 'CANCELLED':

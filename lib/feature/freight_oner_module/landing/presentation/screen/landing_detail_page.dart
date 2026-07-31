@@ -276,7 +276,7 @@ class _LandingDetailPageState extends State<LandingDetailPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '\$$basePrice - \$$maxPrice',
+                              '$basePrice - $maxPrice',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

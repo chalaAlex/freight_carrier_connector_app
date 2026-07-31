@@ -21,10 +21,25 @@ class ShipmentRequestDetail extends StatelessWidget {
   }
 
   void _showMenu(BuildContext context) {
-    final isPending = request.status == 'PENDING';
-    final label = isPending ? 'Cancel Request' : 'Mark as Completed';
-    final icon = isPending ? Icons.cancel_outlined : Icons.check_circle_outline;
-    final color = isPending ? AppColors.error : AppColors.success;
+    final status = request.status.toUpperCase();
+
+    String label;
+    IconData icon;
+    Color color;
+
+    if (status == 'PENDING') {
+      label = 'Cancel Request';
+      icon = Icons.cancel_outlined;
+      color = AppColors.error;
+    } else if (status == 'IN_TRANSIT') {
+      label = 'Mark as Complete';
+      icon = Icons.check_circle_outline;
+      color = AppColors.success;
+    } else {
+      label = 'Mark as Completed';
+      icon = Icons.check_circle_outline;
+      color = AppColors.success;
+    }
 
     showModalBottomSheet(
       context: context,
@@ -48,7 +63,7 @@ class ShipmentRequestDetail extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              _confirmAction(context, isPending);
+              _confirmAction(context, status);
             },
           ),
         ),
@@ -56,21 +71,39 @@ class ShipmentRequestDetail extends StatelessWidget {
     );
   }
 
-  void _confirmAction(BuildContext context, bool isPending) {
-    final label = isPending ? 'Cancel Request' : 'Mark as Completed';
-    final message = isPending
-        ? 'Are you sure you want to cancel this request?'
-        : 'Mark this shipment as completed?';
+  void _confirmAction(BuildContext context, String status) {
+    final isPending = status == 'PENDING';
+    final isInTransit = status == 'IN_TRANSIT';
+
+    String title;
+    String message;
+    Color actionColor;
+
+    if (isPending) {
+      title = 'Cancel Request';
+      message = 'Are you sure you want to cancel this request?';
+      actionColor = AppColors.error;
+    } else if (isInTransit) {
+      title = 'Mark as Complete';
+      message =
+          'Are you sure you want to mark this shipment as complete?\n\n'
+          '⚠️ This action cannot be undone and will automatically release the payment to the carrier.';
+      actionColor = AppColors.success;
+    } else {
+      title = 'Mark as Completed';
+      message = 'Mark this shipment as completed?';
+      actionColor = AppColors.primary;
+    }
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text(label),
+        title: Text(title),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('No'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -86,11 +119,8 @@ class ShipmentRequestDetail extends StatelessWidget {
               }
             },
             child: Text(
-              'Yes',
-              style: TextStyle(
-                color: isPending ? AppColors.error : AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
+              'Confirm',
+              style: TextStyle(color: actionColor, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -136,7 +166,9 @@ class ShipmentRequestDetail extends StatelessWidget {
             ),
           ),
           actions: [
-            if (request.status == 'PENDING' || request.status == 'ACCEPTED')
+            if (request.status == 'PENDING' ||
+                request.status == 'ACCEPTED' ||
+                request.status == 'IN_TRANSIT')
               IconButton(
                 icon: Icon(Icons.more_vert, color: cs.textPrimary),
                 onPressed: () => _showMenu(context),
@@ -156,7 +188,8 @@ class ShipmentRequestDetail extends StatelessWidget {
             const SizedBox(height: 100),
           ],
         ),
-        bottomNavigationBar: request.status == 'COMPLETED'
+        bottomNavigationBar:
+            (request.status == 'COMPLETED' || request.status == 'ACCEPTED')
             ? _BottomBar(request: request, cs: cs)
             : null,
       ),
@@ -469,6 +502,10 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final snap = request.freightSnapshots.isNotEmpty
+        ? request.freightSnapshots.first
+        : null;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(
         SizeManager.s16,
@@ -482,28 +519,58 @@ class _BottomBar extends StatelessWidget {
       ),
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: request.isReviewed
-              ? null
-              : () => Navigator.pushNamed(
+        child: request.status == 'ACCEPTED'
+            ? ElevatedButton.icon(
+                onPressed: () => Navigator.pushNamed(
                   context,
-                  Routes.submitReview,
-                  arguments: request,
+                  Routes.paymentInitiate,
+                  arguments: {
+                    'bookingType': 'REQUEST',
+                    'sourceId': request.id,
+                    'totalAmount': request.proposedPrice ?? 0.0,
+                    'freightRoute':
+                        '${snap?.pickupCity ?? "—"} → ${snap?.deliveryCity ?? "—"}',
+                  },
                 ),
-          icon: const Icon(Icons.star_outline, size: 18),
-          label: Text(
-            request.isReviewed ? 'Already Reviewed' : 'Leave a Review',
-          ),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            backgroundColor: AppColors.primary,
-            disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
-            foregroundColor: AppColors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(SizeManager.r12),
-            ),
-          ),
-        ),
+                icon: const Icon(
+                  Icons.payment,
+                  size: 18,
+                  color: AppColors.white,
+                ),
+                label: const Text('Pay Now'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppColors.success,
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SizeManager.r12),
+                  ),
+                ),
+              )
+            : ElevatedButton.icon(
+                onPressed: request.isReviewed
+                    ? null
+                    : () => Navigator.pushNamed(
+                        context,
+                        Routes.submitReview,
+                        arguments: request,
+                      ),
+                icon: const Icon(Icons.star_outline, size: 18),
+                label: Text(
+                  request.isReviewed ? 'Already Reviewed' : 'Leave a Review',
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppColors.primary,
+                  disabledBackgroundColor: AppColors.primary.withValues(
+                    alpha: 0.4,
+                  ),
+                  foregroundColor: AppColors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(SizeManager.r12),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -622,12 +689,14 @@ class _StatusBadge extends StatelessWidget {
         return const Color(0xFFF59E0B);
       case 'ACCEPTED':
         return const Color(0xFF10B981);
+      case 'IN_TRANSIT':
+        return const Color(0xFF3B82F6);
       case 'REJECTED':
         return const Color(0xFFEF4444);
       case 'CANCELLED':
         return const Color(0xFF6B7280);
       case 'COMPLETED':
-        return const Color(0xFF3B82F6);
+        return const Color(0xFF10B981);
       default:
         return const Color(0xFFF59E0B);
     }

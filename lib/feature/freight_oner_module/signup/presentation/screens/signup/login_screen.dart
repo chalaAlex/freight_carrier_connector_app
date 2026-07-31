@@ -32,10 +32,10 @@ class LoginScreen extends StatelessWidget {
   void _handleLoginStateChange(BuildContext context, LoginState state) {
     if (state.status == LoginStatus.success) {
       final role = state.user?.data?.role;
-      final targetPage = role == 'carrier_owner'
-          ? const FreightBottomNavigationBar()
-          : role == 'freight_owner'
+      final targetPage = role == 'freight_owner'
           ? const CarrierBottomNavigationBar()
+          : role == 'carrier_owner'
+          ? const FreightBottomNavigationBar()
           : null;
 
       if (targetPage != null) {

@@ -10,12 +10,36 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   Future<InitiatePaymentResponseModel> initiatePayment({
     required String bookingType,
     required String sourceId,
+    required String gateway,
   }) async {
     final response = await dio.post(
       '/payments/initiate',
-      data: {'bookingType': bookingType, 'sourceId': sourceId},
+      data: {
+        'bookingType': bookingType,
+        'sourceId': sourceId,
+        'gateway': gateway,
+      },
     );
-    return InitiatePaymentResponseModel.fromJson(response.data as Map<String, dynamic>);
+    return InitiatePaymentResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
+  }
+
+  @override
+  Future<PaymentResponseModel> confirmPayment({
+    required String outTradeNo,
+  }) async {
+    final response = await dio.post(
+      '/payments/confirm',
+      data: {'outTradeNo': outTradeNo},
+    );
+    return PaymentResponseModel.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<PaymentResponseModel> getPaymentByFreight(String freightId) async {
+    final response = await dio.get('/payments/by-freight/$freightId');
+    return PaymentResponseModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   @override
@@ -51,12 +75,17 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       '/wallet/transactions',
       queryParameters: {'page': page, 'limit': limit},
     );
-    return WalletTransactionsResponseModel.fromJson(response.data as Map<String, dynamic>);
+    return WalletTransactionsResponseModel.fromJson(
+      response.data as Map<String, dynamic>,
+    );
   }
 
   @override
   Future<Map<String, dynamic>> requestWithdrawal(double amount) async {
-    final response = await dio.post('/wallet/withdraw', data: {'amount': amount});
+    final response = await dio.post(
+      '/wallet/withdraw',
+      data: {'amount': amount},
+    );
     return response.data as Map<String, dynamic>;
   }
 }

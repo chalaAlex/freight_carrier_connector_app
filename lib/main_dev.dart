@@ -6,6 +6,7 @@ import 'package:clean_architecture/core/theme/theme_cubit.dart';
 import 'package:clean_architecture/core/theme/theme_state.dart';
 import 'package:clean_architecture/core/di.dart';
 import 'package:clean_architecture/feature/chat/presentation/bloc/inbox/inbox_bloc.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/city_bloc.dart';
 import 'package:clean_architecture/feature/notifications/presentation/bloc/notification_bloc.dart';
 import 'package:clean_architecture/feature/notifications/presentation/bloc/notification_event.dart';
 import 'package:clean_architecture/feature/freight_oner_module/common/role_selection.dart';
@@ -32,6 +33,7 @@ import 'package:clean_architecture/feature/freight_oner_module/rating_and_review
 import 'package:clean_architecture/feature/freight_oner_module/rating_and_review/presentation/bloc/review_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/payment/payment_bloc.dart';
 import 'package:clean_architecture/feature/payment/presentation/bloc/wallet/wallet_bloc.dart';
 import 'package:flutter/material.dart';
@@ -53,15 +55,16 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<SignUpBloc>()),
         BlocProvider(create: (_) => sl<LoginBloc>()),
+        BlocProvider(create: (_) => sl<ForgotPasswordBloc>()),
         BlocProvider(create: (_) => sl<ThemeCubit>()),
         BlocProvider(create: (_) => sl<TruckBloc>()),
         BlocProvider(create: (_) => sl<RegionBloc>()),
+        BlocProvider(create: (_) => sl<CityBloc>()),
         BlocProvider(create: (_) => sl<FeatureBloc>()),
         BlocProvider(create: (_) => sl<BrandBloc>()),
         BlocProvider(create: (_) => sl<TruckDetailBloc>()),
         BlocProvider(create: (_) => sl<FreightBloc>()),
         BlocProvider(create: (_) => sl<PaymentBloc>()),
-
         BlocProvider(
           create: (_) => sl<LocationBloc>()..add(const FetchRegionsEvent()),
         ),

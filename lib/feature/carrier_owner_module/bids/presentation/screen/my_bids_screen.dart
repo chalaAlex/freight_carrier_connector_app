@@ -2,6 +2,7 @@ import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
 import 'package:clean_architecture/core/di.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/bids/domain/entity/my_bid_entity.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/bids/presentation/bloc/my_bids_cubit.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _MyBidsViewState extends State<_MyBidsView>
       body: BlocBuilder<MyBidsCubit, MyBidsState>(
         builder: (context, state) {
           if (state is MyBidsLoading || state is MyBidsInitial) {
-            return const Center(child: CircularProgressIndicator());
+            return const CardListShimmer(hasBanner: true);
           }
           if (state is MyBidsError) {
             return Center(

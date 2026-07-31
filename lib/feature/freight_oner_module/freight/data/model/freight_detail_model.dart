@@ -75,17 +75,12 @@ class Freight {
 
 @JsonSerializable()
 class Cargo {
-  final String type;
-  final String description;
-  final int weightKg;
-  final int quantity;
+  final String? type;
+  final String? description;
+  final double? weightKg;
+  final int? quantity;
 
-  Cargo({
-    required this.type,
-    required this.description,
-    required this.weightKg,
-    required this.quantity,
-  });
+  Cargo({this.type, this.description, this.weightKg, this.quantity});
 
   factory Cargo.fromJson(Map<String, dynamic> json) => _$CargoFromJson(json);
 
@@ -133,10 +128,10 @@ class Schedule {
 
 @JsonSerializable()
 class TruckRequirement {
-  final String type;
-  final int minCapacityKg;
+  final List<String>? type;
+  final int? minCapacityKg;
 
-  TruckRequirement({required this.type, required this.minCapacityKg});
+  TruckRequirement({this.type, this.minCapacityKg});
 
   factory TruckRequirement.fromJson(Map<String, dynamic> json) =>
       _$TruckRequirementFromJson(json);
@@ -147,9 +142,9 @@ class TruckRequirement {
 @JsonSerializable()
 class Pricing {
   final String type;
-  final int amount;
+  final int? amount;
 
-  Pricing({required this.type, required this.amount});
+  Pricing({required this.type, this.amount});
 
   factory Pricing.fromJson(Map<String, dynamic> json) =>
       _$PricingFromJson(json);

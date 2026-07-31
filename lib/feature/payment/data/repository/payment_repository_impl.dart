@@ -13,9 +13,14 @@ class PaymentRepositoryImpl implements PaymentRepository {
   Future<Either<Failure, InitiatePaymentEntity>> initiatePayment({
     required String bookingType,
     required String sourceId,
+    required String gateway,
   }) async {
     try {
-      final result = await remoteDataSource.initiatePayment(bookingType: bookingType, sourceId: sourceId);
+      final result = await remoteDataSource.initiatePayment(
+        bookingType: bookingType,
+        sourceId: sourceId,
+        gateway: gateway,
+      );
       return Right(result.toEntity());
     } catch (e) {
       return Left(ErrorHandler.handle(e).failure);
@@ -23,7 +28,35 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, PaymentEntity>> getPaymentStatus(String paymentId) async {
+  Future<Either<Failure, PaymentEntity>> confirmPayment({
+    required String outTradeNo,
+  }) async {
+    try {
+      final result = await remoteDataSource.confirmPayment(
+        outTradeNo: outTradeNo,
+      );
+      return Right(result.toEntity()!);
+    } catch (e) {
+      return Left(ErrorHandler.handle(e).failure);
+    }
+  }
+
+  @override
+  Future<Either<Failure, PaymentEntity>> getPaymentByFreight(
+    String freightId,
+  ) async {
+    try {
+      final result = await remoteDataSource.getPaymentByFreight(freightId);
+      return Right(result.toEntity()!);
+    } catch (e) {
+      return Left(ErrorHandler.handle(e).failure);
+    }
+  }
+
+  @override
+  Future<Either<Failure, PaymentEntity>> getPaymentStatus(
+    String paymentId,
+  ) async {
     try {
       final result = await remoteDataSource.getPaymentStatus(paymentId);
       return Right(result.toEntity()!);
@@ -33,7 +66,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, PaymentEntity>> releasePayment(String paymentId) async {
+  Future<Either<Failure, PaymentEntity>> releasePayment(
+    String paymentId,
+  ) async {
     try {
       final result = await remoteDataSource.releasePayment(paymentId);
       return Right(result.toEntity()!);
@@ -43,7 +78,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, PaymentEntity>> disputePayment(String paymentId) async {
+  Future<Either<Failure, PaymentEntity>> disputePayment(
+    String paymentId,
+  ) async {
     try {
       final result = await remoteDataSource.disputePayment(paymentId);
       return Right(result.toEntity()!);
@@ -63,12 +100,13 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, WalletTransactionsResponseEntity>> getWalletTransactions({
-    int page = 1,
-    int limit = 20,
-  }) async {
+  Future<Either<Failure, WalletTransactionsResponseEntity>>
+  getWalletTransactions({int page = 1, int limit = 20}) async {
     try {
-      final result = await remoteDataSource.getWalletTransactions(page: page, limit: limit);
+      final result = await remoteDataSource.getWalletTransactions(
+        page: page,
+        limit: limit,
+      );
       return Right(result.toEntity());
     } catch (e) {
       return Left(ErrorHandler.handle(e).failure);
@@ -76,7 +114,9 @@ class PaymentRepositoryImpl implements PaymentRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal(double amount) async {
+  Future<Either<Failure, Map<String, dynamic>>> requestWithdrawal(
+    double amount,
+  ) async {
     try {
       final result = await remoteDataSource.requestWithdrawal(amount);
       return Right(result);

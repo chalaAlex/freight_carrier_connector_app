@@ -1,12 +1,16 @@
 import 'dart:io';
+import 'package:clean_architecture/cofig/context_extensions.dart';
+import 'package:clean_architecture/core/di.dart';
+import 'package:clean_architecture/core/network/api_client.dart';
+import 'package:clean_architecture/core/utils/cargo_truck_mapping.dart';
+import 'package:clean_architecture/core/widgets/ai_suggestion_sheet.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/location/location_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
-import 'package:clean_architecture/core/colors/app_colors.dart';
-import 'package:clean_architecture/core/colors/color_scheme.dart';
 import 'package:clean_architecture/core/request/create_freight_request.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/cargoType/cargo_type_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/cargoType/cargo_type_state.dart';
@@ -19,13 +23,10 @@ import 'package:clean_architecture/feature/freight_oner_module/freight/presentat
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/upload/upload_event.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/upload/upload_state.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/domain/entity/location_entity.dart';
-import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/freight_form_field.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/stateful_freight_dropdown.dart';
-import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/freight_section.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/truck_type_selector.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/pricing_type_selector.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/image_upload_section.dart';
-import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/widgets/step_indicator.dart';
 import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/bloc/cargoType/cargo_type_event.dart';
 
 class PostFreightPage extends StatefulWidget {
@@ -51,7 +52,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
 
   // State
   String? _selectedCargoType;
-  String _selectedTruckType = 'BOX';
+  final List<String> _selectedTruckTypes = [];
   String _selectedPricingType = 'Fixed';
 
   // Image state
@@ -66,7 +67,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
   bool _isLoadingCargoTypes = false;
   String? _cargoTypesError;
 
-  // Location state with proper state management
+  // Location state
   List<RegionEntity> _regions = [];
   bool _isLoadingLocations = false;
   String? _locationsError;
@@ -80,53 +81,42 @@ class _PostFreightPageState extends State<PostFreightPage> {
   @override
   void initState() {
     super.initState();
-    // Check current BLoC states on initialization
     _checkInitialCargoTypeState();
     _checkInitialLocationState();
   }
 
   void _checkInitialCargoTypeState() {
-    final cargoTypeState = context.read<CargoTypeBloc>().state;
-    if (cargoTypeState is CargoTypeLoaded) {
+    final s = context.read<CargoTypeBloc>().state;
+    if (s is CargoTypeLoaded) {
       setState(() {
         _isLoadingCargoTypes = false;
-        _cargoTypesError = null;
-        _cargoTypes = cargoTypeState.cargoTypes
+        _cargoTypes = s.cargoTypes
             .map((e) => e.cargoType ?? '')
             .where((t) => t.isNotEmpty)
             .toList();
       });
-    } else if (cargoTypeState is CargoTypeError) {
+    } else if (s is CargoTypeError) {
       setState(() {
         _isLoadingCargoTypes = false;
-        _cargoTypesError = cargoTypeState.message;
+        _cargoTypesError = s.message;
       });
-    } else if (cargoTypeState is CargoTypeLoading) {
-      setState(() {
-        _isLoadingCargoTypes = true;
-        _cargoTypesError = null;
-      });
+    } else if (s is CargoTypeLoading) {
+      setState(() => _isLoadingCargoTypes = true);
     }
   }
 
   void _checkInitialLocationState() {
-    final locationState = context.read<LocationBloc>().state;
-    if (locationState is LocationLoaded) {
+    final s = context.read<LocationBloc>().state;
+    if (s is LocationLoaded) {
       setState(() {
         _isLoadingLocations = false;
-        _locationsError = null;
-        _regions = locationState.regions;
+        _regions = s.regions;
       });
-    } else if (locationState is LocationError) {
-      setState(() {
-        _isLoadingLocations = false;
-        _locationsError = locationState.message;
-      });
-    } else if (locationState is LocationLoading) {
-      setState(() {
-        _isLoadingLocations = true;
-        _locationsError = null;
-      });
+    } else if (s is LocationError) {
+      _retryLoadLocations();
+    } else {
+      setState(() => _isLoadingLocations = true);
+      context.read<LocationBloc>().add(const FetchRegionsEvent());
     }
   }
 
@@ -144,97 +134,67 @@ class _PostFreightPageState extends State<PostFreightPage> {
     super.dispose();
   }
 
-  // Step tracking
-  int get _currentStep {
-    if (_descriptionController.text.isEmpty ||
-        _weightController.text.isEmpty ||
-        _quantityController.text.isEmpty) {
-      return 1;
-    }
-
-    if (_selectedPickupRegion == null ||
-        _selectedPickupCity == null ||
-        _pickupAddressController.text.isEmpty ||
-        _selectedDropoffRegion == null ||
-        _selectedDropoffCity == null ||
-        _dropoffAddressController.text.isEmpty ||
-        _pickupDateController.text.isEmpty ||
-        _deliveryDeadlineController.text.isEmpty) {
-      return 2;
-    }
-
-    return 3;
-  }
-
-  String get _stepDescription {
-    switch (_currentStep) {
-      case 1:
-        return 'Cargo Details';
-      case 2:
-        return 'Route & Schedule';
-      case 3:
-        return 'Requirements & Pricing';
-      default:
-        return 'Details';
-    }
-  }
-
   void _publishFreight() {
-    if (_formKey.currentState!.validate()) {
-      if (!_validateAllFields()) return;
-      if (!_validateImages()) return;
+    if (!_formKey.currentState!.validate()) return;
+    if (!_validateRequiredFields()) return;
+    if (!_validateImages()) return;
 
-      final pickupDate = _parseDate(_pickupDateController.text);
-      final deliveryDeadline = _parseDate(_deliveryDeadlineController.text);
-
-      if (pickupDate == null || deliveryDeadline == null) {
-        _showToast("Invalid date format", Colors.red);
-        return;
-      }
-
-      final request = CreateFreightRequest(
-        cargo: Cargo(
-          type: _selectedCargoType!,
-          description: _descriptionController.text,
-          weightKg: double.parse(_weightController.text),
-          quantity: int.parse(_quantityController.text),
-        ),
-        route: FreightRoute(
-          pickup: Location(
-            region: _selectedPickupRegion!,
-            city: _selectedPickupCity!,
-            address: _pickupAddressController.text,
-          ),
-          dropoff: Location(
-            region: _selectedDropoffRegion!,
-            city: _selectedDropoffCity!,
-            address: _dropoffAddressController.text,
-          ),
-        ),
-        schedule: Schedule(
-          pickupDate: pickupDate,
-          deliveryDeadline: deliveryDeadline,
-        ),
-        truckRequirement: TruckRequirement(
-          type: _selectedTruckType,
-          minCapacityKg: double.parse(_capacityController.text),
-        ),
-        pricing: Pricing(
-          type: _selectedPricingType.toUpperCase(),
-          amount: double.parse(_priceController.text),
-        ),
-        image: _uploadedImageUrls,
-      );
-
-      context.read<FreightBloc>().add(CreateFreightEvent(request));
+    final pickupDate = _parseDate(_pickupDateController.text);
+    final deliveryDeadline = _parseDate(_deliveryDeadlineController.text);
+    if (pickupDate == null || deliveryDeadline == null) {
+      _showToast("Invalid date format", Colors.red);
+      return;
     }
+
+    final request = CreateFreightRequest(
+      cargo: Cargo(
+        type: _selectedCargoType!,
+        description: _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim(),
+        weightKg: _weightController.text.trim().isEmpty
+            ? null
+            : double.tryParse(_weightController.text.trim()),
+        quantity: _quantityController.text.trim().isEmpty
+            ? null
+            : int.tryParse(_quantityController.text.trim()),
+      ),
+      route: FreightRoute(
+        pickup: Location(
+          region: _selectedPickupRegion!,
+          city: _selectedPickupCity!,
+          address: _pickupAddressController.text,
+        ),
+        dropoff: Location(
+          region: _selectedDropoffRegion!,
+          city: _selectedDropoffCity!,
+          address: _dropoffAddressController.text,
+        ),
+      ),
+      schedule: Schedule(
+        pickupDate: pickupDate,
+        deliveryDeadline: deliveryDeadline,
+      ),
+      truckRequirement: TruckRequirement(
+        type: _selectedTruckTypes,
+        minCapacityKg: _capacityController.text.trim().isEmpty
+            ? null
+            : double.tryParse(_capacityController.text.trim()),
+      ),
+      pricing: Pricing(
+        type: _selectedPricingType.toUpperCase(),
+        amount: _selectedPricingType == 'Negotiable'
+            ? null
+            : double.parse(_priceController.text),
+      ),
+      image: _uploadedImageUrls,
+    );
+
+    context.read<FreightBloc>().add(CreateFreightEvent(request));
   }
 
-  bool _validateAllFields() {
-    if (_descriptionController.text.isEmpty ||
-        _weightController.text.isEmpty ||
-        _quantityController.text.isEmpty ||
-        _selectedCargoType == null ||
+  bool _validateRequiredFields() {
+    if (_selectedCargoType == null ||
         _selectedPickupRegion == null ||
         _selectedPickupCity == null ||
         _pickupAddressController.text.isEmpty ||
@@ -242,12 +202,17 @@ class _PostFreightPageState extends State<PostFreightPage> {
         _selectedDropoffCity == null ||
         _dropoffAddressController.text.isEmpty ||
         _pickupDateController.text.isEmpty ||
-        _deliveryDeadlineController.text.isEmpty ||
-        _capacityController.text.isEmpty ||
-        _priceController.text.isEmpty) {
+        _deliveryDeadlineController.text.isEmpty) {
       _showToast("Please fill in all required fields", Colors.red);
       return false;
     }
+
+    // Only validate price if pricing type is not Negotiable
+    if (_selectedPricingType != 'Negotiable' && _priceController.text.isEmpty) {
+      _showToast("Please enter an amount for fixed pricing", Colors.red);
+      return false;
+    }
+
     return true;
   }
 
@@ -256,30 +221,24 @@ class _PostFreightPageState extends State<PostFreightPage> {
       _showToast("Please add at least one image", Colors.red);
       return false;
     }
-
     if (_uploadedImageUrls.length != _selectedImages.length) {
-      _showToast(
-        "Please wait for all images to finish uploading",
-        Colors.orange,
-      );
+      _showToast("Please wait for images to finish uploading", Colors.orange);
       return false;
     }
-
     return true;
   }
 
   DateTime? _parseDate(String dateStr) {
     try {
       final parts = dateStr.split('/');
-      if (parts.length == 3) {
+      if (parts.length == 3)
         return DateTime(
           int.parse(parts[2]),
           int.parse(parts[0]),
           int.parse(parts[1]),
         );
-      }
       return null;
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
@@ -298,7 +257,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
     BuildContext context,
     TextEditingController controller,
   ) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
@@ -320,51 +279,38 @@ class _PostFreightPageState extends State<PostFreightPage> {
         maxHeight: 1080,
         imageQuality: 85,
       );
-
       if (image != null) {
-        final File imageFile = File(image.path);
-        final int fileSizeInBytes = await imageFile.length();
-        final double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
-
-        if (fileSizeInMB > 5.0) {
-          _showToast(
-            'Image size must be less than 5MB. Current: ${fileSizeInMB.toStringAsFixed(1)}MB',
-            Colors.red,
-          );
+        final file = File(image.path);
+        final sizeMB = await file.length() / (1024 * 1024);
+        if (sizeMB > 5.0) {
+          _showToast('Image must be < 5MB', Colors.red);
           return;
         }
-
-        setState(() {
-          _selectedImages.add(imageFile);
-        });
-
+        setState(() => _selectedImages.add(file));
         _showToast(
           'Image added (${_selectedImages.length}/$_maxImages)',
           Colors.green,
         );
-
-        _uploadNewImage(imageFile);
+        _uploadNewImage(file);
       }
     } catch (e) {
-      _showToast('Failed to pick image: ${e.toString()}', Colors.red);
+      _showToast('Failed to pick image: $e', Colors.red);
     }
   }
 
   void _uploadNewImage(File imageFile) {
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final basePath = 'freights/freight_$timestamp';
-
     context.read<UploadBloc>().add(
-      UploadSingleFileEvent(file: imageFile, path: basePath),
+      UploadSingleFileEvent(
+        file: imageFile,
+        path: 'freights/freight_${DateTime.now().millisecondsSinceEpoch}',
+      ),
     );
   }
 
   void _removeImage(int index) {
     setState(() {
       _selectedImages.removeAt(index);
-      if (index < _uploadedImageUrls.length) {
-        _uploadedImageUrls.removeAt(index);
-      }
+      if (index < _uploadedImageUrls.length) _uploadedImageUrls.removeAt(index);
     });
     _showToast(
       'Image removed (${_selectedImages.length}/$_maxImages)',
@@ -372,7 +318,6 @@ class _PostFreightPageState extends State<PostFreightPage> {
     );
   }
 
-  // State management helpers
   DropdownState _getCargoTypeDropdownState() {
     if (_isLoadingCargoTypes) return DropdownState.loading;
     if (_cargoTypesError != null) return DropdownState.error;
@@ -435,9 +380,7 @@ class _PostFreightPageState extends State<PostFreightPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = isDarkMode ? AppColorScheme.dark : AppColorScheme.light;
-
+    final cs = context.appColors;
     return MultiBlocListener(
       listeners: [
         _buildFreightBlocListener(),
@@ -446,357 +389,528 @@ class _PostFreightPageState extends State<PostFreightPage> {
         _buildCargoTypeBlocListener(),
       ],
       child: Scaffold(
-        backgroundColor: colorScheme.background,
-        appBar: _buildAppBar(colorScheme),
-        body: BlocBuilder<FreightBloc, FreightState>(
-          builder: (context, state) {
-            // final isLoading = state is FreightLoading;
-            return Stack(
-              children: [
-                _buildForm(colorScheme),
-                // if (isLoading) _buildLoadingOverlay(),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar(AppColorScheme colorScheme) {
-    return AppBar(
-      backgroundColor: colorScheme.background,
-      elevation: 0,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: colorScheme.textPrimary),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Text(
-        'Post Freight',
-        style: TextStyle(
-          color: colorScheme.textPrimary,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(1),
-        child: Container(height: 1, color: colorScheme.border),
-      ),
-    );
-  }
-
-  Widget _buildForm(AppColorScheme colorScheme) {
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(SizeManager.s16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            StepIndicator(
-              colorScheme: colorScheme,
-              currentStep: _currentStep,
-              stepDescription: _stepDescription,
+        backgroundColor: cs.background,
+        appBar: AppBar(
+          backgroundColor: cs.surface,
+          elevation: 0,
+          title: Text(
+            'Post Freight',
+            style: context.text.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
             ),
-            const SizedBox(height: SizeManager.s24),
-            _buildCargoDetailsSection(colorScheme),
-            const SizedBox(height: SizeManager.s16),
-            _buildRouteSection(colorScheme),
-            const SizedBox(height: SizeManager.s16),
-            _buildScheduleSection(colorScheme),
-            const SizedBox(height: SizeManager.s16),
-            _buildTruckRequirementsSection(colorScheme),
-            const SizedBox(height: SizeManager.s16),
-            _buildPricingSection(colorScheme),
-            const SizedBox(height: SizeManager.s16),
-            _buildImageUploadSection(colorScheme),
-            const SizedBox(height: SizeManager.s24),
-            _buildPublishButton(),
-            const SizedBox(height: SizeManager.s24),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCargoDetailsSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.inventory_2,
-      title: 'Cargo Details',
-      child: Column(
-        children: [
-          StatefulFreightDropdown(
-            colorScheme: colorScheme,
-            value: _selectedCargoType,
-            label: 'Cargo Type *',
-            hint: 'Select cargo type',
-            items: _cargoTypes,
-            onChanged: (value) => setState(() => _selectedCargoType = value),
-            state: _getCargoTypeDropdownState(),
-            errorMessage: _cargoTypesError,
-            onRetry: _retryLoadCargoTypes,
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _descriptionController,
-            label: 'Description *',
-            hint: 'Enter cargo description',
-            maxLines: 3,
-          ),
-          const SizedBox(height: SizeManager.s16),
-          Row(
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(
+              horizontal: SizeManager.screenHorizontalPadding,
+              vertical: SizeManager.s24,
+            ),
             children: [
-              Expanded(
-                child: FreightFormField(
-                  colorScheme: colorScheme,
-                  controller: _weightController,
-                  label: 'Weight (kg) *',
-                  hint: 'e.g., 1000',
-                  keyboardType: TextInputType.number,
-                ),
+              // ── Cargo Details ──────────────────────────────────────
+              _sectionHeader('Cargo Details', Icons.inventory_2),
+              const SizedBox(height: SizeManager.s16),
+              _buildDropdownField(
+                label: 'Cargo Type *',
+                value: _selectedCargoType,
+                hint: 'Select cargo type',
+                items: _cargoTypes,
+                onChanged: (v) {
+                  setState(() {
+                    _selectedCargoType = v;
+                    // Automatically select suitable truck types based on cargo
+                    if (v != null) {
+                      final suitableTruckTypes =
+                          CargoTruckMapping.getTruckTypesForCargo(v);
+                      _selectedTruckTypes
+                        ..clear()
+                        ..addAll(suitableTruckTypes);
+
+                      // Show info message about auto-selection
+                      if (!suitableTruckTypes.isNotEmpty) {
+                        _selectedTruckTypes.clear();
+                      }
+                    }
+                  });
+                },
+                state: _getCargoTypeDropdownState(),
+                errorMessage: _cargoTypesError,
+                onRetry: _retryLoadCargoTypes,
               ),
-              const SizedBox(width: SizeManager.s12),
-              Expanded(
-                child: FreightFormField(
-                  colorScheme: colorScheme,
-                  controller: _quantityController,
-                  label: 'Quantity *',
-                  hint: 'e.g., 10',
-                  keyboardType: TextInputType.number,
-                ),
+              const SizedBox(height: SizeManager.s16),
+              Row(
+                children: [
+                  // Expanded(
+                  //   child: _buildTextField(
+                  //     controller: _weightController,
+                  //     label: 'Weight (kg)',
+                  //     hint: 'e.g. 1000',
+                  //     keyboardType: TextInputType.number,
+                  //     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  //   ),
+                  // ),
+                  const SizedBox(width: SizeManager.s12),
+                  // Expanded(
+                  //   child: _buildTextField(
+                  //     controller: _quantityController,
+                  //     label: 'Quantity',
+                  //     hint: 'e.g. 10',
+                  //     keyboardType: TextInputType.number,
+                  //     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  //   ),
+                  // ),
+                ],
               ),
+              const SizedBox(height: SizeManager.s16),
+
+              const SizedBox(height: SizeManager.s24),
+              // ── Route ──────────────────────────────────────────────
+              _sectionHeader('Route Information', Icons.route),
+              const SizedBox(height: SizeManager.s16),
+              _buildSectionLabel('Pickup Location'),
+              const SizedBox(height: SizeManager.s12),
+              _buildDropdownField(
+                label: 'Region *',
+                value: _selectedPickupRegion,
+                hint: 'Select region',
+                items: _regions
+                    .map((r) => r.region ?? '')
+                    .where((r) => r.isNotEmpty)
+                    .toList(),
+                onChanged: _onPickupRegionChanged,
+                state: _getLocationDropdownState(),
+                errorMessage: _locationsError,
+                onRetry: _retryLoadLocations,
+              ),
+              const SizedBox(height: SizeManager.s16),
+              _buildDropdownField(
+                label: 'City *',
+                value: _selectedPickupCity,
+                hint: _selectedPickupRegion == null
+                    ? 'Select region first'
+                    : 'Select city',
+                items: _pickupCities,
+                onChanged: (v) => setState(() => _selectedPickupCity = v),
+                state: _selectedPickupRegion == null
+                    ? DropdownState.initial
+                    : (_pickupCities.isEmpty
+                          ? DropdownState.empty
+                          : DropdownState.loaded),
+              ),
+              const SizedBox(height: SizeManager.s16),
+              _buildTextField(
+                controller: _pickupAddressController,
+                label: 'Address *',
+                hint: 'Enter pickup address',
+                validator: _requiredValidator,
+              ),
+              const SizedBox(height: SizeManager.s24),
+              _buildSectionLabel('Dropoff Location'),
+              const SizedBox(height: SizeManager.s12),
+              _buildDropdownField(
+                label: 'Region *',
+                value: _selectedDropoffRegion,
+                hint: 'Select region',
+                items: _regions
+                    .map((r) => r.region ?? '')
+                    .where((r) => r.isNotEmpty)
+                    .toList(),
+                onChanged: _onDropoffRegionChanged,
+                state: _getLocationDropdownState(),
+                errorMessage: _locationsError,
+                onRetry: _retryLoadLocations,
+              ),
+              const SizedBox(height: SizeManager.s16),
+              _buildDropdownField(
+                label: 'City *',
+                value: _selectedDropoffCity,
+                hint: _selectedDropoffRegion == null
+                    ? 'Select region first'
+                    : 'Select city',
+                items: _dropoffCities,
+                onChanged: (v) => setState(() => _selectedDropoffCity = v),
+                state: _selectedDropoffRegion == null
+                    ? DropdownState.initial
+                    : (_dropoffCities.isEmpty
+                          ? DropdownState.empty
+                          : DropdownState.loaded),
+              ),
+              const SizedBox(height: SizeManager.s16),
+              _buildTextField(
+                controller: _dropoffAddressController,
+                label: 'Address *',
+                hint: 'Enter dropoff address',
+                validator: _requiredValidator,
+              ),
+
+              const SizedBox(height: SizeManager.s24),
+              // ── Schedule ───────────────────────────────────────────
+              _sectionHeader('Schedule', Icons.calendar_today),
+              const SizedBox(height: SizeManager.s16),
+              _buildTextField(
+                controller: _pickupDateController,
+                label: 'Pickup Date *',
+                hint: 'MM/DD/YYYY',
+                readOnly: true,
+                onTap: () => _selectDate(context, _pickupDateController),
+                suffixIcon: const Icon(Icons.calendar_today, size: 18),
+                validator: _requiredValidator,
+              ),
+              const SizedBox(height: SizeManager.s16),
+              _buildTextField(
+                controller: _deliveryDeadlineController,
+                label: 'Delivery Deadline *',
+                hint: 'MM/DD/YYYY',
+                readOnly: true,
+                onTap: () => _selectDate(context, _deliveryDeadlineController),
+                suffixIcon: const Icon(Icons.calendar_today, size: 18),
+                validator: _requiredValidator,
+              ),
+
+              const SizedBox(height: SizeManager.s24),
+              // ── Truck Requirements ─────────────────────────────────
+              _sectionHeader('Truck Requirements', Icons.local_shipping),
+              const SizedBox(height: SizeManager.s16),
+              _buildTruckTypesSection(),
+              const SizedBox(height: SizeManager.s16),
+
+              // _buildTextField(
+              //   controller: _capacityController,
+              //   label: 'Minimum Capacity (kg)',
+              //   hint: 'e.g. 5000',
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              // ),
+              const SizedBox(height: SizeManager.s24),
+              // ── Pricing ────────────────────────────────────────────
+              _sectionHeader('Pricing', Icons.attach_money),
+              const SizedBox(height: SizeManager.s16),
+              _buildPricingTypeSection(),
+              // Only show amount field if pricing type is not Negotiable
+              if (_selectedPricingType != 'Negotiable') ...[
+                const SizedBox(height: SizeManager.s16),
+                _buildTextField(
+                  controller: _priceController,
+                  label: 'Amount (ETB) *',
+                  hint: 'e.g. 50000',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: _requiredValidator,
+                ),
+              ],
+
+              const SizedBox(height: SizeManager.s24),
+              // ── Description ────────────────────────────────────────
+              _sectionHeader('Description', Icons.description),
+              const SizedBox(height: SizeManager.s16),
+              _buildTextFieldWithAi(
+                controller: _descriptionController,
+                label: 'Description',
+                hint: 'Describe your cargo...',
+                maxLines: 3,
+                maxLength: 300,
+                onAiTap: _improveFreightDescription,
+              ),
+
+              const SizedBox(height: SizeManager.s24),
+              // ── Images ─────────────────────────────────────────────
+              _sectionHeader('Freight Images', Icons.image),
+              const SizedBox(height: SizeManager.s16),
+              _buildImageSection(),
+
+              const SizedBox(height: SizeManager.s32),
+              _buildPublishButton(),
+              const SizedBox(height: SizeManager.s24),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildRouteSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.route,
-      title: 'Route Information',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pickup Location',
-            style: TextStyle(
-              color: colorScheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  Widget _sectionHeader(String title, IconData icon) {
+    final cs = context.appColors;
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(SizeManager.s8),
+          decoration: BoxDecoration(
+            color: cs.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(SizeManager.r10),
+          ),
+          child: Icon(icon, size: 18, color: cs.primary),
+        ),
+        const SizedBox(width: SizeManager.s12),
+        Text(
+          title,
+          style: context.text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: cs.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionLabel(String label) {
+    final cs = context.appColors;
+    return Text(
+      label,
+      style: context.text.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: cs.textPrimary,
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    int maxLines = 1,
+    int? maxLength,
+    bool readOnly = false,
+    VoidCallback? onTap,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+  }) {
+    final cs = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: cs.textPrimary,
+          ),
+        ),
+        const SizedBox(height: SizeManager.s8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          readOnly: readOnly,
+          onTap: onTap,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: cs.textSecondary.withValues(alpha: 0.7),
+            ),
+            suffixIcon: suffixIcon,
+            filled: true,
+            fillColor: cs.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: SizeManager.s16,
+              vertical: SizeManager.s12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.error),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.error, width: 1.5),
             ),
           ),
-          const SizedBox(height: SizeManager.s12),
-          StatefulFreightDropdown(
-            colorScheme: colorScheme,
-            value: _selectedPickupRegion,
-            label: 'Region *',
-            hint: 'Select region',
-            items: _regions
-                .map((r) => r.region ?? '')
-                .where((r) => r.isNotEmpty)
-                .toList(),
-            onChanged: _onPickupRegionChanged,
-            state: _getLocationDropdownState(),
-            errorMessage: _locationsError,
-            onRetry: _retryLoadLocations,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required DropdownState state,
+    String? errorMessage,
+    VoidCallback? onRetry,
+  }) {
+    final cs = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: cs.textPrimary,
           ),
-          const SizedBox(height: SizeManager.s16),
-          StatefulFreightDropdown(
-            colorScheme: colorScheme,
-            value: _selectedPickupCity,
-            label: 'City *',
-            hint: _selectedPickupRegion == null
-                ? 'Select region first'
-                : 'Select city',
-            items: _pickupCities,
-            onChanged: (value) => setState(() => _selectedPickupCity = value),
-            state: _selectedPickupRegion == null
-                ? DropdownState.initial
-                : (_pickupCities.isEmpty
-                      ? DropdownState.empty
-                      : DropdownState.loaded),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _pickupAddressController,
-            label: 'Address *',
-            hint: 'Enter pickup address',
-          ),
-          const SizedBox(height: SizeManager.s24),
-          Text(
-            'Dropoff Location',
-            style: TextStyle(
-              color: colorScheme.textPrimary,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+        ),
+        const SizedBox(height: SizeManager.s8),
+        StatefulFreightDropdown(
+          colorScheme: cs,
+          value: value,
+          label: '',
+          hint: hint,
+          items: items,
+          onChanged: onChanged,
+          state: state,
+          errorMessage: errorMessage,
+          onRetry: onRetry,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTruckTypesSection() {
+    final cs = context.appColors;
+    final hasAutoSelection =
+        _selectedCargoType != null &&
+        CargoTruckMapping.hasMapping(_selectedCargoType!);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Truck Type',
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.textPrimary,
+              ),
+            ),
+            // if (hasAutoSelection) ...[
+            //   const SizedBox(width: SizeManager.s8),
+            //   Container(
+            //     padding: const EdgeInsets.symmetric(
+            //       horizontal: SizeManager.s8,
+            //       vertical: SizeManager.s4,
+            //     ),
+            //     decoration: BoxDecoration(
+            //       color: Colors.blue.withValues(alpha: 0.1),
+            //       borderRadius: BorderRadius.circular(SizeManager.r12),
+            //       border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+            //     ),
+            //     child: Row(
+            //       mainAxisSize: MainAxisSize.min,
+            //       children: [
+            //         Icon(Icons.auto_awesome, size: 12, color: Colors.blue),
+            //         const SizedBox(width: 4),
+            //         Text(
+            //           'Auto-selected',
+            //           style: TextStyle(
+            //             fontSize: 10,
+            //             fontWeight: FontWeight.w600,
+            //             color: Colors.blue,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ],
+          ],
+        ),
+        if (hasAutoSelection) ...[
+          const SizedBox(height: SizeManager.s8),
+          Container(
+            padding: const EdgeInsets.all(SizeManager.s12),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(SizeManager.r10),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                const SizedBox(width: SizeManager.s8),
+                Expanded(
+                  child: Text(
+                    CargoTruckMapping.getRecommendationReason(
+                      _selectedCargoType!,
+                    ),
+                    style: context.text.bodySmall?.copyWith(
+                      color: Colors.blue.shade700,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: SizeManager.s12),
-          StatefulFreightDropdown(
-            colorScheme: colorScheme,
-            value: _selectedDropoffRegion,
-            label: 'Region *',
-            hint: 'Select region',
-            items: _regions
-                .map((r) => r.region ?? '')
-                .where((r) => r.isNotEmpty)
-                .toList(),
-            onChanged: _onDropoffRegionChanged,
-            state: _getLocationDropdownState(),
-            errorMessage: _locationsError,
-            onRetry: _retryLoadLocations,
-          ),
-          const SizedBox(height: SizeManager.s16),
-          StatefulFreightDropdown(
-            colorScheme: colorScheme,
-            value: _selectedDropoffCity,
-            label: 'City *',
-            hint: _selectedDropoffRegion == null
-                ? 'Select region first'
-                : 'Select city',
-            items: _dropoffCities,
-            onChanged: (value) => setState(() => _selectedDropoffCity = value),
-            state: _selectedDropoffRegion == null
-                ? DropdownState.initial
-                : (_dropoffCities.isEmpty
-                      ? DropdownState.empty
-                      : DropdownState.loaded),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _dropoffAddressController,
-            label: 'Address *',
-            hint: 'Enter dropoff address',
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildScheduleSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.calendar_today,
-      title: 'Schedule',
-      child: Column(
-        children: [
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _pickupDateController,
-            label: 'Pickup Date *',
-            hint: 'MM/DD/YYYY',
-            readOnly: true,
-            onTap: () => _selectDate(context, _pickupDateController),
-            suffixIcon: const Icon(Icons.calendar_today, size: 20),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _deliveryDeadlineController,
-            label: 'Delivery Deadline *',
-            hint: 'MM/DD/YYYY',
-            readOnly: true,
-            onTap: () => _selectDate(context, _deliveryDeadlineController),
-            suffixIcon: const Icon(Icons.calendar_today, size: 20),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTruckRequirementsSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.local_shipping,
-      title: 'Truck Requirements',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        const SizedBox(height: SizeManager.s8),
+        TruckTypeSelector(
+          colorScheme: cs,
+          selectedTypes: _selectedTruckTypes,
+          onTypesSelected: (types) => setState(() {
+            _selectedTruckTypes
+              ..clear()
+              ..addAll(types);
+          }),
+          isReadOnly: hasAutoSelection,
+        ),
+        if (hasAutoSelection) ...[
+          const SizedBox(height: SizeManager.s8),
           Text(
-            'Truck Type *',
-            style: TextStyle(
-              color: colorScheme.textPrimary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+            'Truck types are automatically selected based on your cargo type. You can still modify them if needed.',
+            style: context.text.bodySmall?.copyWith(
+              color: cs.textSecondary,
+              fontSize: 11,
+              fontStyle: FontStyle.italic,
             ),
           ),
-          const SizedBox(height: SizeManager.s12),
-          TruckTypeSelector(
-            colorScheme: colorScheme,
-            selectedType: _selectedTruckType,
-            onTypeSelected: (type) => setState(() => _selectedTruckType = type),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _capacityController,
-            label: 'Minimum Capacity (kg) *',
-            hint: 'e.g., 5000',
-            keyboardType: TextInputType.number,
-          ),
         ],
-      ),
+      ],
     );
   }
 
-  Widget _buildPricingSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.attach_money,
-      title: 'Pricing',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Pricing Type *',
-            style: TextStyle(
-              color: colorScheme.textPrimary,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+  Widget _buildPricingTypeSection() {
+    final cs = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Pricing Type *',
+          style: context.text.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: cs.textPrimary,
           ),
-          const SizedBox(height: SizeManager.s12),
-          PricingTypeSelector(
-            colorScheme: colorScheme,
-            selectedType: _selectedPricingType,
-            onTypeSelected: (type) =>
-                setState(() => _selectedPricingType = type),
-          ),
-          const SizedBox(height: SizeManager.s16),
-          FreightFormField(
-            colorScheme: colorScheme,
-            controller: _priceController,
-            label: 'Amount (ETB) *',
-            hint: 'e.g., 50000',
-            keyboardType: TextInputType.number,
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: SizeManager.s8),
+        PricingTypeSelector(
+          colorScheme: cs,
+          selectedType: _selectedPricingType,
+          onTypeSelected: (type) => setState(() => _selectedPricingType = type),
+        ),
+      ],
     );
   }
 
-  Widget _buildImageUploadSection(AppColorScheme colorScheme) {
-    return FreightSection(
-      colorScheme: colorScheme,
-      icon: Icons.image,
-      title: 'Freight Images',
-      child: ImageUploadSection(
-        colorScheme: colorScheme,
-        selectedImages: _selectedImages,
-        uploadedImageUrls: _uploadedImageUrls,
-        isUploading: _isUploadingImages,
-        maxImages: _maxImages,
-        onPickImage: _pickImage,
-        onRemoveImage: _removeImage,
-      ),
+  Widget _buildImageSection() {
+    final cs = context.appColors;
+    return ImageUploadSection(
+      colorScheme: cs,
+      selectedImages: _selectedImages,
+      uploadedImageUrls: _uploadedImageUrls,
+      isUploading: _isUploadingImages,
+      maxImages: _maxImages,
+      onPickImage: _pickImage,
+      onRemoveImage: _removeImage,
     );
   }
 
@@ -806,25 +920,20 @@ class _PostFreightPageState extends State<PostFreightPage> {
         final isLoading = state is FreightLoading;
         return SizedBox(
           width: double.infinity,
-          height: 48,
+          height: 52,
           child: ElevatedButton(
             onPressed: isLoading ? null : _publishFreight,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.white,
-              disabledBackgroundColor: AppColors.grey,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(SizeManager.r6),
+                borderRadius: BorderRadius.circular(SizeManager.r12),
               ),
+              elevation: 0,
             ),
             child: isLoading
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      color: AppColors.white,
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text(
                     'Publish Freight',
@@ -836,14 +945,150 @@ class _PostFreightPageState extends State<PostFreightPage> {
     );
   }
 
-  // Widget _buildLoadingOverlay() {
-  //   return Container(
-  //     color: Colors.black.withValues(alpha: 0.3),
-  //     child: const Center(
-  //       child: CircularProgressIndicator(color: AppColors.primary),
-  //     ),
-  //   );
-  // }
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) return 'Required';
+    return null;
+  }
+
+  Future<void> _improveFreightDescription() async {
+    final suggestion = await showAiSuggestionSheet(
+      context: context,
+      fetchSuggestion: () async {
+        final response = await sl<ApiClient>().improveFreightDescription({
+          'cargoType': _selectedCargoType,
+          'weightKg': _weightController.text.trim().isEmpty
+              ? null
+              : double.tryParse(_weightController.text.trim()),
+          'quantity': _quantityController.text.trim().isEmpty
+              ? null
+              : int.tryParse(_quantityController.text.trim()),
+          'pickupRegion': _selectedPickupRegion,
+          'pickupCity': _selectedPickupCity,
+          'dropoffRegion': _selectedDropoffRegion,
+          'dropoffCity': _selectedDropoffCity,
+          'pickupDate': _pickupDateController.text.trim().isEmpty
+              ? null
+              : _pickupDateController.text.trim(),
+          'deliveryDeadline': _deliveryDeadlineController.text.trim().isEmpty
+              ? null
+              : _deliveryDeadlineController.text.trim(),
+          'truckTypes': _selectedTruckTypes.isEmpty
+              ? null
+              : _selectedTruckTypes,
+          'minCapacityKg': _capacityController.text.trim().isEmpty
+              ? null
+              : double.tryParse(_capacityController.text.trim()),
+          'pricingType': _selectedPricingType,
+          'currentDescription': _descriptionController.text.trim().isEmpty
+              ? null
+              : _descriptionController.text.trim(),
+        });
+        return response.data.suggestion;
+      },
+    );
+    if (suggestion != null) {
+      setState(() => _descriptionController.text = suggestion);
+    }
+  }
+
+  Widget _buildTextFieldWithAi({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required VoidCallback onAiTap,
+    int maxLines = 1,
+    int? maxLength,
+    String? Function(String?)? validator,
+  }) {
+    final cs = context.appColors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.textPrimary,
+              ),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: onAiTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SizeManager.s10,
+                  vertical: SizeManager.s4,
+                ),
+                decoration: BoxDecoration(
+                  color: cs.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(SizeManager.r20),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome, size: 13, color: cs.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Improve with AI',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: SizeManager.s8),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: cs.textSecondary.withValues(alpha: 0.7),
+            ),
+            filled: true,
+            fillColor: cs.surface,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: SizeManager.s16,
+              vertical: SizeManager.s12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.primary, width: 1.5),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.error),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(SizeManager.r12),
+              borderSide: BorderSide(color: cs.error, width: 1.5),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ── BLoC Listeners ────────────────────────────────────────────────────────
 
   BlocListener _buildFreightBlocListener() {
     return BlocListener<FreightBloc, FreightState>(
@@ -869,7 +1114,6 @@ class _PostFreightPageState extends State<PostFreightPage> {
         } else if (state is LocationLoaded) {
           setState(() {
             _isLoadingLocations = false;
-            _locationsError = null;
             _regions = state.regions;
           });
         } else if (state is LocationError) {
@@ -886,24 +1130,19 @@ class _PostFreightPageState extends State<PostFreightPage> {
     return BlocListener<UploadBloc, UploadState>(
       listener: (context, state) {
         if (state is UploadLoading) {
-          setState(() {
-            _isUploadingImages = true;
-          });
+          setState(() => _isUploadingImages = true);
         } else if (state is UploadSuccess) {
           setState(() {
             _isUploadingImages = false;
             _uploadedImageUrls.addAll(state.uploadedUrls);
           });
-          for (int i = 0; i < state.uploadedUrls.length; i++) {}
           _showToast(
-            'Image uploaded successfully! (${_uploadedImageUrls.length} total)',
+            'Image uploaded! (${_uploadedImageUrls.length} total)',
             Colors.green,
           );
           context.read<UploadBloc>().add(const ResetUploadEvent());
         } else if (state is UploadError) {
-          setState(() {
-            _isUploadingImages = false;
-          });
+          setState(() => _isUploadingImages = false);
           _showToast('Upload failed: ${state.message}', Colors.red);
           context.read<UploadBloc>().add(const ResetUploadEvent());
         }
@@ -922,7 +1161,6 @@ class _PostFreightPageState extends State<PostFreightPage> {
         } else if (state is CargoTypeLoaded) {
           setState(() {
             _isLoadingCargoTypes = false;
-            _cargoTypesError = null;
             _cargoTypes = state.cargoTypes
                 .map((e) => e.cargoType ?? '')
                 .where((t) => t.isNotEmpty)

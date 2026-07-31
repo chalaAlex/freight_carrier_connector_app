@@ -10,16 +10,18 @@ abstract class ShipmentRequestEvent extends Equatable {
 class SubmitShipmentRequest extends ShipmentRequestEvent {
   final String carrierId;
   final List<String> freightIds;
-  final int? proposedPrice;
+  final double? proposedPrice;
+  final String? message;
 
   const SubmitShipmentRequest({
     required this.carrierId,
     required this.freightIds,
     this.proposedPrice,
+    this.message,
   });
 
   @override
-  List<Object?> get props => [carrierId, freightIds, proposedPrice];
+  List<Object?> get props => [carrierId, freightIds, proposedPrice, message];
 }
 
 class CancelShipmentRequest extends ShipmentRequestEvent {

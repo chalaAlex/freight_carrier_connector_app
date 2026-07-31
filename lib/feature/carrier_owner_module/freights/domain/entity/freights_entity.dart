@@ -115,7 +115,7 @@ class FreightScheduleEntity extends Equatable {
 }
 
 class FreightTruckRequirementEntity extends Equatable {
-  final String? type;
+  final List<String>? type;
   final double? minCapacityKg;
 
   const FreightTruckRequirementEntity({this.type, this.minCapacityKg});

@@ -21,7 +21,11 @@ class MessageModel extends MessageEntity {
     String? senderPhoto;
 
     if (sender is Map<String, dynamic>) {
-      senderId = sender['_id']?.toString() ?? '';
+      // Populated sender object — _id may be a string or ObjectId map
+      final rawId = sender['_id'];
+      senderId = rawId is Map
+          ? rawId['\$oid']?.toString() ?? ''
+          : rawId?.toString() ?? '';
       final first = sender['firstName'] ?? '';
       final last = sender['lastName'] ?? '';
       senderName = '$first $last'.trim();
@@ -30,9 +34,15 @@ class MessageModel extends MessageEntity {
       senderId = sender?.toString() ?? '';
     }
 
+    // chatRoom field may be a string or ObjectId map
+    final rawRoom = json['chatRoom'];
+    final chatRoomId = rawRoom is Map
+        ? rawRoom['\$oid']?.toString() ?? ''
+        : rawRoom?.toString() ?? '';
+
     return MessageModel(
       id: json['_id']?.toString() ?? '',
-      chatRoomId: json['chatRoom']?.toString() ?? '',
+      chatRoomId: chatRoomId,
       senderId: senderId,
       senderName: senderName,
       senderPhoto: senderPhoto,

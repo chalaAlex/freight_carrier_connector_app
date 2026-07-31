@@ -117,6 +117,7 @@ class TruckOwnerDto {
   final String? phone;
   final num? ratingQuantity;
   final num? ratingAverage;
+  final String? createdAt;
 
   const TruckOwnerDto({
     this.id,
@@ -125,6 +126,7 @@ class TruckOwnerDto {
     this.phone,
     this.ratingQuantity,
     this.ratingAverage,
+    this.createdAt,
   });
 
   factory TruckOwnerDto.fromJson(Map<String, dynamic> json) =>

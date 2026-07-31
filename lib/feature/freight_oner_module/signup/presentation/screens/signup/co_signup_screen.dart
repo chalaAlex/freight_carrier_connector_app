@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/routes_manager.dart';
-import 'package:clean_architecture/feature/freight_oner_module/carrier/presentation/carrier_home_page.dart';
+import 'package:clean_architecture/feature/freight_oner_module/common/carrier_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/sign_up/sign_up_event.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/sign_up/sign_up_state.dart';
@@ -233,12 +233,9 @@ class _CoSignupScreenState extends State<CoSignupScreen> {
                       );
                     }
                     if (state.status == SignUpStatus.success) {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.pushReplacementNamed(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const CarrierHomePage(),
-                        ),
-                        (route) => false,
+                        Routes.loginScreenRoute,
                       );
                     }
                   },
@@ -295,8 +292,10 @@ class _CoSignupScreenState extends State<CoSignupScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, Routes.loginScreenRoute),
+                      onTap: () => Navigator.pushReplacementNamed(
+                        context,
+                        Routes.loginScreenRoute,
+                      ),
                       child: Text(
                         StringManager.login,
                         style: text.bodyMedium?.copyWith(
@@ -358,7 +357,8 @@ class _CoSignupScreenState extends State<CoSignupScreen> {
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return StringManager.passwordRequired;
+        if (value == null || value.isEmpty)
+          return StringManager.passwordRequired;
         if (value.length < 8) return StringManager.passwordLengthError;
         return null;
       },

@@ -65,16 +65,16 @@ class FreightDetailEntity extends Equatable {
 }
 
 class FreightDetailCargoEntity extends Equatable {
-  final String type;
-  final String description;
-  final int weightKg;
-  final int quantity;
+  final String? type;
+  final String? description;
+  final double? weightKg;
+  final int? quantity;
 
   const FreightDetailCargoEntity({
-    required this.type,
-    required this.description,
-    required this.weightKg,
-    required this.quantity,
+    this.type,
+    this.description,
+    this.weightKg,
+    this.quantity,
   });
 
   @override
@@ -120,13 +120,10 @@ class FreightDetailScheduleEntity extends Equatable {
 }
 
 class FreightDetailTruckRequirementEntity extends Equatable {
-  final String type;
-  final int minCapacityKg;
+  final List<String>? type;
+  final int? minCapacityKg;
 
-  const FreightDetailTruckRequirementEntity({
-    required this.type,
-    required this.minCapacityKg,
-  });
+  const FreightDetailTruckRequirementEntity({this.type, this.minCapacityKg});
 
   @override
   List<Object?> get props => [type, minCapacityKg];
@@ -134,9 +131,9 @@ class FreightDetailTruckRequirementEntity extends Equatable {
 
 class FreightDetailPricingEntity extends Equatable {
   final String type;
-  final int amount;
+  final int? amount;
 
-  const FreightDetailPricingEntity({required this.type, required this.amount});
+  const FreightDetailPricingEntity({required this.type, this.amount});
 
   @override
   List<Object?> get props => [type, amount];

@@ -21,7 +21,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<RequestWithdrawalEvent>(_onRequestWithdrawal);
   }
 
-  Future<void> _onGetWallet(GetWalletEvent event, Emitter<WalletState> emit) async {
+  Future<void> _onGetWallet(
+    GetWalletEvent event,
+    Emitter<WalletState> emit,
+  ) async {
     emit(WalletLoading());
     final result = await getWalletUseCase(NoParams());
     result.fold(
@@ -30,18 +33,31 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     );
   }
 
-  Future<void> _onGetTransactions(GetWalletTransactionsEvent event, Emitter<WalletState> emit) async {
+  Future<void> _onGetTransactions(
+    GetWalletTransactionsEvent event,
+    Emitter<WalletState> emit,
+  ) async {
+    // Keep the current wallet so WalletScreen doesn't go blank
+    final cachedWallet = state is WalletLoaded
+        ? (state as WalletLoaded).wallet
+        : state is WalletTransactionsLoaded
+        ? (state as WalletTransactionsLoaded).wallet
+        : null;
+
     emit(WalletLoading());
     final result = await getWalletTransactionsUseCase(
       GetWalletTransactionsParams(page: event.page, limit: event.limit),
     );
     result.fold(
       (failure) => emit(WalletError(failure.message)),
-      (data) => emit(WalletTransactionsLoaded(data)),
+      (data) => emit(WalletTransactionsLoaded(data, wallet: cachedWallet)),
     );
   }
 
-  Future<void> _onRequestWithdrawal(RequestWithdrawalEvent event, Emitter<WalletState> emit) async {
+  Future<void> _onRequestWithdrawal(
+    RequestWithdrawalEvent event,
+    Emitter<WalletState> emit,
+  ) async {
     emit(WalletLoading());
     final result = await requestWithdrawalUseCase(event.amount);
     result.fold(

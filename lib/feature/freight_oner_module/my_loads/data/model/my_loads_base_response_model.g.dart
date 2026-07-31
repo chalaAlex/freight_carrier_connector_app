@@ -135,7 +135,7 @@ Map<String, dynamic> _$ScheduleModelToJson(ScheduleModel instance) =>
 TruckRequirementModel _$TruckRequirementModelFromJson(
   Map<String, dynamic> json,
 ) => TruckRequirementModel(
-  type: json['type'] as String?,
+  type: (json['type'] as List<dynamic>?)?.map((e) => e as String).toList(),
   minCapacityKg: (json['minCapacityKg'] as num?)?.toDouble(),
 );
 

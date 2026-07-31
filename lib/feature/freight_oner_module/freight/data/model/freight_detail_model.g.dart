@@ -68,10 +68,10 @@ Map<String, dynamic> _$FreightToJson(Freight instance) => <String, dynamic>{
 };
 
 Cargo _$CargoFromJson(Map<String, dynamic> json) => Cargo(
-  type: json['type'] as String,
-  description: json['description'] as String,
-  weightKg: (json['weightKg'] as num).toInt(),
-  quantity: (json['quantity'] as num).toInt(),
+  type: json['type'] as String?,
+  description: json['description'] as String?,
+  weightKg: (json['weightKg'] as num?)?.toDouble(),
+  quantity: (json['quantity'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$CargoToJson(Cargo instance) => <String, dynamic>{
@@ -115,8 +115,8 @@ Map<String, dynamic> _$ScheduleToJson(Schedule instance) => <String, dynamic>{
 
 TruckRequirement _$TruckRequirementFromJson(Map<String, dynamic> json) =>
     TruckRequirement(
-      type: json['type'] as String,
-      minCapacityKg: (json['minCapacityKg'] as num).toInt(),
+      type: (json['type'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      minCapacityKg: (json['minCapacityKg'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$TruckRequirementToJson(TruckRequirement instance) =>
@@ -127,7 +127,7 @@ Map<String, dynamic> _$TruckRequirementToJson(TruckRequirement instance) =>
 
 Pricing _$PricingFromJson(Map<String, dynamic> json) => Pricing(
   type: json['type'] as String,
-  amount: (json['amount'] as num).toInt(),
+  amount: (json['amount'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$PricingToJson(Pricing instance) => <String, dynamic>{

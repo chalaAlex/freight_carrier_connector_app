@@ -144,7 +144,7 @@ Map<String, dynamic> _$FreightScheduleModelToJson(
 FreightTruckRequirementModel _$FreightTruckRequirementModelFromJson(
   Map<String, dynamic> json,
 ) => FreightTruckRequirementModel(
-  type: json['type'] as String?,
+  type: (json['type'] as List<dynamic>?)?.map((e) => e as String).toList(),
   minCapacityKg: (json['minCapacityKg'] as num?)?.toDouble(),
 );
 

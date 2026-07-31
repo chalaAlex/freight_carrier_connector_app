@@ -1,5 +1,4 @@
 import 'package:clean_architecture/cofig/routes_manager.dart';
-import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/screen/truck_detail_screen.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/widgets/carrier_card_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +16,9 @@ import '../bloc/feature_state.dart';
 import '../bloc/brand_bloc.dart';
 import '../bloc/brand_event.dart';
 import '../bloc/brand_state.dart';
+import '../bloc/city_bloc.dart';
+import '../bloc/city_event.dart';
+import '../bloc/city_state.dart';
 import '../bloc/truck_bloc.dart';
 import '../bloc/truck_event.dart';
 import '../bloc/truck_state.dart';
@@ -194,6 +196,22 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
             ),
             const SizedBox(width: SizeManager.s8),
             _chip(
+              label: 'Region',
+              isSelected: _activeFilter.region != null,
+              hasDropdown: true,
+              onTap: () => _showRegionSheet(cs),
+              cs: cs,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _chip(
+              label: 'City',
+              isSelected: _activeFilter.city != null,
+              hasDropdown: true,
+              onTap: () => _showCitySheet(cs),
+              cs: cs,
+            ),
+            const SizedBox(width: SizeManager.s8),
+            _chip(
               label: 'Feature',
               isSelected: _activeFilter.features != null,
               hasDropdown: true,
@@ -209,21 +227,14 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
               cs: cs,
             ),
             const SizedBox(width: SizeManager.s8),
-            _chip(
-              label: 'Region',
-              isSelected: _activeFilter.region != null,
-              hasDropdown: true,
-              onTap: () => _showRegionSheet(cs),
-              cs: cs,
-            ),
-            const SizedBox(width: SizeManager.s8),
-            _chip(
-              label: 'Verification',
-              isSelected: _activeFilter.isVerified != null,
-              hasDropdown: true,
-              onTap: () => _showVerificationSheet(cs),
-              cs: cs,
-            ),
+            
+            // _chip(
+            //   label: 'Verification',
+            //   isSelected: _activeFilter.isVerified != null,
+            //   hasDropdown: true,
+            //   onTap: () => _showVerificationSheet(cs),
+            //   cs: cs,
+            // ),
           ],
         ),
       ),
@@ -280,9 +291,7 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
     return BlocBuilder<TruckBloc, TruckState>(
       builder: (context, state) {
         if (state is TruckInitial || state is TruckLoading) {
-          return Center(
-            child: CarrierCardLoadingWidget(),
-          );
+          return Center(child: CarrierCardLoadingWidget());
         }
 
         if (state is TruckError) {
@@ -510,22 +519,22 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: SizeManager.s8),
-                        Text(
-                          '\$${truck.pricePerKm.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                        Text(
-                          '/km',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: cs.textSecondary,
-                          ),
-                        ),
+                        // const SizedBox(width: SizeManager.s8),
+                        // Text(
+                        //   '${truck.pricePerKm.toStringAsFixed(2)}',
+                        //   style: const TextStyle(
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.bold,
+                        //     color: AppColors.primary,
+                        //   ),
+                        // ),
+                        // Text(
+                        //   '/km',
+                        //   style: TextStyle(
+                        //     fontSize: 12,
+                        //     color: cs.textSecondary,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ],
@@ -665,6 +674,26 @@ class _CarrierListingScreenState extends State<CarrierListingScreen> {
           _activeFilter.copyWith(
             region: value,
             clearRegion: value == null,
+            page: 1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCitySheet(AppColorScheme cs) {
+    context.read<CityBloc>().add(FetchCities());
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _CitySheet(
+        cs: cs,
+        selected: _activeFilter.city,
+        onApply: (value) => _applyFilter(
+          _activeFilter.copyWith(
+            city: value,
+            clearCity: value == null,
             page: 1,
           ),
         ),
@@ -1130,6 +1159,102 @@ class _RegionSheetState extends State<_RegionSheet> {
                       .where(
                         (r) =>
                             r.name.toLowerCase().contains(_query.toLowerCase()),
+                      )
+                      .toList();
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SizeManager.s24,
+                    ),
+                    itemCount: items.length,
+                    itemBuilder: (_, i) => _radioTile<String>(
+                      widget.cs,
+                      items[i].name,
+                      items[i].name,
+                      _temp,
+                      (v) => setState(() => _temp = v),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ],
+      ),
+      footer: _applyButton(
+        widget.cs,
+        _temp == null ? 'Clear Filter' : 'Apply',
+        () {
+          widget.onApply(_temp);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+}
+
+// ── City sheet ────────────────────────────────────────────────────────────
+
+class _CitySheet extends StatefulWidget {
+  final AppColorScheme cs;
+  final String? selected;
+  final ValueChanged<String?> onApply;
+
+  const _CitySheet({
+    required this.cs,
+    required this.selected,
+    required this.onApply,
+  });
+
+  @override
+  State<_CitySheet> createState() => _CitySheetState();
+}
+
+class _CitySheetState extends State<_CitySheet> {
+  String? _temp;
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _temp = widget.selected;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _SheetScaffold(
+      cs: widget.cs,
+      title: 'Select City',
+      subtitle: 'Filter carriers by city',
+      body: Column(
+        children: [
+          _searchField(
+            widget.cs,
+            'Search city...',
+            (v) => setState(() => _query = v),
+          ),
+          const SizedBox(height: SizeManager.s8),
+          Expanded(
+            child: BlocBuilder<CityBloc, CityState>(
+              builder: (context, state) {
+                if (state is CityLoading) {
+                  return Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  );
+                }
+                if (state is CityError) {
+                  return Center(
+                    child: Text(
+                      state.message,
+                      style: TextStyle(color: widget.cs.textSecondary),
+                    ),
+                  );
+                }
+                if (state is CitySuccess) {
+                  final items = (state.cities.cities ?? [])
+                      .where(
+                        (c) =>
+                            c.name.toLowerCase().contains(_query.toLowerCase()),
                       )
                       .toList();
                   return ListView.builder(

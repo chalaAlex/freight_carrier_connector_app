@@ -11,6 +11,20 @@ class PaymentInitial extends PaymentState {}
 
 class PaymentLoading extends PaymentState {}
 
+class PaymentConfirmed extends PaymentState {
+  final PaymentEntity payment;
+  const PaymentConfirmed(this.payment);
+  @override
+  List<Object?> get props => [payment];
+}
+
+class PaymentByFreightLoaded extends PaymentState {
+  final PaymentEntity payment;
+  const PaymentByFreightLoaded(this.payment);
+  @override
+  List<Object?> get props => [payment];
+}
+
 class PaymentInitiated extends PaymentState {
   final InitiatePaymentEntity data;
   const PaymentInitiated(this.data);

@@ -11,9 +11,23 @@ import 'package:clean_architecture/feature/freight_oner_module/truck_listing/pre
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-const _tabStatuses = ['OPEN', 'BIDDING', 'BOOKED', 'COMPLETED', 'CANCELLED'];
+const _tabStatuses = [
+  'OPEN',
+  'BIDDING',
+  'BOOKED',
+  'IN_TRANSIT',
+  'COMPLETED',
+  'CANCELLED',
+];
 
-const _tabLabels = ['OPEN', 'BIDDING', 'BOOKED', 'COMPLETED', 'CANCELLED'];
+const _tabLabels = [
+  'OPEN',
+  'BIDDING',
+  'BOOKED',
+  'IN TRANSIT',
+  'COMPLETED',
+  'CANCELLED',
+];
 
 class MyLoadsScreen extends StatefulWidget {
   const MyLoadsScreen({super.key});
@@ -139,47 +153,47 @@ class _MyLoadsHeader extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                SizeManager.s16,
-                SizeManager.s12,
-                SizeManager.s4,
-                0,
-              ),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: searchActive
-                    ? _SearchBar(
-                        key: const ValueKey('search'),
-                        cs: cs,
-                        controller: searchController,
-                        onChanged: onQueryChanged,
-                        onClear: onSearchClear,
-                      )
-                    : Row(
-                        key: const ValueKey('title'),
-                        children: [
-                          Text(
-                            'My Loads',
-                            style: TextStyle(
-                              color: cs.textPrimary,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            icon: Icon(
-                              Icons.search,
-                              color: cs.textPrimary,
-                              size: 22,
-                            ),
-                            onPressed: onSearchToggle,
-                          ),
-                        ],
-                      ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(
+            //     SizeManager.s16,
+            //     SizeManager.s12,
+            //     SizeManager.s4,
+            //     0,
+            //   ),
+            //   child: AnimatedSwitcher(
+            //     duration: const Duration(milliseconds: 200),
+            //     child: searchActive
+            //         ? _SearchBar(
+            //             key: const ValueKey('search'),
+            //             cs: cs,
+            //             controller: searchController,
+            //             onChanged: onQueryChanged,
+            //             onClear: onSearchClear,
+            //           )
+            //         : Row(
+            //             key: const ValueKey('title'),
+            //             children: [
+            //               Text(
+            //                 'My Loads',
+            //                 style: TextStyle(
+            //                   color: cs.textPrimary,
+            //                   fontSize: 22,
+            //                   fontWeight: FontWeight.bold,
+            //                 ),
+            //               ),
+            //               const Spacer(),
+            //               IconButton(
+            //                 icon: Icon(
+            //                   Icons.search,
+            //                   color: cs.textPrimary,
+            //                   size: 22,
+            //                 ),
+            //                 onPressed: onSearchToggle,
+            //               ),
+            //             ],
+            //           ),
+            //   ),
+            // ),
             TabBar(
               controller: tabController,
               isScrollable: true,

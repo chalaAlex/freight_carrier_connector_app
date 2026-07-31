@@ -18,9 +18,7 @@ class FeaturedCarrierResponseEntity extends Equatable {
 class FeaturedCarrierDataEntity extends Equatable {
   final List<CarrierTruckEntity> featuredCarrier;
 
-  const FeaturedCarrierDataEntity({
-    required this.featuredCarrier,
-  });
+  const FeaturedCarrierDataEntity({required this.featuredCarrier});
 
   @override
   List<Object?> get props => [featuredCarrier];
@@ -73,24 +71,24 @@ class CarrierTruckEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        truckOwner,
-        driver,
-        company,
-        model,
-        plateNumber,
-        brand,
-        loadCapacity,
-        features,
-        operatingCorrider,
-        image,
-        aboutTruck,
-        isAvailable,
-        isFeatured,
-        isVerified,
-        createdAt,
-        updatedAt,
-      ];
+    id,
+    truckOwner,
+    driver,
+    company,
+    model,
+    plateNumber,
+    brand,
+    loadCapacity,
+    features,
+    operatingCorrider,
+    image,
+    aboutTruck,
+    isAvailable,
+    isFeatured,
+    isVerified,
+    createdAt,
+    updatedAt,
+  ];
 }
 
 class OperatingCorriderEntity extends Equatable {
@@ -105,9 +103,5 @@ class OperatingCorriderEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [
-        id,
-        startLocation,
-        destinationLocation,
-      ];
+  List<Object?> get props => [id, startLocation, destinationLocation];
 }

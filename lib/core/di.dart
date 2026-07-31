@@ -65,32 +65,40 @@ import 'package:clean_architecture/feature/freight_oner_module/signup/domain/rep
 import 'package:clean_architecture/feature/freight_oner_module/signup/domain/repositories/sign_up_repository.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/domain/usecases/login_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/domain/usecases/sign_up_usecase.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/domain/usecases/forgot_password_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/sign_up/sign_up_bloc.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/forgot_password/forgot_password_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/truck_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/truck_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/region_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/region_remote_data_source_impl.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/city_remote_data_source.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/city_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/feature_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/feature_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/brand_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/datasources/brand_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/repositories/truck_repository_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/repositories/region_repository_impl.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/repositories/city_repository_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/repositories/feature_repository_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/data/repositories/brand_repository_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/repositories/truck_repository.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/repositories/region_repository.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/repositories/city_repository.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/repositories/feature_repository.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/repositories/brand_repository.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/usecases/get_features_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/usecases/get_brands_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/usecases/get_trucks_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/usecases/get_regions_usecase.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/domain/usecases/get_cities_usecase.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/feature_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/brand_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/truck_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/region_bloc.dart';
+import 'package:clean_architecture/feature/freight_oner_module/truck_listing/presentation/bloc/city_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/my_loads/data/datasources/my_loads_remote_data_source.dart';
 import 'package:clean_architecture/feature/freight_oner_module/my_loads/data/datasources/my_loads_remote_data_source_impl.dart';
 import 'package:clean_architecture/feature/freight_oner_module/my_loads/data/repositories/my_loads_repository_impl.dart';
@@ -182,6 +190,8 @@ import 'package:clean_architecture/feature/payment/data/datasource/payment_remot
 import 'package:clean_architecture/feature/payment/data/repository/payment_repository_impl.dart';
 import 'package:clean_architecture/feature/payment/domain/repository/payment_repository.dart';
 import 'package:clean_architecture/feature/payment/domain/usecase/initiate_payment_usecase.dart';
+import 'package:clean_architecture/feature/payment/domain/usecase/confirm_payment_usecase.dart';
+import 'package:clean_architecture/feature/payment/domain/usecase/get_payment_by_freight_usecase.dart';
 import 'package:clean_architecture/feature/payment/domain/usecase/get_payment_status_usecase.dart';
 import 'package:clean_architecture/feature/payment/domain/usecase/release_payment_usecase.dart';
 import 'package:clean_architecture/feature/payment/domain/usecase/dispute_payment_usecase.dart';
@@ -249,6 +259,9 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<RegionRemoteDataSource>(
     () => RegionRemoteDataSourceImpl(client: sl()),
   );
+  sl.registerFactory<CityRemoteDataSource>(
+    () => CityRemoteDataSourceImpl(client: sl()),
+  );
   sl.registerFactory<FeatureRemoteDataSource>(
     () => FeatureRemoteDataSourceImpl(client: sl()),
   );
@@ -305,6 +318,7 @@ Future<void> init(Environment prod) async {
   sl.registerFactory<LoginRepository>(() => LoginRepositoryImpl(sl(), sl()));
   sl.registerFactory<TruckRepository>(() => TruckRepositoryImpl(sl()));
   sl.registerFactory<RegionRepository>(() => RegionRepositoryImpl(sl()));
+  sl.registerFactory<CityRepository>(() => CityRepositoryImpl(sl()));
   sl.registerFactory<FeatureRepository>(() => FeatureRepositoryImpl(sl()));
   sl.registerFactory<BrandRepository>(() => BrandRepositoryImpl(sl()));
   sl.registerFactory<FreightRepository>(() => FreightRepositoryImpl(sl()));
@@ -352,8 +366,10 @@ Future<void> init(Environment prod) async {
   // ------------------ Usecases ------------------ //
   sl.registerFactory(() => SignUpUsecase(sl()));
   sl.registerFactory(() => LoginUsecase(sl()));
+  sl.registerFactory(() => ForgotPasswordUseCase(sl()));
   sl.registerFactory(() => GetTrucksUseCase(sl()));
   sl.registerFactory(() => GetRegionsUseCase(sl()));
+  sl.registerFactory(() => GetCitiesUseCase(sl()));
   sl.registerFactory(() => GetFeaturesUseCase(sl()));
   sl.registerFactory(() => GetBrandsUseCase(sl()));
   sl.registerFactory(() => CreateFreightUseCase(sl()));
@@ -413,19 +429,13 @@ Future<void> init(Environment prod) async {
     ),
   );
 
-  // ------------------ Blocs ------------------ //
-  // sl.registerFactory(
-  //   () => WalletBloc(
-  //     getWalletUseCase: sl(),
-  //     getWalletTransactionsUseCase: sl(),
-  //     requestWithdrawalUseCase: sl(),
-  //   ),
-  // );
   sl.registerFactory(() => SignUpBloc(sl()));
   sl.registerFactory(() => LoginBloc(sl()));
+  sl.registerFactory(() => ForgotPasswordBloc(forgotPasswordUseCase: sl()));
   sl.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
   sl.registerFactory(() => TruckBloc(sl()));
   sl.registerFactory(() => RegionBloc(sl()));
+  sl.registerFactory(() => CityBloc(sl()));
   sl.registerFactory(() => FeatureBloc(sl()));
   sl.registerFactory(() => BrandBloc(sl()));
   sl.registerFactory(
@@ -435,8 +445,8 @@ Future<void> init(Environment prod) async {
       getFreightDetailUseCase: sl(),
     ),
   );
-  sl.registerFactory(() => LocationBloc(getLocationsUseCase: sl()));
-  sl.registerFactory(() => CargoTypeBloc(sl()));
+  sl.registerLazySingleton(() => LocationBloc(getLocationsUseCase: sl()));
+  sl.registerLazySingleton(() => CargoTypeBloc(sl()));
   sl.registerFactory(
     () => UploadBloc(uploadFileUseCase: sl(), uploadMultipleFilesUseCase: sl()),
   );
@@ -524,6 +534,8 @@ Future<void> init(Environment prod) async {
     () => PaymentRepositoryImpl(sl<PaymentRemoteDataSource>()),
   );
   sl.registerFactory(() => InitiatePaymentUseCase(sl()));
+  sl.registerFactory(() => ConfirmPaymentUseCase(sl()));
+  sl.registerFactory(() => GetPaymentByFreightUseCase(sl()));
   sl.registerFactory(() => GetPaymentStatusUseCase(sl()));
   sl.registerFactory(() => ReleasePaymentUseCase(sl()));
   sl.registerFactory(() => DisputePaymentUseCase(sl()));
@@ -533,6 +545,8 @@ Future<void> init(Environment prod) async {
   sl.registerFactory(
     () => PaymentBloc(
       initiatePaymentUseCase: sl(),
+      confirmPaymentUseCase: sl(),
+      getPaymentByFreightUseCase: sl(),
       getPaymentStatusUseCase: sl(),
       releasePaymentUseCase: sl(),
       disputePaymentUseCase: sl(),

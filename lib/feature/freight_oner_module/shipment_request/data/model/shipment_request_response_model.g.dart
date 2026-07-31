@@ -73,7 +73,7 @@ FreightSnapshot _$FreightSnapshotFromJson(Map<String, dynamic> json) =>
     FreightSnapshot(
       freightId: json['freightId'] as String,
       cargoType: json['cargoType'] as String,
-      weight: (json['weight'] as num).toDouble(),
+      weight: (json['weight'] as num?)?.toDouble(),
       quantity: (json['quantity'] as num).toInt(),
       pickupLocation: SnapshotLocation.fromJson(
         json['pickupLocation'] as Map<String, dynamic>,

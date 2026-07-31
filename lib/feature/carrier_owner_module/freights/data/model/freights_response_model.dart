@@ -144,7 +144,7 @@ class FreightScheduleModel {
 
 @JsonSerializable()
 class FreightTruckRequirementModel {
-  final String? type;
+  final List<String>? type;
   final double? minCapacityKg;
 
   FreightTruckRequirementModel({this.type, this.minCapacityKg});

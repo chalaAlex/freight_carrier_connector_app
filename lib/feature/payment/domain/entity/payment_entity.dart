@@ -11,28 +11,51 @@ class PaymentEntity extends Equatable {
   final double? totalAmount;
   final double? platformFee;
   final double? carrierAmount;
+  final String? gateway;
   final String? status;
   final DateTime? paidAt;
   final DateTime? releasedAt;
   final DateTime? releaseAt;
 
   const PaymentEntity({
-    this.id, this.outTradeNo, this.bookingType, this.sourceId,
-    this.freightId, this.freightOwnerId, this.carrierOwnerId,
-    this.totalAmount, this.platformFee, this.carrierAmount,
-    this.status, this.paidAt, this.releasedAt, this.releaseAt,
+    this.id,
+    this.outTradeNo,
+    this.bookingType,
+    this.sourceId,
+    this.freightId,
+    this.freightOwnerId,
+    this.carrierOwnerId,
+    this.totalAmount,
+    this.platformFee,
+    this.carrierAmount,
+    this.gateway,
+    this.status,
+    this.paidAt,
+    this.releasedAt,
+    this.releaseAt,
   });
 
   @override
-  List<Object?> get props => [id, outTradeNo, status, totalAmount, platformFee, carrierAmount, paidAt, releasedAt, releaseAt];
+  List<Object?> get props => [
+    id,
+    outTradeNo,
+    gateway,
+    status,
+    totalAmount,
+    platformFee,
+    carrierAmount,
+    paidAt,
+    releasedAt,
+    releaseAt,
+  ];
 }
 
+// Returned from initiatePayment — just the payment, no URL
 class InitiatePaymentEntity extends Equatable {
   final PaymentEntity? payment;
-  final String? toPayUrl;
-  const InitiatePaymentEntity({this.payment, this.toPayUrl});
+  const InitiatePaymentEntity({this.payment});
   @override
-  List<Object?> get props => [payment, toPayUrl];
+  List<Object?> get props => [payment];
 }
 
 class WalletEntity extends Equatable {
@@ -40,7 +63,12 @@ class WalletEntity extends Equatable {
   final double? balance;
   final double? pendingBalance;
   final String? currency;
-  const WalletEntity({this.id, this.balance, this.pendingBalance, this.currency});
+  const WalletEntity({
+    this.id,
+    this.balance,
+    this.pendingBalance,
+    this.currency,
+  });
   @override
   List<Object?> get props => [id, balance, pendingBalance, currency];
 }
@@ -53,7 +81,15 @@ class WalletTransactionEntity extends Equatable {
   final double? amount;
   final String? description;
   final DateTime? createdAt;
-  const WalletTransactionEntity({this.id, this.walletId, this.paymentId, this.type, this.amount, this.description, this.createdAt});
+  const WalletTransactionEntity({
+    this.id,
+    this.walletId,
+    this.paymentId,
+    this.type,
+    this.amount,
+    this.description,
+    this.createdAt,
+  });
   @override
   List<Object?> get props => [id, type, amount, createdAt];
 }
@@ -63,7 +99,12 @@ class WalletTransactionsResponseEntity extends Equatable {
   final int? total;
   final int? page;
   final int? limit;
-  const WalletTransactionsResponseEntity({this.transactions, this.total, this.page, this.limit});
+  const WalletTransactionsResponseEntity({
+    this.transactions,
+    this.total,
+    this.page,
+    this.limit,
+  });
   @override
   List<Object?> get props => [transactions, total, page, limit];
 }

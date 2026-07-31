@@ -8,6 +8,7 @@ abstract class WalletState extends Equatable {
 }
 
 class WalletInitial extends WalletState {}
+
 class WalletLoading extends WalletState {}
 
 class WalletLoaded extends WalletState {
@@ -19,9 +20,10 @@ class WalletLoaded extends WalletState {
 
 class WalletTransactionsLoaded extends WalletState {
   final WalletTransactionsResponseEntity data;
-  const WalletTransactionsLoaded(this.data);
+  final WalletEntity? wallet; // cached so WalletScreen stays visible
+  const WalletTransactionsLoaded(this.data, {this.wallet});
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, wallet];
 }
 
 class WithdrawalRequested extends WalletState {}

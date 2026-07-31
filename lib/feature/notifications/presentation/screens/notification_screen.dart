@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:clean_architecture/core/colors/app_colors.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:clean_architecture/feature/carrier_owner_module/bids/presentation/screen/bid_detail_screen.dart';
+import 'package:clean_architecture/feature/carrier_owner_module/shipment_requests/presentation/screen/received_shipment_request_detail_screen.dart';
 import 'package:clean_architecture/feature/notifications/domain/entities/notification_entity.dart';
 import 'package:clean_architecture/feature/notifications/presentation/bloc/notification_bloc.dart';
 import 'package:clean_architecture/feature/notifications/presentation/bloc/notification_event.dart';
@@ -28,7 +30,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: BlocBuilder<NotificationBloc, NotificationState>(
         builder: (context, state) {
           if (state is NotificationLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const ListRowShimmer(
+              itemCount: 7,
+              avatarSize: 0,
+              showTrailing: false,
+            );
           }
 
           if (state is NotificationError) {
@@ -98,9 +104,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => _PlaceholderDetailScreen(
-            title: 'Shipment Request Detail',
-            referenceId: notification.referenceId,
+          builder: (_) => ReceivedShipmentRequestDetailScreen(
+            requestId: notification.referenceId,
           ),
         ),
       );
@@ -172,34 +177,6 @@ class _NotificationTile extends StatelessWidget {
               style: const TextStyle(fontSize: 11, color: AppColors.grey),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Placeholder screen used until real bid/shipment-request detail screens
-/// are wired up for notification deep-linking.
-class _PlaceholderDetailScreen extends StatelessWidget {
-  final String title;
-  final String referenceId;
-
-  const _PlaceholderDetailScreen({
-    required this.title,
-    required this.referenceId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Reference ID: $referenceId',
-            style: const TextStyle(fontSize: 16),
-          ),
         ),
       ),
     );

@@ -6,12 +6,14 @@ part 'shipment_request.g.dart';
 class CreateShipmentRequest {
   final String carrierId;
   final List<String> freightIds;
-  final int? proposedPrice;
+  final double? proposedPrice;
+  final String? message;
 
   const CreateShipmentRequest({
     required this.carrierId,
     required this.freightIds,
     this.proposedPrice,
+    this.message,
   });
 
   factory CreateShipmentRequest.fromJson(Map<String, dynamic> json) =>

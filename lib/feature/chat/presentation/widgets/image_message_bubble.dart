@@ -5,7 +5,11 @@ class ImageMessageBubble extends StatelessWidget {
   final MessageEntity message;
   final bool isMe;
 
-  const ImageMessageBubble({super.key, required this.message, required this.isMe});
+  const ImageMessageBubble({
+    super.key,
+    required this.message,
+    required this.isMe,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +18,22 @@ class ImageMessageBubble extends StatelessWidget {
       child: GestureDetector(
         onTap: () => _openFullImage(context),
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.65),
+          margin: EdgeInsets.only(
+            top: 4,
+            bottom: 4,
+            left: isMe ? 64 : 12,
+            right: isMe ? 12 : 64,
+          ),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.65,
+          ),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(16),
+              topRight: const Radius.circular(16),
+              bottomLeft: Radius.circular(isMe ? 16 : 4),
+              bottomRight: Radius.circular(isMe ? 4 : 16),
+            ),
             color: Colors.grey.shade200,
           ),
           clipBehavior: Clip.hardEdge,
@@ -45,14 +61,20 @@ class ImageMessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       _formatTime(message.createdAt),
-                      style: const TextStyle(fontSize: 11, color: Colors.white, shadows: [Shadow(blurRadius: 2)]),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.white,
+                        shadows: [Shadow(blurRadius: 2)],
+                      ),
                     ),
                     if (isMe) ...[
                       const SizedBox(width: 4),
                       Icon(
                         message.isRead ? Icons.done_all : Icons.done,
                         size: 14,
-                        color: message.isRead ? Colors.lightBlueAccent : Colors.white,
+                        color: message.isRead
+                            ? Colors.lightBlueAccent
+                            : Colors.white,
                       ),
                     ],
                   ],
@@ -70,7 +92,10 @@ class ImageMessageBubble extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBar(backgroundColor: Colors.black, foregroundColor: Colors.white),
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
+          ),
           body: Center(
             child: InteractiveViewer(
               child: Image.network(message.attachmentUrl!),

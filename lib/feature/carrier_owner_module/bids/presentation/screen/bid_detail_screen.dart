@@ -7,6 +7,8 @@ import 'package:clean_architecture/feature/carrier_owner_module/bids/presentatio
 import 'package:clean_architecture/feature/carrier_owner_module/bids/presentation/bloc/bid_state.dart';
 import 'package:clean_architecture/feature/chat/domain/usecases/get_or_create_room_usecase.dart';
 import 'package:clean_architecture/feature/chat/presentation/screens/chat_room_screen.dart';
+import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
+import 'package:clean_architecture/core/widgets/shimmer_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -74,7 +76,7 @@ class _BidDetailView extends StatelessWidget {
           if (state is BidLoading ||
               state is BidInitial ||
               state is BidActionLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const DetailPageShimmer();
           }
           if (state is BidError) {
             return Center(
@@ -547,14 +549,18 @@ class _BottomActionBar extends StatelessWidget {
           behavior: SnackBarBehavior.floating,
         ),
       ),
-      (room) => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => ChatRoomScreen(
-            roomId: room.id,
-            otherParticipantName: 'Carrier Owner',
+      (room) {
+        final uid = context.read<LoginBloc>().state.user?.data?.id;
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ChatRoomScreen(
+              roomId: room.id,
+              otherParticipantName: 'Carrier Owner',
+              currentUserId: uid,
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
