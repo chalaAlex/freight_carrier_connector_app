@@ -43,7 +43,7 @@ class _FoSignupScreenState extends State<FoSignupScreen> {
           phone: _phoneController.text.trim(),
           password: _passwordController.text.trim(),
           confirmPassword: _confirmPasswordController.text.trim(),
-          role: widget.role ?? 'user',
+          role: widget.role ?? 'freight_owner',
         ),
       );
     }

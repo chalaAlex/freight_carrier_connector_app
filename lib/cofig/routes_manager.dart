@@ -80,10 +80,12 @@ class RouteGenerator {
       case Routes.foSignupRoute:
         return MaterialPageRoute(
           builder: (_) => const FoSignupScreen(role: "freight_owner"),
+          // builder: (_) => const FoSignupScreen(role: "freight_owner"),
         );
 
       case Routes.loginScreenRoute:
         return MaterialPageRoute(builder: (_) => LoginScreen());
+        // return MaterialPageRoute(builder: (_) => LoginScreen());
 
       case Routes.coSignupRoute:
         return MaterialPageRoute(
@@ -96,156 +98,10 @@ class RouteGenerator {
       case Routes.coHomePageRoute:
         return MaterialPageRoute(builder: (_) => const CarrierHomePage());
 
-      // case Routes.truckListingRoute:
-      //   return MaterialPageRoute(builder: (_) => const TruckListingScreen());
-
-      case Routes.truckDetailRoute:
-        final truckId = routeSettings.arguments as String?;
-        if (truckId == null) {
-          return MaterialPageRoute(
-            builder: (_) => const Scaffold(
-              body: Center(child: Text('Truck ID is required')),
-            ),
-          );
-        }
-
-        return MaterialPageRoute(
-          builder: (_) => TruckDetailScreen(truckId: truckId),
-        );
-
-      case Routes.bottomNavBar:
-        return MaterialPageRoute(
-          builder: (_) => const CarrierBottomNavigationBar(),
-        );
-
-      case Routes.postFreightRoute:
-        return MaterialPageRoute(builder: (_) => const PostFreightPage());
-
-      case Routes.freightListingScreen:
-        return MaterialPageRoute(builder: (_) => const FreightListingScreen());
-
-      case Routes.carrierUserDetail:
-        return MaterialPageRoute(builder: (_) => const CarrierUserDetail());
-
-      case Routes.viewAllReiviews:
-        return MaterialPageRoute(builder: (_) => const CarrierUserReviewAll());
-
-      case Routes.reviewDriver:
-        return MaterialPageRoute(builder: (_) => const RateDriverScreen());
-
-      case Routes.completedShipments:
-        return MaterialPageRoute(
-          builder: (_) => const CompletedShipmentsScreen(),
-        );
-
-      case Routes.shipmentRequestHome:
-        return MaterialPageRoute(
-          builder: (_) => const ShipmentRequestHomePage(),
-        );
-
-      case Routes.submitReview:
-        final request = routeSettings.arguments as SentRequestEntity?;
-        if (request == null) {
-          return MaterialPageRoute(
-            builder: (_) =>
-                const Scaffold(body: Center(child: Text('Request required'))),
-          );
-        }
-        final shipment = CompletedShipmentEntity(
-          id: request.id,
-          carrierId: request.carrier?.id ?? '',
-          carrierBrand: request.carrier?.brand,
-          carrierModel: request.carrier?.model,
-          plateNumber: request.carrier?.plateNumber,
-          status: request.status,
-          isReviewed: request.isReviewed,
-          createdAt: request.createdAt,
-        );
-        return MaterialPageRoute(
-          builder: (_) => SubmitReviewScreen(shipment: shipment),
-        );
-
-      case Routes.inboxRoute:
-        return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => sl<InboxBloc>(),
-            child: const InboxScreen(),
-          ),
-        );
-
-      case Routes.notificationRoute:
-        return MaterialPageRoute(
-          builder: (_) => BlocProvider(
-            create: (_) => sl<NotificationBloc>(),
-            child: const NotificationScreen(),
-          ),
-        );
-
-      case Routes.paymentInitiate:
-        final args = routeSettings.arguments as Map<String, dynamic>?;
-        return MaterialPageRoute(
-          builder: (_) => PaymentInitiateScreen(
-            bookingType: args?['bookingType'] as String? ?? 'REQUEST',
-            sourceId: args?['sourceId'] as String? ?? '',
-            totalAmount: (args?['totalAmount'] as num?)?.toDouble() ?? 0,
-            freightRoute: args?['freightRoute'] as String? ?? '',
-          ),
-        );
-
-      case Routes.paymentStatus:
-        final args = routeSettings.arguments as Map<String, dynamic>?;
-        final paymentId = args?['paymentId'] as String? ?? '';
-        return MaterialPageRoute(
-          builder: (_) => PaymentStatusScreen(paymentId: paymentId),
-        );
-
-      case Routes.walletScreen:
-        return MaterialPageRoute(builder: (_) => const WalletScreen());
-
-      case Routes.walletTransactions:
-        return MaterialPageRoute(
-          builder: (_) => const WalletTransactionsScreen(),
-        );
-
-      case Routes.registerCarrierStep1:
-        return MaterialPageRoute(
-          builder: (_) => const RegisterCarrierStep1Screen(),
-        );
-
-      case Routes.registerCarrierStep2:
-        final formData = routeSettings.arguments as CarrierRegistrationFormData;
-        return MaterialPageRoute(
-          builder: (_) => RegisterCarrierStep2Screen(formData: formData),
-        );
-
-      case Routes.carrierVerificationPending:
-        final carrier = routeSettings.arguments as MyCarrierEntity;
-        return MaterialPageRoute(
-          builder: (_) => VerificationPendingScreen(carrier: carrier),
-        );
-
-      case Routes.driverListScreen:
-        return MaterialPageRoute(builder: (_) => const DriverListScreen());
-
-      case Routes.createDriverScreen:
-        return MaterialPageRoute(builder: (_) => const CreateDriverScreen());
-
-      case Routes.driverDetailScreen:
-        final driver = routeSettings.arguments as DriverEntity;
-        return MaterialPageRoute(
-          builder: (_) => DriverDetailScreen(driver: driver),
-        );
-
-      case Routes.editDriverScreen:
-        final driver = routeSettings.arguments as DriverEntity;
-        return MaterialPageRoute(
-          builder: (_) => EditDriverScreen(driver: driver),
-        );
-
       default:
         return MaterialPageRoute(
           builder: (_) => const FoSignupScreen(role: "freight_owner"),
-        );
+        ); // Change later
     }
   }
 }

@@ -98,7 +98,8 @@ class MyApp extends StatelessWidget {
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
           return MaterialApp(
-            title: 'Smart Truck App',
+            // initialRoute: Routes.initialScreen,
+            title: 'Freight Connector',
             debugShowCheckedModeBanner: false,
             onGenerateRoute: RouteGenerator.getRoute,
             theme: TAppTheme.lightTheme,

@@ -2,10 +2,12 @@ import 'package:animate_do/animate_do.dart';
 import 'package:clean_architecture/cofig/context_extensions.dart';
 import 'package:clean_architecture/cofig/size_manager.dart';
 import 'package:clean_architecture/cofig/string_manager.dart';
+import 'package:clean_architecture/feature/freight_oner_module/carrier/presentation/carrier_home_page.dart';
 import 'package:clean_architecture/feature/freight_oner_module/common/carrier_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/freight_oner_module/common/forgot_password_link.dart';
 import 'package:clean_architecture/feature/freight_oner_module/common/freight_bottom_navigation_bar.dart';
 import 'package:clean_architecture/feature/freight_oner_module/common/login_header.dart';
+import 'package:clean_architecture/feature/freight_oner_module/freight/presentation/screen/freight_home_page.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_bloc.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_event.dart';
 import 'package:clean_architecture/feature/freight_oner_module/signup/presentation/bloc/login/login_state.dart';
@@ -33,10 +35,10 @@ class LoginScreen extends StatelessWidget {
     if (state.status == LoginStatus.success) {
       final role = state.user?.data?.role;
       final targetPage = role == 'carrier_owner'
-          ? const FreightBottomNavigationBar()
+          ? const CarrierHomePage()
           : role == 'freight_owner'
-          ? const CarrierBottomNavigationBar()
-          : null;
+              ? const FreightHomePage()
+              : null;
 
       if (targetPage != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
